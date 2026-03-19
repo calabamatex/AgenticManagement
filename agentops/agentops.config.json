@@ -1,5 +1,6 @@
 {
   "save_points": {
+    "auto_commit_enabled": false,
     "auto_commit_after_minutes": 30,
     "auto_branch_on_risk_score": 8,
     "max_uncommitted_files_warning": 5
@@ -24,7 +25,10 @@
   "security": {
     "block_on_secret_detection": true,
     "scan_git_history": false,
-    "check_common_provider_keys": true
+    "check_common_provider_keys": true,
+    "permission_fail_mode": "block",
+    "suppressions": [],
+    "exclude_paths": ["node_modules/**", "vendor/**", ".git/**", "*.min.js", "*.min.css"]
   },
   "budget": {
     "session_budget": 10,

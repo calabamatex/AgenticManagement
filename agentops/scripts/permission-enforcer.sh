@@ -38,6 +38,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENTS_DIR="$REPO_ROOT/.claude/agents"
 LOG_FILE="$REPO_ROOT/agentops/dashboard/data/permission-log.json"
+CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
+PERMISSION_FAIL_MODE=$(jq -r '.security.permission_fail_mode // "block"' "$CONFIG_FILE" 2>/dev/null || echo "block")
 
 # ---------------------------------------------------------------------------
 # 1. Read hook input from stdin (Claude Code hook protocol)
@@ -438,6 +440,11 @@ if [[ "$DECISION" == "DENY" ]]; then
     echo "$PREFIX   Target: $TARGET"
     echo "$PREFIX   Reason: $REASON"
     echo "$PREFIX   Policy: .claude/agents/ permission schema"
+    echo "$PREFIX   Mode:   $PERMISSION_FAIL_MODE"
+    if [[ "$PERMISSION_FAIL_MODE" == "warn" ]]; then
+        echo "$PREFIX   Action: ADVISORY (warn mode) — allowing despite policy violation"
+        exit 0
+    fi
     exit 2
 fi
 

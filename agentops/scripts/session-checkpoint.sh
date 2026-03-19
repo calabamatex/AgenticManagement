@@ -11,6 +11,8 @@ TMPBASE="${TMPDIR:-/tmp}/agentops"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DASHBOARD_DATA="$SCRIPT_DIR/../dashboard/data"
 SESSION_LOG="$DASHBOARD_DATA/session-log.json"
+CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
+AUTO_COMMIT_ENABLED=$(jq -r '.save_points.auto_commit_enabled // true' "$CONFIG_FILE" 2>/dev/null || echo "true")
 
 # Ensure dashboard data directory exists
 mkdir -p "$DASHBOARD_DATA"
@@ -34,10 +36,14 @@ if git rev-parse --is-inside-work-tree &>/dev/null; then
         summary="${changed_files} file(s) changed"
         commit_msg="[agentops] session-end checkpoint — ${summary}"
 
-        echo "$PREFIX Uncommitted changes detected (${summary}). Auto-committing..."
-        git add -A &>/dev/null || true
-        git commit -m "$commit_msg" --no-verify &>/dev/null || true
-        echo "$PREFIX Committed: $commit_msg"
+        if [[ "$AUTO_COMMIT_ENABLED" != "true" ]]; then
+            echo "$PREFIX Uncommitted changes detected (${summary}). Auto-commit disabled — skipping."
+        else
+            echo "$PREFIX Uncommitted changes detected (${summary}). Auto-committing..."
+            git add -A &>/dev/null || true
+            git commit -m "$commit_msg" --no-verify &>/dev/null || true
+            echo "$PREFIX Committed: $commit_msg"
+        fi
     else
         echo "$PREFIX No uncommitted changes."
     fi
