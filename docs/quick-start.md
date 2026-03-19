@@ -1,0 +1,310 @@
+# AgentOps Quick-Start Guide
+
+Install AgentOps into an existing project in under ten minutes. This guide walks through every step from prerequisites to your first audit.
+
+---
+
+## 1. Prerequisites
+
+Make sure the following are available on your system before you begin:
+
+| Tool | Minimum version | Purpose |
+|------|----------------|---------|
+| **bash** | 3.2+ | All AgentOps scripts are bash-based |
+| **git** | 2.x | Hooks, hygiene checks, commit tracking |
+| **jq** | 1.6+ (recommended) | Config parsing in shell scripts |
+| **python3** | 3.8+ | Required by some evaluation and analysis scripts |
+
+Verify them quickly:
+
+```bash
+bash --version | head -1
+git --version
+jq --version        # optional but strongly recommended
+python3 --version   # optional — needed for eval scripts only
+```
+
+---
+
+## 2. Install AgentOps
+
+Copy the `agentops/` directory from this repository into the root of your project:
+
+```bash
+cp -r /path/to/AgenticManagement/agentops /path/to/your-project/agentops
+```
+
+Your project tree should now contain:
+
+```
+your-project/
+  agentops/
+    agentops.config.json
+    scripts/
+    dashboard/
+    templates/
+    audit/
+    plugins/
+    ...
+```
+
+---
+
+## 3. Set Up Git Hooks
+
+AgentOps ships two git hooks (`pre-commit` and `post-commit`) that scan for secrets and track commits automatically.
+
+```bash
+# Copy the hooks directory into your project
+cp -r /path/to/AgenticManagement/.githooks /path/to/your-project/.githooks
+
+# Tell git to use it
+cd /path/to/your-project
+git config core.hooksPath .githooks
+```
+
+The **pre-commit** hook blocks commits that contain hardcoded secrets, leaked API keys, `.env` files, PII in logging statements, or WASM build artifacts. The **post-commit** hook updates `WORKFLOW.md` with a commit summary and resets blast-radius counters.
+
+---
+
+## 4. Create Rules Files
+
+### AGENTS.md (cross-tool, universal)
+
+Copy the `AGENTS.md` file from this repository into your project root:
+
+```bash
+cp /path/to/AgenticManagement/AGENTS.md /path/to/your-project/AGENTS.md
+```
+
+`AGENTS.md` defines rules that every AI coding tool honors (Claude Code, Cursor, Windsurf, Copilot, and others). Edit it to match your project conventions.
+
+### CLAUDE.md (Claude Code specific, optional)
+
+If you use Claude Code, create a `CLAUDE.md` at your project root with project-specific rules and agent configuration. The session-start checks will verify that it exists and contains required sections (`security`, `error handling`) as well as an AgentOps reference.
+
+---
+
+## 5. Configure for Claude Code
+
+Add the AgentOps hook entries to `.claude/settings.json` in your project. Create the file if it does not exist. Below is the minimal AgentOps-specific configuration -- merge these entries into any existing hooks you already have:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/secret-scanner.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/git-hygiene-check.sh --pre-write",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/post-write-checks.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/task-sizer.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/context-estimator.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/session-start-checks.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash agentops/scripts/session-checkpoint.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### What each hook does
+
+| Hook event | Script | Behavior |
+|-----------|--------|----------|
+| **PreToolUse** (`Write\|Edit\|MultiEdit`) | `secret-scanner.sh` | Blocks file writes that contain hardcoded secrets or API keys (exit 2 = block) |
+| **PreToolUse** (`Write\|Edit\|MultiEdit`) | `git-hygiene-check.sh --pre-write` | Warns when uncommitted file count is high or blast radius is growing |
+| **PostToolUse** (`Write\|Edit\|MultiEdit`) | `post-write-checks.sh` | Runs post-write validations (lint-level checks, file-count tracking) |
+| **UserPromptSubmit** | `task-sizer.sh` | Scores the incoming prompt for risk and emits advisory notifications |
+| **UserPromptSubmit** | `context-estimator.sh` | Estimates context window usage and warns before it gets critical |
+| **SessionStart** | `session-start-checks.sh` | Validates rules files, scaffold docs, and git state at session open |
+| **Stop** | `session-checkpoint.sh` | Saves a checkpoint of session state for continuity across sessions |
+
+---
+
+## 6. Configure for Other Tools
+
+`AGENTS.md` is a universal rules file recognized by most AI coding tools. No extra integration work is needed for tools that read it natively.
+
+For tools that do not support Claude Code-style hooks, you can still get value from AgentOps by:
+
+- Running the scripts manually (see step 7).
+- Wiring the scripts into your tool's extension or plugin system.
+- Using the git hooks (step 3), which work with every tool that commits through git.
+
+The `agentops/plugins/plugin-loader.sh` script provides an extension point for custom integrations.
+
+---
+
+## 7. Verify Installation
+
+Run the session-start health check to confirm everything is wired up:
+
+```bash
+bash agentops/scripts/session-start-checks.sh
+```
+
+You should see output like:
+
+```
+[AgentOps] Session Start Health Check
+───────────────────────────────────────────────
+  ○ ADVISORY: Missing scaffold docs: PLANNING.md TASKS.md CONTEXT.md WORKFLOW.md. Run /agentops scaffold to create them.
+───────────────────────────────────────────────
+[AgentOps] 0 critical, 0 warnings, 1 advisories
+```
+
+If you are inside Claude Code, you can also run:
+
+```
+/agentops check
+```
+
+Fix any CRITICAL or WARNING items before proceeding.
+
+---
+
+## 8. Create Scaffold Documents
+
+AgentOps uses four markdown documents to maintain project context across sessions. Generate them from the bundled templates:
+
+```
+/agentops scaffold
+```
+
+This creates:
+
+| File | Purpose |
+|------|---------|
+| `PLANNING.md` | High-level architecture and design decisions |
+| `TASKS.md` | Current task list and backlog |
+| `CONTEXT.md` | Session context summary (auto-refreshed) |
+| `WORKFLOW.md` | Commit log and workflow audit trail |
+
+Templates live in `agentops/templates/` if you want to customize them before scaffolding.
+
+---
+
+## 9. Run Your First Audit
+
+From inside Claude Code:
+
+```
+/agentops audit
+```
+
+The audit checks rules-file quality, security posture, scaffold doc freshness, git hygiene, and hook configuration. Review the output and address any findings.
+
+You can also run the security audit script directly:
+
+```bash
+bash agentops/scripts/security-audit.sh
+```
+
+---
+
+## 10. View the Dashboard
+
+Open the AgentOps dashboard in your browser:
+
+```bash
+open agentops/dashboard/agentops-dashboard.html
+```
+
+The dashboard displays session metrics, commit history, risk scores, and audit findings. It reads data from `agentops/dashboard/data/` which is populated automatically by the post-commit hook and other scripts.
+
+---
+
+## 11. Customize Thresholds
+
+All AgentOps thresholds are controlled by a single configuration file:
+
+```bash
+# Open in your editor
+$EDITOR agentops/agentops.config.json
+```
+
+Key settings you may want to tune:
+
+| Section | Setting | Default | Description |
+|---------|---------|---------|-------------|
+| `save_points` | `auto_commit_after_minutes` | 30 | Minutes of inactivity before suggesting a commit |
+| `save_points` | `max_uncommitted_files_warning` | 5 | Warn when this many files are uncommitted |
+| `context_health` | `message_count_warning` | 20 | Warn at this many messages in a session |
+| `context_health` | `context_percent_critical` | 80 | Critical alert at this context window percentage |
+| `task_sizing` | `medium_risk_threshold` | 4 | Risk score that triggers medium-risk advisory |
+| `task_sizing` | `high_risk_threshold` | 8 | Risk score that triggers high-risk advisory |
+| `task_sizing` | `max_files_per_task_warning` | 5 | Warn when a single task touches this many files |
+| `security` | `block_on_secret_detection` | true | Whether to hard-block writes containing secrets |
+| `budget` | `session_budget` | 10 | Per-session cost budget (USD) |
+| `budget` | `monthly_budget` | 500 | Monthly cost budget (USD) |
+
+---
+
+## What Happens Next
+
+With AgentOps installed, every Claude Code session will automatically:
+
+1. **On session start** -- validate rules files, check scaffold doc freshness, report git state.
+2. **On every prompt** -- score the task for risk and estimate context usage.
+3. **Before every file write** -- scan for secrets and check git hygiene.
+4. **After every file write** -- run post-write validations and track blast radius.
+5. **On stop** -- checkpoint session state for the next session to pick up.
+6. **On every commit** -- scan staged files for secrets (git hook) and log commit metadata.
+
+All checks are advisory by default except the secret scanner, which blocks writes containing detected credentials.

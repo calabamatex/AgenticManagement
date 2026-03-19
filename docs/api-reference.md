@@ -1,0 +1,669 @@
+# AgentOps API & Script Reference
+
+Comprehensive reference for every script, command, and module in the AgentOps framework.
+
+---
+
+## Hook Scripts (run automatically)
+
+These scripts are registered in `.claude/settings.json` and invoked automatically by the Claude Code hook system. Each receives JSON on stdin per the hook contract.
+
+---
+
+### secret-scanner.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/secret-scanner.sh` |
+| **Hook Event** | `PreToolUse` |
+| **Trigger (matcher)** | `Write\|Edit\|MultiEdit` |
+| **Timeout** | 5000ms |
+
+**What it does:** Scans file content for hardcoded secrets, API keys, tokens, connection strings, and credentials before allowing file writes or edits. Extracts `file_path` and `content` (or `new_string`) from `tool_input` JSON.
+
+**Detected patterns:**
+- Platform API keys: Stripe (`sk_live_*`, `sk_test_*`), AWS (`AKIA*`), GitHub (`ghp_*`), GitLab (`glpat-*`), Anthropic (`sk-ant-*`), OpenAI (`sk-*T3BlbkFJ*`)
+- JWT tokens (`eyJ*` three-segment format)
+- Private keys in PEM format (`-----BEGIN * PRIVATE KEY-----`)
+- Connection strings with embedded credentials: PostgreSQL, MongoDB, Redis, SQLite
+- Generic labeled secrets (`api_key = "..."`, `token: "..."`, `password = "..."`)
+- Hardcoded provider environment variables: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `AWS_SECRET_ACCESS_KEY`, `STRIPE_SECRET_KEY`, `GITHUB_TOKEN`, `GITLAB_TOKEN`, `BITBUCKET_TOKEN`, `DATABASE_URL`, `MONGODB_URI`, `REDIS_URL`
+
+**Exit codes:**
+- `0` -- Content is clean, allow the tool to proceed
+- `2` -- Secret detected, BLOCK the tool use
+
+**Config keys read:** None (standalone pattern matching).
+
+---
+
+### git-hygiene-check.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/git-hygiene-check.sh` |
+| **Hook Event** | `PreToolUse` |
+| **Trigger (matcher)** | `Write\|Edit\|MultiEdit` (also processes Bash) |
+| **Timeout** | 5000ms |
+
+**What it does:** Ensures git is initialized, checks for uncommitted work, enforces checkpoint discipline, and tracks modified file counts for mid-session checkpoint logic. Performs auto-commits when thresholds are exceeded. Only blocks if no git repository is detected.
+
+**Checks performed:**
+1. Git repository exists (only blocking check)
+2. Uncommitted file count vs threshold -- auto-commits if exceeded
+3. Time since last commit vs threshold -- auto-commits if exceeded
+4. Main/master branch warning when >3 uncommitted changes
+5. Mid-session checkpoint at 8+ file modifications without a commit
+
+**Exit codes:**
+- `0` -- Allow (warns and takes preventive action but never blocks)
+- `2` -- BLOCK (only when no git repository is detected)
+
+**Config keys read:**
+- `save_points.max_uncommitted_files_warning` (default: `5`)
+- `save_points.auto_commit_after_minutes` (default: `30`)
+
+---
+
+### post-write-checks.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/post-write-checks.sh` |
+| **Hook Event** | `PostToolUse` |
+| **Trigger (matcher)** | `Write\|Edit\|MultiEdit` |
+| **Timeout** | 10000ms |
+
+**What it does:** Runs three post-edit analysis passes on the written/edited file. Always exits 0 (advisory only).
+
+**Check 1 -- Error Handling Enforcer:** Scans for external/IO calls (`fetch()`, `axios`, `http.*`, `.query()`, `.execute()`, `fs.*`, `requests.*`, `subprocess.*`, etc.) and warns when no `try/catch/except` is found within a 5-line window.
+
+**Check 2 -- PII Logging Scanner:** Identifies logging statements (`console.log`, `logging.*`, `print()`) that reference sensitive fields: `email`, `password`, `card`, `ssn`, `phone`, `secret`, `token`, `api_key`, and variants.
+
+**Check 3 -- Blast Radius Tracking:** Tracks unique files modified during the session. When >8 files have been modified without a commit, performs an auto-checkpoint commit.
+
+**Exit codes:**
+- `0` -- Always (advisory only, never blocks)
+
+**Config keys read:** None (uses hardcoded thresholds).
+
+---
+
+### task-sizer.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/task-sizer.sh` |
+| **Hook Event** | `UserPromptSubmit` |
+| **Trigger (matcher)** | All prompts (no matcher filter) |
+| **Timeout** | 5000ms |
+
+**What it does:** Scans user prompt text for risk keywords, computes a cumulative risk score (0--20), and emits notifications or auto-commits based on risk thresholds.
+
+**Risk scoring signals:**
+- File count scope: few files (+1), several files (+3), many files (+5)
+- Database operations: create (+2), modify (+4), delete/drop (+5)
+- Security-related keywords: auth, encryption, validation (+4)
+- Refactoring scope: refactor, redesign, rewrite, migrate (+4)
+- Broad scope: all, every, entire, whole (+3)
+
+**Risk levels:**
+- Low (0--3): Silent, no output
+- Medium (4--7): Notification, auto-commit checkpoint
+- High (8--12): Warning, auto-commit, decomposition recommended
+- Critical (13+): Warning, auto-commit, dedicated branch recommended
+
+**Exit codes:**
+- `0` -- Always (advisory only, never blocks)
+
+**Config keys read:**
+- `task_sizing.medium_risk_threshold` (default: `4`)
+- `task_sizing.high_risk_threshold` (default: `8`)
+- `task_sizing.critical_risk_threshold` (default: `13`)
+
+---
+
+### context-estimator.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/context-estimator.sh` |
+| **Hook Event** | `UserPromptSubmit` |
+| **Trigger (matcher)** | All prompts (no matcher filter) |
+| **Timeout** | 5000ms |
+
+**What it does:** Estimates context window usage and message count. Warns when thresholds are approached or exceeded. Tracks session message count in a temp state file and estimates tokens consumed by counting characters in recently modified git-tracked files (chars / 4) plus conversation overhead (~500 tokens per message).
+
+**Exit codes:**
+- `0` -- Always (advisory only, never blocks)
+
+**Config keys read:**
+- `context_health.context_percent_warning` (default: `60`)
+- `context_health.context_percent_critical` (default: `80`)
+- `context_health.message_count_warning` (default: `20`)
+- `context_health.message_count_critical` (default: `30`)
+
+**Environment variables:**
+- `AGENTOPS_MAX_TOKENS` -- Override assumed context window size (default: `200000`)
+
+---
+
+### session-start-checks.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/session-start-checks.sh` |
+| **Hook Event** | `SessionStart` |
+| **Trigger (matcher)** | All sessions (no matcher filter) |
+| **Timeout** | 10000ms |
+
+**What it does:** Validates rules files, scaffold docs, and git state at the beginning of every session. Reports findings at three severity levels: CRITICAL, WARNING, ADVISORY.
+
+**Checks performed:**
+1. **Git state** -- Verifies git repository exists and reports uncommitted changes
+2. **CLAUDE.md** -- Checks existence, line count vs threshold, presence of AgentOps section, required sections (security, error handling)
+3. **AGENTS.md** -- Checks existence and line count vs threshold
+4. **Scaffold documents** -- Checks for `PLANNING.md`, `TASKS.md`, `CONTEXT.md`, `WORKFLOW.md`; checks `CONTEXT.md` freshness (warns if >7 days stale)
+
+**Exit codes:**
+- `0` -- Always (advisory only, never blocks)
+
+**Config keys read:**
+- `rules_file.claude_md_max_lines` (default: `300`)
+- `rules_file.agents_md_max_lines` (default: `150`)
+
+---
+
+### session-checkpoint.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/session-checkpoint.sh` |
+| **Hook Event** | `Stop` |
+| **Trigger (matcher)** | All stop events (no matcher filter) |
+| **Timeout** | 10000ms |
+
+**What it does:** Runs when a session ends. Performs three steps:
+1. **Auto-commit** -- Commits all uncommitted changes with message `[agentops] session-end checkpoint`
+2. **Reset state** -- Clears blast-radius-files, context-state, and git-hygiene-session temp files
+3. **Log event** -- Appends a session-end NDJSON event to `agentops/dashboard/data/session-log.json`
+
+**Exit codes:**
+- `0` -- Always (advisory only, never blocks)
+
+**Config keys read:** None.
+
+---
+
+### cost-tracker.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/cost-tracker.sh` |
+| **Hook Event** | `PostToolUse` |
+| **Trigger (matcher)** | Not currently wired in settings.json (available for manual integration) |
+
+**What it does:** Runs after tool use to estimate cost, track cumulative session spend, warn at budget thresholds, and log cost events as NDJSON to `agentops/dashboard/data/cost-log.json`.
+
+**Model tier detection:** Checks hook input `.model` field, then `CLAUDE_MODEL` / `ANTHROPIC_MODEL` environment variables. Defaults to sonnet.
+
+**Cost estimates per call:**
+- haiku: $0.0002
+- sonnet: $0.003
+- opus: $0.015
+
+**Per-token pricing (per token):**
+| Tier | Input | Output |
+|---|---|---|
+| haiku | $0.00000025 | $0.00000125 |
+| sonnet | $0.000003 | $0.000015 |
+| opus | $0.000015 | $0.000075 |
+
+**Budget tracking:** Maintains session cumulative total and monthly rolling total. Warns at configurable thresholds.
+
+**Exit codes:**
+- `0` -- Always (advisory only, never blocks)
+
+**Config keys read:**
+- `budget.session_budget` (default: `10`)
+- `budget.monthly_budget` (default: `500`)
+- `budget.warn_threshold` (default: `0.80`)
+
+---
+
+### permission-enforcer.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/permission-enforcer.sh` |
+| **Hook Event** | `PreToolUse` |
+| **Trigger (matcher)** | Not currently wired in settings.json (available for manual integration) |
+
+**What it does:** Implements agent identity and permissions. Reads YAML frontmatter from `.claude/agents/<agent-id>.md` files and enforces tool-level, file-level, and bash command-level access control per agent identity.
+
+**Permission schema** (YAML frontmatter in agent definition files):
+```yaml
+---
+agent_id: builder
+permissions:
+  files:
+    read:  ["src/**", "docs/**"]
+    write: ["src/**"]
+    deny:  [".env", "secrets/**"]
+  tools:
+    allow: ["Read", "Edit", "Write", "Grep", "Glob"]
+    deny:  ["Bash"]
+  bash:
+    allow: ["npm test", "npm run *"]
+    deny:  ["rm -rf *", "curl *"]
+---
+```
+
+**Enforcement order:**
+1. Tool-level: checks `tools.deny` then `tools.allow`
+2. File-level: checks `files.deny` then `files.read` or `files.write`
+3. Bash command: checks `bash.deny` then `bash.allow`
+
+**Identity detection:** Via `CLAUDE_AGENT_ID` or `CLAUDE_AGENT_FILE` environment variables. If neither is set (direct user session), everything is allowed.
+
+**Exit codes:**
+- `0` -- Permission granted (or no agent identity)
+- `2` -- Permission denied, BLOCK the tool use
+
+**Config keys read:** None (reads from `.claude/agents/*.md` YAML frontmatter).
+
+**Logs to:** `agentops/dashboard/data/permission-log.json` (NDJSON)
+
+---
+
+### delegation-validator.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/delegation-validator.sh` |
+| **Hook Event** | `PreToolUse` |
+| **Trigger (matcher)** | Not currently wired in settings.json (available for manual integration) |
+
+**What it does:** Validates agent-to-agent delegation tokens before every tool use. When an agent delegates a task to another agent, it issues a delegation token (JSON) via the `AGENTOPS_DELEGATION_TOKEN` environment variable.
+
+**Token format:**
+```json
+{
+  "issuer":     "<agent-id>",
+  "delegate":   "<agent-id>",
+  "task":       "<description>",
+  "scope": {
+    "files":        ["src/**", "tests/**"],
+    "tools":        ["Read", "Edit", "Bash"],
+    "max_tokens":   100000,
+    "max_duration": 3600,
+    "can_delegate": false
+  },
+  "issued_at":  "<ISO-8601>",
+  "expires_at": "<ISO-8601>"
+}
+```
+
+**Validation checks:**
+1. Token not expired (`expires_at` > now)
+2. Max duration not exceeded (`issued_at` + `max_duration` < now)
+3. Current tool within `scope.tools`
+4. Target file matches `scope.files` globs
+5. Cumulative token count not exceeded (`scope.max_tokens`)
+
+**Exit codes:**
+- `0` -- Delegation valid (or no delegation token present)
+- `2` -- Delegation check failed, BLOCK the tool use
+
+**Config keys read:** None (reads from `AGENTOPS_DELEGATION_TOKEN` env var).
+
+**Logs to:** `agentops/dashboard/data/delegation-log.json` (NDJSON)
+
+---
+
+## Standalone Scripts (run on demand)
+
+These scripts are invoked manually or by slash commands. They are not registered as hooks.
+
+---
+
+### security-audit.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/security-audit.sh` |
+| **Invoked by** | `/agentops audit` |
+
+**What it does:** Runs a comprehensive project security scan across 6 check categories. Results are grouped by severity (Critical, Warning, Advisory, Pass) and written to `agentops/dashboard/data/audit-results.json` as NDJSON.
+
+**Check categories:**
+1. **Secrets in Code** -- Scans source files for hardcoded secrets, checks `.env.example` for real values, verifies `.env` is in `.gitignore`, optionally scans git history
+2. **API Key Security** -- Verifies environment variable usage, checks error handlers for key exposure, verifies timeout configuration
+3. **Input Validation** -- Checks for validation/sanitization libraries, path traversal prevention, SQL injection prevention (parameterized queries vs string concatenation)
+4. **Error Handling** -- Checks for try/catch patterns, PII in error handlers, fallback/retry/circuit-breaker patterns
+5. **Dependency Audit** -- Runs `npm audit`, `pip-audit`, or `cargo audit` depending on manifest files; checks lock files; flags outdated packages
+6. **Database Security** -- Verifies DB connections use environment variables, checks for hardcoded passwords, validates parameterized queries
+
+**Source file extensions scanned:** `ts`, `js`, `py`, `go`, `java`, `rb`, `sh`
+
+**Environment variables:**
+- `PROJECT_ROOT` -- Override project root (default: git root or cwd)
+- `AGENTOPS_AUDIT_SCAN_HISTORY` -- Set to `true` to scan git history for secrets
+
+**Exit codes:**
+- `0` -- Always (advisory tool, not a gate)
+
+---
+
+### rules-file-linter.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/rules-file-linter.sh` |
+| **Invoked by** | `/agentops audit` |
+
+**What it does:** Validates `AGENTS.md`, `CLAUDE.md`, and nested rules files for structure, size, contradictions, clarity, and completeness.
+
+**Checks performed:**
+1. **STRUCTURE** -- Required sections present in each rules file
+2. **SIZE** -- Combined line count of all rules files vs max threshold
+3. **CONTRADICTIONS** -- Detects ALWAYS/NEVER directive conflicts across and within files
+4. **CLARITY** -- Flags vague language: `maybe`, `sometimes`, `try to`, `if possible`, `consider`, `might want`, `could potentially`, `when feasible`, `ideally`, `optionally`, `where appropriate`, `as needed`
+5. **COMPLETENESS** -- Checks coverage of risk topics: security, error handling, secrets/credentials, input validation
+
+**Config keys read:**
+- `rules_file.max_lines` (default: `300`)
+- `rules_file.required_sections` (default: `["security", "error handling"]`)
+
+**Exit codes:**
+- `0` -- Always (advisory tool, never blocks)
+
+---
+
+### lifecycle-manager.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/lifecycle-manager.sh` |
+
+**What it does:** Manages agent state transitions and emits NDJSON lifecycle events to `agentops/dashboard/data/lifecycle.json`. State is stored in temp files at `$TMPDIR/agentops/lifecycle/<agent-id>.state`.
+
+**Subcommands:**
+
+| Subcommand | Usage | Description |
+|---|---|---|
+| `start` | `lifecycle-manager.sh start <agent-id>` | Transitions CREATED->ACTIVE or resumes AWAITING->ACTIVE |
+| `pause` | `lifecycle-manager.sh pause <agent-id>` | Transitions ACTIVE->AWAITING |
+| `complete` | `lifecycle-manager.sh complete <agent-id>` | Transitions ACTIVE->COMPLETED |
+| `fail` | `lifecycle-manager.sh fail <agent-id>` | Transitions any active state->FAILED |
+| `cancel` | `lifecycle-manager.sh cancel <agent-id>` | Transitions any active state->CANCELLED |
+| `status` | `lifecycle-manager.sh status <agent-id>` | Prints current state to stdout |
+| `list` | `lifecycle-manager.sh list` | Lists all agents and their states |
+
+**Valid states:** `CREATED`, `ACTIVE`, `AWAITING`, `COMPLETED`, `FAILED`, `CANCELLED`
+
+**Exit codes:**
+- `0` -- Success
+- `1` -- Invalid state transition or missing agent-id
+
+---
+
+### provider-health.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/provider-health.sh` |
+
+**What it does:** Tracks per-provider metrics, logs failover events, and aggregates stats. Stores per-provider call data as NDJSON in `$TMPDIR/agentops/provider-state/<provider>.ndjson`.
+
+**Subcommands:**
+
+| Subcommand | Usage | Description |
+|---|---|---|
+| `status` | `provider-health.sh status` | Health summary for all providers (availability %, latency p50/p95/p99, error rate, cost/1K tokens, rate limit headroom, recent failovers) |
+| `log-failover` | `provider-health.sh log-failover <original> <fallback> <reason>` | Records a failover event with estimated latency delta and cost difference |
+| `summary` | `provider-health.sh summary` | Aggregate cost stats from `cost-log.json` grouped by provider |
+| `record` | `provider-health.sh record <provider> <latency_ms> [status] [cost]` | Record a single provider call metric |
+| `set-ratelimit` | `provider-health.sh set-ratelimit <provider> <remaining/limit>` | Cache rate limit headroom for a provider |
+
+**Logs to:** `agentops/dashboard/data/provider-health.json` (NDJSON)
+
+**Exit codes:**
+- `0` -- Always
+
+---
+
+### run-evals.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/run-evals.sh` |
+| **Dependencies** | `jq`, `yq` (both required) |
+
+**What it does:** Runs golden datasets found in `agentops/evals/*/cases.yaml`. For each test case, the target script is executed with a synthetic hook payload, and the outcome (exit code + output pattern) is compared against expected results.
+
+**Test case format** (`cases.yaml`):
+```yaml
+- name: "test case name"
+  input: "content to pass to the script"
+  expected:
+    blocked: true|false
+    pattern: "expected string in output"
+```
+
+**Exit codes:**
+- `0` -- All test cases passed
+- `1` -- One or more test cases failed
+
+---
+
+### plugin-loader.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/plugins/plugin-loader.sh` |
+| **Dependencies** | `jq` (required) |
+
+**What it does:** Discovers, validates, and executes plugins located in the `agentops/plugins/community/` directory. Each plugin lives in its own subdirectory and exposes a `manifest.json`.
+
+**Plugin manifest format:**
+```json
+{
+  "name": "plugin-name",
+  "version": "1.0.0",
+  "hooks": {
+    "PreToolUse": { "matcher": "Write|Edit" },
+    "PostToolUse": { "matcher": "Bash" }
+  }
+}
+```
+
+**Handler convention:** `community/<plugin>/hooks/<hook-event>.sh`
+
+**Subcommands:**
+
+| Subcommand | Usage | Description |
+|---|---|---|
+| `list` | `plugin-loader.sh list` | List all installed plugins with name, version, and declared hooks |
+| `validate` | `plugin-loader.sh validate` | Validate all plugin manifests (checks JSON validity, required fields, hook matcher presence) |
+| `run` | `plugin-loader.sh run <plugin-name> <hook-event>` | Execute a specific plugin hook handler |
+
+**Exit codes:**
+- `0` -- Success
+- `1` -- Missing dependency, invalid manifest, unknown subcommand, or handler not found
+
+---
+
+## TypeScript Modules
+
+These modules provide programmatic APIs for tracing, auditing, and event routing.
+
+---
+
+### tracing/trace-context.ts
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/tracing/trace-context.ts` |
+| **Spec section** | Section 13 (Distributed Tracing) |
+
+OpenTelemetry-compatible trace context propagation and span recording. Generates W3C-compliant trace IDs (32 hex chars / 128 bits) and span IDs (16 hex chars / 64 bits). Records spans as NDJSON to `agentops/dashboard/data/traces.json`.
+
+**Exports:**
+
+| Function | Signature | Description |
+|---|---|---|
+| `generateTraceId` | `() => string` | Generate a 32-char hex trace ID (W3C-compliant) |
+| `generateSpanId` | `() => string` | Generate a 16-char hex span ID (W3C-compliant) |
+| `createSpan` | `(traceId, parentSpanId, agentId, operation, target) => Span` | Create a new Span record with defaults (0 tokens, 0 latency, status "ok") |
+| `createTraceContext` | `(agentId) => TraceContext` | Create a root TraceContext for a new distributed trace |
+| `childContext` | `(parent, childAgentId) => TraceContext` | Derive a child context preserving the trace ID with a fresh span ID |
+| `finalizeSpan` | `(span, update) => Span` | Immutably update a span with measured values (tokens, latency, status) |
+| `appendSpan` | `(span, path?) => void` | Append a span as NDJSON to the traces file (creates dir/file if needed) |
+| `recordSpan` | `(traceId, parentSpanId, agentId, operation, target, metrics?, path?) => Span` | Create, finalize, and persist a span in one call |
+
+**Types:**
+- `Span` -- `{ traceId, spanId, parentSpanId, agentId, operation, target, input_tokens, output_tokens, latency_ms, status, ts }`
+- `TraceContext` -- `{ traceId, spanId, agentId }`
+- `SpanStatus` -- `"ok" | "error" | "timeout" | "cancelled"`
+
+---
+
+### audit/audit-logger.ts
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/audit/audit-logger.ts` |
+| **Spec section** | Section 19 (Compliance and Immutable Audit Trail) |
+
+Tamper-evident, append-only logging of all agent operations. Each record is SHA-256 hash-chained to its predecessor, forming a verifiable sequence. Records are stored as NDJSON in `agentops/audit/audit-trail.jsonl`.
+
+**Exports:**
+
+| Function | Signature | Description |
+|---|---|---|
+| `createAuditRecord` | `(params: CreateAuditRecordParams) => AuditRecord` | Create a record with auto-generated eventId (UUIDv4), timestamp, and SHA-256 chain hash |
+| `appendAuditRecord` | `(record: AuditRecord) => void` | Append a record as NDJSON to the audit trail file; updates in-memory chain head |
+| `verifyChain` | `() => ChainVerificationResult` | Read all records and verify the hash chain from genesis forward |
+| `resetHashCache` | `() => void` | Reset the in-memory last-hash cache (useful in tests) |
+
+**Types:**
+- `AuditRecord` -- `{ eventId, traceId, ts, actor, originalUser, action, target, input_summary, output_summary, permissionCheck, status, tokens, hash }`
+- `ActorRef` -- `{ type, id }` (e.g. `"agent"`, `"human"`, `"system"`)
+- `TokenUsage` -- `{ input, output }`
+- `CreateAuditRecordParams` -- `AuditRecord` minus `eventId`, `ts`, `hash` (auto-generated)
+- `ChainVerificationResult` -- `{ valid: boolean, brokenAt?: number }`
+
+**Constants:**
+- Genesis hash: 64 zero characters (`"0".repeat(64)`)
+
+---
+
+### core/event-bus.ts
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/core/event-bus.ts` |
+| **Spec section** | Section 21.3 (Plugin Event Bus) |
+
+Central publish/subscribe system for hook events. Uses a singleton pattern so all consumers share a single bus instance within a process.
+
+**Exports:**
+
+| Function | Signature | Description |
+|---|---|---|
+| `subscribe` | `(eventType: EventType, handler: EventHandler) => void` | Register a handler (deduplicated per event type) |
+| `unsubscribe` | `(eventType: EventType, handler: EventHandler) => boolean` | Remove a handler; returns true if found and removed |
+| `emit` | `(eventType: EventType, data?) => Promise<void>` | Emit an event, invoking all handlers concurrently via `Promise.allSettled` |
+| `listSubscribers` | `() => Record<string, number>` | Snapshot of subscriptions keyed by event type with handler counts |
+| `getEventBus` | `() => EventBus` | Return the singleton EventBus instance |
+
+**EventType enum values:**
+`PreToolUse`, `PostToolUse`, `PreSession`, `PostSession`, `PrePlan`, `PostPlan`, `OnError`, `OnMetric`, `OnAuditLog`, `PluginLoaded`, `PluginUnloaded`
+
+**Types:**
+- `EventPayload` -- `{ type: EventType, timestamp: string, data: Record<string, unknown> }`
+- `EventHandler` -- `(payload: EventPayload) => void | Promise<void>`
+
+---
+
+## Slash Commands
+
+These are invoked as Claude Code slash commands.
+
+---
+
+### /agentops check
+
+Runs a session health dashboard. Executes `session-start-checks.sh` to validate rules files, scaffold docs, and git state. Reports criticals, warnings, and advisories.
+
+### /agentops audit
+
+Runs a full project audit by executing both `security-audit.sh` (6-category security scan) and `rules-file-linter.sh` (5-check rules validation). Writes results to `agentops/dashboard/data/audit-results.json`.
+
+### /agentops scaffold
+
+Creates or updates scaffold documents (`PLANNING.md`, `TASKS.md`, `CONTEXT.md`, `WORKFLOW.md`) and ensures `CLAUDE.md` contains the AgentOps rules section.
+
+---
+
+## Configuration (agentops.config.json)
+
+**Path:** `agentops/agentops.config.json`
+
+### save_points
+
+| Key | Default | Description |
+|---|---|---|
+| `save_points.auto_commit_after_minutes` | `30` | Minutes since last commit before auto-save triggers |
+| `save_points.auto_branch_on_risk_score` | `8` | Risk score threshold that triggers branch creation |
+| `save_points.max_uncommitted_files_warning` | `5` | Number of uncommitted files before auto-save triggers |
+
+### context_health
+
+| Key | Default | Description |
+|---|---|---|
+| `context_health.message_count_warning` | `20` | Message count that triggers a warning notification |
+| `context_health.message_count_critical` | `30` | Message count that triggers a critical notification |
+| `context_health.context_percent_warning` | `60` | Estimated context usage percentage that triggers a warning |
+| `context_health.context_percent_critical` | `80` | Estimated context usage percentage that triggers a critical warning |
+
+### rules_file
+
+| Key | Default | Description |
+|---|---|---|
+| `rules_file.max_lines` | `300` | Maximum combined line count for all rules files before warning |
+| `rules_file.required_sections` | `["security", "error handling"]` | Sections that must be present in rules files |
+
+### task_sizing
+
+| Key | Default | Description |
+|---|---|---|
+| `task_sizing.medium_risk_threshold` | `4` | Risk score at which medium-risk notification fires |
+| `task_sizing.high_risk_threshold` | `8` | Risk score at which high-risk warning fires |
+| `task_sizing.critical_risk_threshold` | `13` | Risk score at which critical-risk warning fires |
+| `task_sizing.max_files_per_task_warning` | `5` | Files-per-task count that triggers a warning |
+| `task_sizing.max_files_per_task_critical` | `8` | Files-per-task count that triggers a critical warning |
+
+### security
+
+| Key | Default | Description |
+|---|---|---|
+| `security.block_on_secret_detection` | `true` | Whether to block writes when secrets are detected |
+| `security.scan_git_history` | `false` | Whether the audit scans git history for leaked secrets |
+| `security.check_common_provider_keys` | `true` | Whether to check for hardcoded provider API key assignments |
+
+### budget
+
+| Key | Default | Description |
+|---|---|---|
+| `budget.session_budget` | `10` | Maximum session cost in USD before warning/blocking |
+| `budget.monthly_budget` | `500` | Maximum monthly cost in USD before warning/blocking |
+| `budget.warn_threshold` | `0.80` | Fraction of budget at which warnings begin (0.0--1.0) |
+
+### notifications
+
+| Key | Default | Description |
+|---|---|---|
+| `notifications.verbose` | `false` | Whether to emit verbose diagnostic messages |
+| `notifications.prefix_all_messages` | `"[AgentOps]"` | Prefix string for all hook output messages |
