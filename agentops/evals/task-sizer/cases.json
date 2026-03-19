@@ -1,0 +1,58 @@
+[
+  {
+    "name": "low_risk_simple_task",
+    "input": "Fix the typo in the README",
+    "expected_risk": "low",
+    "expected_score_range": [0, 3],
+    "description": "Simple single-file fix should score low"
+  },
+  {
+    "name": "medium_risk_auth_change",
+    "input": "Update the authentication middleware to validate tokens",
+    "expected_risk": "medium",
+    "expected_score_range": [4, 7],
+    "description": "Auth keyword should trigger medium risk"
+  },
+  {
+    "name": "high_risk_refactor",
+    "input": "Refactor the entire database schema and migrate all tables",
+    "expected_risk": "high",
+    "expected_score_range": [8, 12],
+    "description": "Refactor + database + all should be high risk"
+  },
+  {
+    "name": "critical_risk_full_rewrite",
+    "input": "Rewrite the whole security authentication system, refactor every file, delete old database tables",
+    "expected_risk": "critical",
+    "expected_score_range": [13, 20],
+    "description": "Multiple high-risk keywords should trigger critical"
+  },
+  {
+    "name": "database_create_moderate",
+    "input": "Create a new table for user preferences",
+    "expected_risk": "low",
+    "expected_score_range": [2, 4],
+    "description": "Database create is lower risk than delete"
+  },
+  {
+    "name": "database_delete_high",
+    "input": "Delete the legacy users table from the database",
+    "expected_risk": "high",
+    "expected_score_range": [5, 10],
+    "description": "Database + delete triggers higher risk"
+  },
+  {
+    "name": "empty_prompt",
+    "input": "",
+    "expected_risk": "none",
+    "expected_score_range": [0, 0],
+    "description": "Empty prompt should produce no output"
+  },
+  {
+    "name": "broad_scope_keyword",
+    "input": "Update every file in the entire project",
+    "expected_risk": "medium",
+    "expected_score_range": [3, 7],
+    "description": "Broad scope keywords 'every' and 'entire' should add risk"
+  }
+]

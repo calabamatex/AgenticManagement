@@ -1,0 +1,34 @@
+[
+  {
+    "name": "valid_claude_md",
+    "description": "CLAUDE.md with all required sections should pass",
+    "expected_exit": 0,
+    "fixture": "Valid CLAUDE.md with security and error handling sections"
+  },
+  {
+    "name": "missing_security_section",
+    "description": "CLAUDE.md missing security section should warn",
+    "expected_exit": 0,
+    "expected_output_contains": "missing",
+    "fixture": "CLAUDE.md without security section"
+  },
+  {
+    "name": "oversized_rules_file",
+    "description": "CLAUDE.md over max_lines should warn",
+    "expected_exit": 0,
+    "expected_output_contains": "lines",
+    "fixture": "CLAUDE.md with 500+ lines"
+  },
+  {
+    "name": "missing_claude_md",
+    "description": "No CLAUDE.md should report critical",
+    "expected_exit": 0,
+    "expected_output_contains": "No CLAUDE.md"
+  },
+  {
+    "name": "missing_agents_md",
+    "description": "No AGENTS.md should report warning",
+    "expected_exit": 0,
+    "expected_output_contains": "AGENTS.md"
+  }
+]

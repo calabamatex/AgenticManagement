@@ -1,0 +1,41 @@
+[
+  {
+    "name": "clean_file_passes",
+    "description": "File with proper error handling should pass cleanly",
+    "input": {"tool_input": {"file_path": "/tmp/agentops-test-clean.js"}},
+    "fixture_content": "try {\n  const data = await fetch('/api');\n} catch (err) {\n  console.error(err);\n}",
+    "expected_exit": 0,
+    "expected_output_not_contains": "WARN"
+  },
+  {
+    "name": "unhandled_fetch_warns",
+    "description": "fetch() without try/catch should warn",
+    "input": {"tool_input": {"file_path": "/tmp/agentops-test-fetch.js"}},
+    "fixture_content": "const data = await fetch('/api/users');\nconst json = await data.json();",
+    "expected_exit": 0,
+    "expected_output_contains": "Unhandled call"
+  },
+  {
+    "name": "pii_in_logging_warns",
+    "description": "Logging PII fields should warn",
+    "input": {"tool_input": {"file_path": "/tmp/agentops-test-pii.js"}},
+    "fixture_content": "console.log('User email:', user.email);\nconsole.log('Card:', user.creditCard);",
+    "expected_exit": 0,
+    "expected_output_contains": "PII in logging"
+  },
+  {
+    "name": "nonexistent_file_skips",
+    "description": "Non-existent file should exit 0 silently",
+    "input": {"tool_input": {"file_path": "/tmp/agentops-test-nonexistent-xyz.js"}},
+    "expected_exit": 0,
+    "expected_output": ""
+  },
+  {
+    "name": "python_subprocess_warns",
+    "description": "Python subprocess without error handling should warn",
+    "input": {"tool_input": {"file_path": "/tmp/agentops-test-subprocess.py"}},
+    "fixture_content": "import subprocess\nresult = subprocess.run(['ls', '-la'])\nprint(result)",
+    "expected_exit": 0,
+    "expected_output_contains": "Unhandled call"
+  }
+]

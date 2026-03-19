@@ -1,0 +1,35 @@
+[
+  {
+    "name": "no_agent_identity_allows",
+    "input": {"tool_name": "Write", "tool_input": {"file_path": "/any/path"}},
+    "env": {},
+    "expected_exit": 0,
+    "description": "No CLAUDE_AGENT_ID means direct user session — allow everything"
+  },
+  {
+    "name": "agent_with_no_permissions_allows",
+    "input": {"tool_name": "Read", "tool_input": {"file_path": "src/main.ts"}},
+    "env": {"CLAUDE_AGENT_ID": "test-agent"},
+    "expected_exit": 0,
+    "description": "Agent defined but no permissions file — fail-open"
+  },
+  {
+    "name": "empty_tool_name_allows",
+    "input": {"tool_name": "", "tool_input": {}},
+    "env": {},
+    "expected_exit": 0,
+    "description": "Empty tool name should allow"
+  },
+  {
+    "name": "permission_fail_mode_warn",
+    "description": "When permission_fail_mode=warn, denied actions should still exit 0",
+    "config_override": {"security": {"permission_fail_mode": "warn"}},
+    "expected_behavior": "exit 0 with ADVISORY message"
+  },
+  {
+    "name": "permission_fail_mode_block",
+    "description": "When permission_fail_mode=block, denied actions should exit 2",
+    "config_override": {"security": {"permission_fail_mode": "block"}},
+    "expected_behavior": "exit 2 with PERMISSION DENIED message"
+  }
+]
