@@ -1,42 +1,25 @@
 # AgentOps v4.0 — OB1 Memory Integration Build Plan
 
-## For Claude Code via RuFlo Orchestration
-
 **Date:** March 20, 2026
 **Source:** AgentOps-Product-Spec.md v3.0 + AgentOps-OB1-Analysis.md
-**Orchestrator:** RuFlo V3 (hierarchical topology, specialized strategy)
 **Build Target:** AgentOps v4.0 — Memory-Aware Agent Management
+**Stack:** TypeScript / Node.js (matching MCP ecosystem and target audience)
 
 ---
 
 ## Executive Summary
 
-This plan upgrades AgentOps from a stateless, session-scoped monitoring system to a memory-aware, cross-session intelligence layer. Seven changes derived from Open Brain (OB1) analysis, executed as four build phases using RuFlo swarm orchestration.
+This plan upgrades AgentOps from a stateless, session-scoped monitoring system to a memory-aware, cross-session intelligence layer. Seven changes derived from Open Brain (OB1) analysis, executed as four build phases.
 
 **What changes:** Persistent memory store, MCP server interface, primitives library, structured plugin model, progressive enablement, semantic audit search, auto-classification enrichment.
 
 **What stays:** Five core skills, hook architecture, event bus, dashboard, security model, local-first design, multi-tool compatibility.
 
+**Important:** AgentOps is a standalone, generic product. It has no runtime dependency on any specific build tool, orchestration framework, or agent system. The build orchestration instructions in Appendix A describe how to execute this plan using multi-agent swarm tooling — they are not part of the AgentOps product.
+
 ---
 
-## RuFlo Swarm Configuration
-
-```bash
-# Initialize the build swarm
-npx @claude-flow/cli@latest swarm init \
-  --topology hierarchical \
-  --max-agents 8 \
-  --strategy specialized
-
-# Shared memory namespace for all agents
-npx @claude-flow/cli@latest memory store \
-  --key "agentops-v4-context" \
-  --value "OB1 memory integration build. See AgentOps-OB1-Analysis.md for rationale." \
-  --namespace agentops-build \
-  --tags "context,ob1,v4"
-```
-
-### Agent Roster (8 agents, hierarchical)
+## Agent Roster (8 agents, hierarchical)
 
 | Role | Agent Type | Tier | Responsibility |
 |------|-----------|------|----------------|
@@ -55,13 +38,8 @@ npx @claude-flow/cli@latest memory store \
 
 **Goal:** Replace flat scaffold docs with a vector-indexed, queryable operations memory.
 
-**RuFlo swarm command:**
-```bash
-npx @claude-flow/cli@latest task create \
-  --name "phase-1-memory-store" \
-  --assign memory-architect,coder,tester,security-auditor \
-  --priority critical
-```
+**Agents:** Memory Architect, Coder, Test Engineer, Security Auditor
+**Priority:** Critical
 
 ### 1.1 Memory Store Core (`src/memory/store.ts`) — Memory Architect + Coder
 
@@ -455,13 +433,8 @@ npm test && npm run build && npx @claude-flow/cli@latest security scan
 
 **Goal:** Expose AgentOps as an MCP server so any AI client can query the management layer.
 
-**RuFlo swarm command:**
-```bash
-npx @claude-flow/cli@latest task create \
-  --name "phase-2-mcp-server" \
-  --assign mcp-engineer,security-auditor,tester \
-  --priority critical
-```
+**Agents:** MCP Engineer, Security Auditor, Test Engineer
+**Priority:** Critical
 
 ### 2.1 MCP Server Core (`src/mcp/server.ts`) — MCP Engineer
 
@@ -627,13 +600,8 @@ tests/
 
 **Goal:** Extract reusable patterns, formalize the plugin contribution model.
 
-**RuFlo swarm command:**
-```bash
-npx @claude-flow/cli@latest task create \
-  --name "phase-3-primitives-plugins" \
-  --assign primitives-engineer,plugin-architect,tester \
-  --priority high
-```
+**Agents:** Primitives Engineer, Plugin Architect, Test Engineer
+**Priority:** High
 
 ### 3.1 Primitives Library (`src/primitives/`) — Primitives Engineer
 
@@ -782,13 +750,8 @@ agentops/
 
 **Goal:** Make AgentOps adoptable by non-experts. Add smart event classification.
 
-**RuFlo swarm command:**
-```bash
-npx @claude-flow/cli@latest task create \
-  --name "phase-4-enablement-enrichment" \
-  --assign spec-writer,coder,tester \
-  --priority high
-```
+**Agents:** Spec Writer, Coder, Test Engineer
+**Priority:** High
 
 ### 4.1 Progressive Enablement — Spec Writer + Coder
 
