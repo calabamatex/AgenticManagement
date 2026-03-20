@@ -2,8 +2,8 @@
 
 ## Product Specification — Installable Framework
 
-**Version:** 3.0 — Generic Product Specification
-**Date:** March 19, 2026
+**Version:** 4.0 — Generic Product Specification
+**Date:** March 20, 2026
 **Mode:** Dual-mode (real-time session monitor + on-demand project audit)
 **Platform:** Multi-tool compatible (Claude Code, Cursor, Copilot, Codex, and others)
 **Enforcement:** Guardrails — warns and takes preventive action where safe; never silently blocks
@@ -15,6 +15,8 @@
 ### 1.1 Purpose
 
 AgentOps is a standalone management and safety framework that any agentic developer installs into their project to monitor their AI agents. While your agents execute tasks autonomously, AgentOps runs parallel to them—tracking version control discipline, context health, rules compliance, task sizing, and proactive safety checks. It enforces best practices without getting in the way.
+
+AgentOps maintains persistent, searchable memory of all agent operations across sessions, enabling pattern detection, root cause analysis, and semantic search over your project's operational history.
 
 AgentOps is not a replacement for LLM provider dashboards or agent monitoring tools. Those track agent *performance*. AgentOps tracks agent *management hygiene*—the practices that prevent data loss, context drift, blast radius problems, and security gaps.
 
@@ -58,6 +60,12 @@ your-project/
 │   ├── audit/
 │   ├── evals/
 │   ├── plugins/
+│   ├── src/
+│   │   ├── memory/          # Persistent memory store with hash-chained events
+│   │   ├── mcp/             # MCP server interface (8 tools, stdio+HTTP)
+│   │   ├── primitives/      # Composable TypeScript primitives (7 modules)
+│   │   └── enablement/      # Progressive skill enablement engine
+│   ├── models/              # Embedding models (auto-downloaded)
 │   └── agentops.config.json
 ├── .claude/                   # Your Claude Code config (AgentOps adds hooks)
 ├── .cursorrules              # Your Cursor rules (AgentOps can sync)
@@ -80,6 +88,8 @@ your-project/
 3. **Generic, not opinionated.** AgentOps knows nothing about your tech stack, agent architecture, or deployment model. It watches for universal safety issues.
 
 4. **Installable, not magical.** Install AgentOps from an npm package, a GitHub release, or a simple copy-paste. Remove it by deleting the `agentops/` directory and the appended rules sections. No permanent magic.
+
+5. **Memory-aware** — every agent event is captured, indexed, and searchable by meaning. Events form a hash chain for tamper detection.
 
 ---
 
@@ -171,6 +181,8 @@ ON session end:
 ### 3.1 What This Module Does
 
 Monitors context window health within a single agent session or across multiple agents working in parallel. Context degradation happens when instructions and state accumulate to the point where early system instructions get lost.
+
+At session start, AgentOps queries the memory store for relevant historical context — past violations, recurring patterns, and unresolved incidents — to inform the current session.
 
 ### 3.2 Real-Time Monitors
 
@@ -549,6 +561,8 @@ Present the plan with file boundaries.
 
 Audits for security, privacy, and reliability issues that agents might overlook: secrets exposure, missing error handling, PII leakage, unsafe API usage, and scalability concerns.
 
+Security events are automatically enriched with cross-cutting tags (authentication, database, API, infrastructure) and linked to related historical events for root cause analysis.
+
 ### 6.2 Real-Time Monitors
 
 #### 6.2.1 Secret Exposure Scanner
@@ -770,6 +784,8 @@ AgentOps integrates with your AI tool's hook system by adding entries to your ex
 
 Setup: `git config core.hooksPath .githooks`
 
+AgentOps also exposes an MCP server interface as an alternative to hooks. The 8 MCP tools (check-git, check-context, check-rules, size-task, scan-security, capture-event, search-history, health) can be used by any MCP-compatible AI client.
+
 ---
 
 ## 9. Dashboard (Web-Based Health Monitor)
@@ -854,54 +870,11 @@ Single self-contained HTML file with inline CSS and JavaScript. Uses:
 
 ## 10. Implementation Phases
 
-### Phase 1: Foundation (Week 1)
-
-| Component | Priority | Effort |
-|---|---|---|
-| `secret-scanner.sh` | P0 | 3h |
-| `git-hygiene-check.sh` | P0 | 2h |
-| Session start validation hook | P0 | 2h |
-| AGENTS.md rules template | P0 | 1h |
-| `.githooks/pre-commit` | P0 | 2h |
-| `/agentops check` (basic) | P1 | 2h |
-
-### Phase 2: Monitoring (Week 2)
-
-| Component | Priority | Effort |
-|---|---|---|
-| `context-estimator.sh` | P0 | 3h |
-| `task-sizer.sh` | P0 | 4h |
-| Blast radius PostToolUse hook | P1 | 3h |
-| Auto-commit on session end | P1 | 2h |
-| `/agentops check` full version | P1 | 3h |
-
-### Phase 3: Scaffold System (Week 3)
-
-| Component | Priority | Effort |
-|---|---|---|
-| Scaffold templates | P0 | 3h |
-| `/agentops scaffold` command | P0 | 2h |
-| `scaffold-validator.sh` | P1 | 2h |
-| Handoff message generator | P1 | 2h |
-
-### Phase 4: Deep Auditing (Week 4)
-
-| Component | Priority | Effort |
-|---|---|---|
-| `security-audit.sh` (full) | P0 | 8h |
-| Error handling audit | P1 | 4h |
-| `rules-file-linter.sh` | P1 | 3h |
-| `/agentops audit` full report | P1 | 4h |
-
-### Phase 5: Dashboard (Week 5-6)
-
-| Component | Priority | Effort |
-|---|---|---|
-| Dashboard HTML shell | P0 | 4h |
-| Overview page | P0 | 4h |
-| Hook data writers | P0 | 4h |
-| 5 Skill detail pages | P1 | 6h |
-| Audit report page | P1 | 3h |
+AgentOps v4.0 implementation:
+- **Phase 1:** Persistent Memory Store — hash-chained event storage with vector search
+- **Phase 2:** MCP Server Interface — 8 tools exposed via stdio and HTTP transport
+- **Phase 3:** Primitives & Plugin Model — 7 composable TypeScript modules, plugin templates
+- **Phase 4:** Progressive Enablement — 5-level adoption, auto-classification, semantic audit
 
 ---
 
@@ -941,6 +914,16 @@ Single self-contained HTML file with inline CSS and JavaScript. Uses:
   "notifications": {
     "verbose": false,
     "prefix_all_messages": "[AgentOps]"
+  },
+  "enablement": {
+    "level": 3,
+    "skills": {
+      "save_points": { "enabled": true, "mode": "full" },
+      "context_health": { "enabled": true, "mode": "full" },
+      "standing_orders": { "enabled": true, "mode": "basic" },
+      "small_bets": { "enabled": false, "mode": "off" },
+      "proactive_safety": { "enabled": false, "mode": "off" }
+    }
   }
 }
 ```
@@ -1325,6 +1308,8 @@ If any record is modified, all subsequent hashes break.
 | Dashboard: Audit Trail page | P1 |
 | Compliance report generator | P2 |
 
+Audit records support optional semantic indexing. Natural language queries like 'database schema changes that caused issues' return ranked results from the hash-chained audit history.
+
 ---
 
 ## 20. Agent-to-Agent Trust & Delegation
@@ -1451,6 +1436,8 @@ Central pub/sub system for all extensions:
 
 Every hook emits events. Plugins subscribe to events. The dashboard subscribes to everything.
 
+Plugins follow a formal contribution model with 4 categories (monitor, auditor, dashboard, integration). Each plugin requires a metadata.json validated against a JSON Schema, a README with 6 required sections, and passes 11 automated validation checks.
+
 ### 21.4 Implementation Components
 
 | Component | Priority |
@@ -1480,19 +1467,19 @@ These principles govern all design decisions:
 
 ## 23. Framework Evolution Roadmap
 
-### Current → v3.0 → v4.0
+### Current → v4.0 → v5.0
 
 ```
-CURRENT (v2.0)          v3.0 (Next 8 Weeks)      v4.0 (Post-Stabilization)
+CURRENT (v3.0)          v4.0 (Current)            v5.0 (Post-Stabilization)
 ─────────────────       ─────────────────        ─────────────────
-5 Core Skills           + Event Bus Core         + Plugin Marketplace
-Shell Scripts           + Tracing (OTEL)         + Self-Improvement
-NDJSON Logs             + Cost Metering          + Delegation Tokens
-HTML Dashboard          + Agent Identity         + Compliance Reports
-Generic Framework       + Lifecycle States       + Community Plugins
-                        + Provider Health        + Behavioral Evals
-                        + Audit Trail
-                        + Testing Framework
+5 Core Skills           + Persistent Memory      + Plugin Marketplace
+Shell Scripts           + MCP Server (8 tools)   + Self-Improvement
+NDJSON Logs             + 7 TS Primitives        + Delegation Tokens
+HTML Dashboard          + Progressive Enablement + Compliance Reports
+Event Bus Core          + Semantic Search        + Community Plugins
+Tracing (OTEL)          + Hash-Chained Events    + Behavioral Evals
+Agent Identity          + Plugin Contribution
+Audit Trail             + Setup Wizard
 ```
 
 ### v3.0 Priority Stack (8 Weeks)
@@ -1507,6 +1494,73 @@ Generic Framework       + Lifecycle States       + Community Plugins
 | 6 | Append-only audit trail | Event bus |
 | 7 | Provider health monitoring | Tracing + cost metering |
 | 8 | Eval framework | All modules stable |
+
+---
+
+## 25. Persistent Operations Memory
+
+AgentOps captures every operational event (decisions, violations, incidents, patterns, handoffs, audit findings) into a persistent, hash-chained memory store. Events are:
+
+- **Immutable:** Each event's hash includes the previous event's hash, forming a tamper-evident chain
+- **Searchable:** Both structured queries (by type, severity, skill, date range) and semantic vector search
+- **Provider-agnostic:** SQLite (local, default) or Supabase (team/cloud) backends via the StorageProvider interface
+- **Embedding-aware:** Auto-detects ONNX, Ollama, or OpenAI embedding providers for semantic search
+
+Key APIs: `MemoryStore.capture()`, `MemoryStore.search()`, `MemoryStore.stats()`, `MemoryStore.verifyChain()`
+
+---
+
+## 26. MCP Server Interface
+
+AgentOps exposes 8 tools via the Model Context Protocol (MCP), enabling any AI client to query the management layer:
+
+| Tool | Purpose |
+|------|---------|
+| `agentops_check_git` | Git hygiene status and risk score |
+| `agentops_check_context` | Context window health estimation |
+| `agentops_check_rules` | Rules compliance validation |
+| `agentops_size_task` | Task risk scoring and decomposition |
+| `agentops_scan_security` | Secret and vulnerability detection |
+| `agentops_capture_event` | Persistent event capture |
+| `agentops_search_history` | Semantic search across event history |
+| `agentops_health` | System health dashboard |
+
+**Transport:** Stdio (default, for Claude Code/Cursor) or HTTP (optional, with access key auth and rate limiting).
+**Integration:** `claude mcp add agentops -- node agentops/dist/src/mcp/server.js`
+
+---
+
+## 27. Primitives Library
+
+Seven composable TypeScript primitives extracted from the core skills:
+
+| Primitive | Key Export | Used By |
+|-----------|-----------|---------|
+| checkpoint-and-branch | `createCheckpoint()`, `createSafetyBranch()` | Save Points, Small Bets |
+| rules-validation | `validateRules()`, `RuleViolation` | Standing Orders, Proactive Safety |
+| risk-scoring | `assessRisk()`, `RiskAssessment` | Small Bets, Proactive Safety |
+| context-estimation | `estimateContext()`, `ContextHealth` | Context Health, Small Bets |
+| scaffold-update | `updateScaffold()`, `ScaffoldResult` | Context Health, Standing Orders |
+| secret-detection | `scanForSecrets()`, `SecretFinding` | Save Points, Proactive Safety |
+| event-capture | `captureEvent()` | All skills |
+
+Primitives enable plugins and MCP tools to share logic without duplicating shell scripts.
+
+---
+
+## 28. Progressive Enablement
+
+AgentOps supports 5 adoption levels, allowing teams to start simple and add capabilities as comfort grows:
+
+| Level | Name | Skills Active |
+|-------|------|--------------|
+| 1 | Safe Ground | Save Points |
+| 2 | Clear Head | + Context Health |
+| 3 | House Rules | + Standing Orders |
+| 4 | Right Size | + Small Bets |
+| 5 | Full Guard | + Proactive Safety |
+
+The setup wizard (`scripts/setup-wizard.sh`) generates the appropriate configuration for any level. The dashboard adapts to show only enabled skills, with upgrade prompts for locked capabilities.
 
 ---
 
