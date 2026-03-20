@@ -77,9 +77,9 @@ export class SqliteProvider implements StorageProvider {
     );
 
     if (event.embedding && event.embedding.length > 0) {
-      const embStmt = db.prepare('INSERT INTO ops_embeddings (id, embedding) VALUES (?, ?)');
+      const embStmt = db.prepare('INSERT INTO ops_embeddings (id, embedding, timestamp) VALUES (?, ?, ?)');
       const buffer = Buffer.from(new Float32Array(event.embedding).buffer);
-      embStmt.run(event.id, buffer);
+      embStmt.run(event.id, buffer, event.timestamp);
     }
   }
 
