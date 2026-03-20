@@ -494,6 +494,34 @@ These scripts are invoked manually or by slash commands. They are not registered
 
 ---
 
+### validate-plugin.sh
+
+| Field | Value |
+|---|---|
+| **Path** | `agentops/scripts/validate-plugin.sh` |
+| **Invoked by** | Manual or CI |
+
+**What it does:** Validates a plugin directory against the AgentOps plugin specification. Accepts a plugin path as the first argument.
+
+**11 validation checks:**
+1. Folder structure matches category template
+2. `metadata.json` validates against JSON Schema
+3. No secrets in any file
+4. README.md has required sections (What It Does, Prerequisites, Installation, Configuration, How It Works, Troubleshooting)
+5. `src/index.ts` exports valid plugin interface
+6. Hook subscriptions reference valid types
+7. MCP tool names follow `agentops_plugin_{name}_{tool}` convention
+8. No files exceed 500 lines
+9. Required primitives exist in the primitives library
+10. Tests exist and pass
+11. No binary files exceeding 1MB
+
+**Exit codes:**
+- `0` — All checks passed
+- `1` — One or more checks failed
+
+---
+
 ## TypeScript Modules
 
 These modules provide programmatic APIs for tracing, auditing, and event routing.
@@ -779,6 +807,10 @@ Runs a full project audit by executing both `security-audit.sh` (6-category secu
 
 Creates or updates scaffold documents (`PLANNING.md`, `TASKS.md`, `CONTEXT.md`, `WORKFLOW.md`) and ensures `CLAUDE.md` contains the AgentOps rules section.
 
+### /agentops setup
+
+Runs the progressive enablement setup wizard. Prompts for an enablement level (1-5) and generates the appropriate configuration.
+
 ---
 
 ## Configuration (agentops.config.json)
@@ -841,3 +873,22 @@ Creates or updates scaffold documents (`PLANNING.md`, `TASKS.md`, `CONTEXT.md`, 
 |---|---|---|
 | `notifications.verbose` | `false` | Whether to emit verbose diagnostic messages |
 | `notifications.prefix_all_messages` | `"[AgentOps]"` | Prefix string for all hook output messages |
+
+### memory
+
+| Key | Default | Description |
+|---|---|---|
+| `memory.enabled` | `true` | Enable persistent memory store |
+| `memory.provider` | `"sqlite"` | Storage backend (`sqlite` or `supabase`) |
+| `memory.embedding_provider` | `"auto"` | Embedding provider (auto, onnx, ollama, openai, noop) |
+| `memory.database_path` | `"agentops/data/ops.db"` | Path to SQLite database file |
+| `memory.max_events` | `100000` | Maximum events before auto-pruning |
+| `memory.auto_prune_days` | `365` | Days after which events are pruned |
+
+### enablement
+
+| Key | Default | Description |
+|---|---|---|
+| `enablement.level` | `3` | Progressive enablement level (1-5) |
+| `enablement.skills.<name>.enabled` | varies | Whether the skill is active |
+| `enablement.skills.<name>.mode` | varies | Skill mode: `off`, `basic`, or `full` |
