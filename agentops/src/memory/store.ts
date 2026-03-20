@@ -32,19 +32,21 @@ export class MemoryStore {
   private embeddingProvider: EmbeddingProvider;
   private lastHash: string = '0'.repeat(64);
   private initialized = false;
+  private autoDetectEmbedding: boolean;
 
   constructor(options: MemoryStoreOptions = {}) {
     const config = options.config ?? loadMemoryConfig();
     this.provider = options.provider ?? createProvider(config);
     this.embeddingProvider = options.embeddingProvider ?? new NoopEmbeddingProvider();
+    this.autoDetectEmbedding = !options.embeddingProvider;
   }
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
     await this.provider.initialize();
 
-    // Detect embedding provider if noop was default
-    if (this.embeddingProvider instanceof NoopEmbeddingProvider) {
+    // Only auto-detect if no embedding provider was explicitly provided
+    if (this.autoDetectEmbedding && this.embeddingProvider instanceof NoopEmbeddingProvider) {
       try {
         this.embeddingProvider = await detectEmbeddingProvider();
       } catch {

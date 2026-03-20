@@ -152,7 +152,13 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
         const client = url.startsWith('https') ? https : http;
         client.get(url, (res) => {
           if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-            follow(res.headers.location, redirects + 1);
+            let redirectUrl = res.headers.location;
+            // Handle relative redirects
+            if (redirectUrl.startsWith('/')) {
+              const parsed = new URL(url);
+              redirectUrl = `${parsed.protocol}//${parsed.host}${redirectUrl}`;
+            }
+            follow(redirectUrl, redirects + 1);
             return;
           }
           if (res.statusCode !== 200) {
