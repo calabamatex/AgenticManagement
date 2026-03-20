@@ -1,0 +1,18 @@
+{
+  "name": "commit-monitor",
+  "description": "Monitors git commit frequency and alerts when commits become infrequent",
+  "category": "monitor",
+  "author": {
+    "name": "AgentOps Core",
+    "github": "ruvnet"
+  },
+  "version": "1.0.0",
+  "requires": {
+    "agentops": ">=4.0.0",
+    "primitives": ["checkpoint-and-branch", "event-capture"]
+  },
+  "hooks": ["PostToolUse", "SessionStart"],
+  "mcp_tools": [],
+  "tags": ["git", "commit", "monitoring", "save-points"],
+  "difficulty": "beginner"
+}

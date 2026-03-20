@@ -380,7 +380,7 @@ Key settings you may want to tune:
 | `budget` | `session_budget` | 10 | Per-session cost budget (USD) |
 | `budget` | `monthly_budget` | 500 | Monthly cost budget (USD) |
 | `memory` | `enabled` | `true` | Enable persistent memory store |
-| `memory` | `provider` | `"sqlite"` | Storage backend (`sqlite` or `supabase`) |
+| `memory` | `provider` | `"sqlite"` | Storage backend (`sqlite` supported; `supabase` planned for a future release) |
 | `memory` | `embedding_provider` | `"auto"` | Embedding provider (auto-detect, onnx, ollama, openai, noop) |
 | `enablement` | `level` | `3` | Progressive enablement level (1-5) |
 
