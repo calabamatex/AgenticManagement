@@ -109,7 +109,7 @@ describe('assessRisk', () => {
     const low = assessRisk({ files: [], hasDatabaseChanges: false, touchesSharedCode: false, isMainBranch: false });
     expect(low.recommendation).toContain('standard');
 
-    const high = assessRisk({ files: ['a', 'b', 'c'], hasDatabaseChanges: true, touchesSharedCode: true, isMainBranch: false });
+    const high = assessRisk({ files: ['a', 'b', 'c', 'd', 'e'], hasDatabaseChanges: true, touchesSharedCode: true, isMainBranch: true });
     expect(high.recommendation.toLowerCase()).toContain('safety branch');
   });
 

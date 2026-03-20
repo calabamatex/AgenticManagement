@@ -48,13 +48,13 @@ beforeEach(() => {
 describe('Risk assessment + event capture', () => {
   it('should assess risk and capture high-risk event', async () => {
     const risk = assessRisk({
-      files: ['migration.sql', 'schema.ts'],
+      files: ['migration.sql', 'schema.ts', 'api.ts', 'routes.ts', 'models.ts'],
       hasDatabaseChanges: true,
       touchesSharedCode: true,
-      isMainBranch: false,
+      isMainBranch: true,
     });
 
-    expect(risk.level).toBe('HIGH');
+    expect(risk.level).toBe('CRITICAL');
 
     const event = await captureEvent({
       eventType: 'decision',
