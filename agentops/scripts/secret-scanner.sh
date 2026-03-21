@@ -55,11 +55,12 @@ fi
 if [[ -n "$FILE_PATH" && -n "$EXCLUDE_PATHS" ]]; then
     while IFS= read -r pattern; do
         [[ -z "$pattern" ]] && continue
-        if node -e "
+        if node --eval "$(cat <<'NODESCRIPT'
 const p = process.argv[1], g = process.argv[2];
-const re = new RegExp('^' + g.replace(/[.+^${}()|[\]\\\\]/g, '\\\\$&').replace(/\*\*\\//g, '(?:.+/)?').replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '.') + '$');
+const re = new RegExp('^' + g.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*\*\//g, '(?:.+/)?').replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '.') + '$');
 process.exit(re.test(p) ? 0 : 1);
-" "$FILE_PATH" "$pattern" 2>/dev/null; then
+NODESCRIPT
+)" "$FILE_PATH" "$pattern" 2>/dev/null; then
             # File is excluded from scanning
             exit 0
         fi
