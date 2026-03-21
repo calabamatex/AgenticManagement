@@ -41,9 +41,8 @@ export function createProvider(config?: MemoryConfig): StorageProvider {
   const cfg = config ?? loadMemoryConfig();
 
   if (cfg.provider === 'supabase') {
-    throw new Error(
-      "Supabase provider is planned but not yet implemented. Use 'sqlite' (default)."
-    );
+    const { SupabaseProvider } = require('./supabase-provider');
+    return new SupabaseProvider();
   }
 
   if (cfg.provider === 'sqlite') {
