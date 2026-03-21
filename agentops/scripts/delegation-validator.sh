@@ -137,12 +137,11 @@ iso_to_epoch() {
     local cleaned
     cleaned="$(echo "$iso" | sed 's/Z$/+0000/' | sed 's/\([+-][0-9][0-9]\):\([0-9][0-9]\)$/\1\2/')"
     date -jf "%Y-%m-%dT%H:%M:%S%z" "$cleaned" +%s 2>/dev/null && return 0
-    # Last resort: python
-    python3 -c "
-from datetime import datetime, timezone
-import sys
-dt = datetime.fromisoformat(sys.argv[1].replace('Z', '+00:00'))
-print(int(dt.timestamp()))
+    # Last resort: node
+    node -e "
+const d = new Date(process.argv[1]);
+if (isNaN(d.getTime())) process.exit(1);
+process.stdout.write(String(Math.floor(d.getTime() / 1000)));
 " "$iso" 2>/dev/null && return 0
     echo "0"
 }

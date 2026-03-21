@@ -19,16 +19,7 @@ PREFIX="[AgentOps]"
 # Parse hook input
 # ---------------------------------------------------------------------------
 INPUT="$(cat)"
-FILE_PATH="$(echo "$INPUT" | python3 -c "
-import sys, json
-try:
-    data = json.load(sys.stdin)
-    # Navigate possible shapes: .tool_input.file_path or .input.file_path
-    ti = data.get('tool_input', data.get('input', {}))
-    print(ti.get('file_path', ''))
-except Exception:
-    print('')
-" 2>/dev/null || true)"
+FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // .input.file_path // empty' 2>/dev/null || true)"
 
 if [[ -z "$FILE_PATH" || ! -f "$FILE_PATH" ]]; then
     exit 0

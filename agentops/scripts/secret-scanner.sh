@@ -47,15 +47,10 @@ fi
 if [[ -n "$FILE_PATH" && -n "$EXCLUDE_PATHS" ]]; then
     while IFS= read -r pattern; do
         [[ -z "$pattern" ]] && continue
-        if python3 -c "
-import fnmatch, sys, pathlib
-path = sys.argv[1]
-pattern = sys.argv[2]
-if '**' in pattern:
-    match = pathlib.PurePath(path).match(pattern)
-else:
-    match = fnmatch.fnmatch(path, pattern)
-sys.exit(0 if match else 1)
+        if node -e "
+const p = process.argv[1], g = process.argv[2];
+const re = new RegExp('^' + g.replace(/[.+^${}()|[\]\\\\]/g, '\\\\$&').replace(/\*\*\\//g, '(?:.+/)?').replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '.') + '$');
+process.exit(re.test(p) ? 0 : 1);
 " "$FILE_PATH" "$pattern" 2>/dev/null; then
             # File is excluded from scanning
             exit 0
