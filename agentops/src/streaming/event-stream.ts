@@ -1,9 +1,12 @@
 /**
  * event-stream.ts — Real-time event streaming bridge (M4 Task 4.5)
  *
+ * [beta] Local event streaming for the development dashboard.
+ * Not a distributed event platform. See ADR-001.
+ *
  * Bridges the core EventBus to external transports (SSE, WebSocket, callback).
  * Maintains a rolling buffer for replay and manages connected clients with
- * filter-based routing.
+ * filter-based routing. Includes backpressure handling for slow clients.
  */
 
 import { EventEmitter } from 'events';
