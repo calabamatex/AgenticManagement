@@ -21,6 +21,8 @@ export interface HttpTransportServer {
   server: ReturnType<typeof createServer>;
   port: number;
   transport: StreamableHTTPServerTransport;
+  /** Resolves once the server is listening and `port` is set to the actual port. */
+  ready: Promise<void>;
   close(): Promise<void>;
 }
 
@@ -92,12 +94,22 @@ export function createHttpTransport(
     });
   });
 
-  server.listen(port);
+  const ready = new Promise<void>((resolve) => {
+    server.listen(port, () => {
+      const addr = server.address() as AddressInfo;
+      if (addr) {
+        actualPort = addr.port;
+        result.port = addr.port;
+      }
+      resolve();
+    });
+  });
 
   const result: HttpTransportServer = {
     server,
     port,
     transport: mcpTransport,
+    ready,
     async close(): Promise<void> {
       await mcpTransport.close();
       return new Promise((resolve, reject) => {
@@ -108,16 +120,6 @@ export function createHttpTransport(
       });
     },
   };
-
-  // Once the server is listening, update the port from the actual address
-  // (important when port 0 is used for random assignment)
-  server.on('listening', () => {
-    const addr = server.address() as AddressInfo;
-    if (addr) {
-      actualPort = addr.port;
-      result.port = addr.port;
-    }
-  });
 
   return result;
 }
