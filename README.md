@@ -323,9 +323,6 @@ MIT -- see LICENSE for details.
 ## Links
 
 - [AgentOps Product Specification](AgentOps-Product-Spec.md) -- Full product spec (v4.0) covering architecture, skills, memory layer, MCP interface, and integration patterns.
-- [v4.0 Build Plan](AgentOps-OB1-Build-Plan.md) -- OB1 memory integration build plan with phase breakdown.
-- [OB1 Cross-Pollination Analysis](AgentOps-OB1-Analysis.md) -- How Open Brain's architecture informed the v4.0 memory layer.
-- [OB1 vs AgentOps Comparison](AgentOps-vs-OB1-Comparison.html) -- Interactive comparison across 60+ dimensions.
 - [Architecture Evolution](AgentOps-Architecture-Evolution.md) -- Design decisions and architectural history.
 - [Implementation Guide](Agent-Management-Implementation-Guide.md) -- Practical guide for managing AI agents.
 - [Interactive Learning Guide](agent-management-guide.html) -- HTML app with drill-down sections, progress tracking, and copyable templates.
