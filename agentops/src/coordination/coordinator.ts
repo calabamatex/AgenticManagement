@@ -1,17 +1,10 @@
 /**
  * coordinator.ts — Multi-agent coordination primitives for AgentOps.
- *
- * Provides agent discovery, distributed locking, message passing,
- * and task delegation using the MemoryStore as persistent backend.
  */
 
 import { v4 as uuidv4 } from 'uuid';
 import { MemoryStore } from '../memory/store';
 import type { OpsEventInput } from '../memory/schema';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 export interface AgentInfo {
   id: string;
@@ -52,19 +45,11 @@ export interface CoordinatorOptions {
   lockTimeoutMs?: number;
 }
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const SESSION_ID = 'coordination';
 const TAG_REGISTRY = 'coordination:agent-registry';
 const TAG_LOCK = 'coordination:lock';
 const TAG_MESSAGE = 'coordination:message';
 const TAG_TASK = 'coordination:task';
-
-// ---------------------------------------------------------------------------
-// AgentCoordinator
-// ---------------------------------------------------------------------------
 
 export class AgentCoordinator {
   private agentId: string;
@@ -89,10 +74,6 @@ export class AgentCoordinator {
     this.messageHandlers = new Map();
   }
 
-  // -----------------------------------------------------------------------
-  // Lifecycle
-  // -----------------------------------------------------------------------
-
   async start(): Promise<void> {
     await this.register();
     this.heartbeatInterval = setInterval(
@@ -110,10 +91,6 @@ export class AgentCoordinator {
     await this.unregister();
     this.started = false;
   }
-
-  // -----------------------------------------------------------------------
-  // Agent Discovery
-  // -----------------------------------------------------------------------
 
   async register(): Promise<void> {
     const info: AgentInfo = {
@@ -202,10 +179,6 @@ export class AgentCoordinator {
     };
     await this.store.capture(this.buildRegistryEvent(info));
   }
-
-  // -----------------------------------------------------------------------
-  // Distributed Locking
-  // -----------------------------------------------------------------------
 
   async acquireLock(resource: string, ttlMs?: number): Promise<boolean> {
     await this.cleanExpiredLocks();
@@ -303,10 +276,6 @@ export class AgentCoordinator {
     // We don't delete events from the append-only store
     return 0;
   }
-
-  // -----------------------------------------------------------------------
-  // Message Passing
-  // -----------------------------------------------------------------------
 
   async send(
     to: string,

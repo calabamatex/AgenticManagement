@@ -3,14 +3,12 @@ import * as http from 'http';
 import * as net from 'net';
 import * as crypto from 'crypto';
 import { EventStream } from '../../src/streaming/event-stream';
-import { WsTransport } from '../../src/streaming/ws-transport';
-
-/** RFC 6455 magic GUID for computing Sec-WebSocket-Accept. */
-const WS_MAGIC = '258EAFA5-E914-47DA-95CA-5AB9FC11';
+import { WsTransport, WS_MAGIC_GUID } from '../../src/streaming/ws-transport';
 
 /**
  * Perform a raw WebSocket handshake and return the connected socket.
  * Uses http.request with the upgrade event to handle the 101 response.
+ * If the server rejects the upgrade (e.g. wrong path), the promise rejects.
  */
 function wsConnect(port: number, path: string = '/ws'): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
@@ -32,7 +30,7 @@ function wsConnect(port: number, path: string = '/ws'): Promise<net.Socket> {
     req.on('upgrade', (res, socket) => {
       const expectedAccept = crypto
         .createHash('sha1')
-        .update(key + WS_MAGIC)
+        .update(key + WS_MAGIC_GUID)
         .digest('base64');
 
       const accept = res.headers['sec-websocket-accept'];
@@ -43,6 +41,13 @@ function wsConnect(port: number, path: string = '/ws'): Promise<net.Socket> {
       }
 
       resolve(socket as net.Socket);
+    });
+
+    // When the server rejects the upgrade (e.g. wrong path), we get a
+    // normal HTTP response instead of the upgrade event.
+    req.on('response', (res) => {
+      res.resume(); // drain the response
+      reject(new Error(`Upgrade rejected with status ${res.statusCode}`));
     });
 
     req.on('error', reject);
@@ -180,7 +185,7 @@ describe('WsTransport', () => {
     });
 
     it('should reject connections to wrong path', async () => {
-      await expect(wsConnect(port, '/wrong')).rejects.toThrow();
+      await expect(wsConnect(port, '/wrong')).rejects.toThrow('Upgrade rejected');
     });
   });
 
@@ -287,7 +292,7 @@ describe('WsTransport', () => {
       expect(stream.getClientCount()).toBe(1);
 
       socket.destroy();
-      await new Promise((r) => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 200));
       expect(stream.getClientCount()).toBe(0);
     });
   });
