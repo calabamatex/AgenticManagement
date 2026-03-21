@@ -10,8 +10,8 @@ CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
 PREFIX="[AgentOps]"
 
 # Parse config
-CLAUDE_MD_MAX_LINES=$(jq -r '.rules_file.max_lines // 300' "$CONFIG_FILE" 2>/dev/null || echo 300)
-AGENTS_MD_MAX_LINES=$(jq -r '.rules_file.max_lines // 300' "$CONFIG_FILE" 2>/dev/null || echo 300)
+CLAUDE_MD_MAX_LINES=$(jq -r '.rules_file.claude_md_max_lines // .rules_file.max_lines // 300' "$CONFIG_FILE" 2>/dev/null || echo 300)
+AGENTS_MD_MAX_LINES=$(jq -r '.rules_file.agents_md_max_lines // .rules_file.max_lines // 300' "$CONFIG_FILE" 2>/dev/null || echo 300)
 
 # Find repo root
 if git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -41,7 +41,7 @@ fi
 
 CLAUDE_MD="$REPO_ROOT/CLAUDE.md"
 if [[ ! -f "$CLAUDE_MD" ]]; then
-    CRITICALS+=("No CLAUDE.md found. Create one with project rules and agent configuration.")
+    WARNINGS+=("CLAUDE.md missing. Create one with project rules and agent configuration for best results.")
 else
     CLAUDE_LINES=$(wc -l < "$CLAUDE_MD" | tr -d ' ')
 

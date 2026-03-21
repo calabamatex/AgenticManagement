@@ -223,15 +223,10 @@ if [[ -n "$FILE_PATH" ]]; then
 
         while IFS= read -r pattern; do
             [[ -z "$pattern" ]] && continue
-            if python3 -c "
-import fnmatch, sys, pathlib
-path = sys.argv[1]
-pattern = sys.argv[2]
-if '**' in pattern:
-    match = pathlib.PurePath(path).match(pattern)
-else:
-    match = fnmatch.fnmatch(path, pattern)
-sys.exit(0 if match else 1)
+            if node -e "
+const p = process.argv[1], g = process.argv[2];
+const re = new RegExp('^' + g.replace(/[.+^${}()|[\]\\\\]/g, '\\\\$&').replace(/\*\*\\//g, '(?:.+/)?').replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '.') + '$');
+process.exit(re.test(p) ? 0 : 1);
 " "$REL_PATH" "$pattern" 2>/dev/null; then
                 FILE_ALLOWED=true
                 break
@@ -265,37 +260,27 @@ if [[ -n "$SCOPE_MAX_TOKENS" && "$SCOPE_MAX_TOKENS" != "null" && "$SCOPE_MAX_TOK
         # Best approach: sum input_tokens + output_tokens from cost-log entries
         # since the delegation was issued.
         if [[ -f "$DASHBOARD_DATA/cost-log.json" && -n "$TOKEN_ISSUED" ]]; then
-            CURRENT_TOKENS="$(python3 -c "
-import json, sys
-from datetime import datetime, timezone
-
-issued = sys.argv[1]
-try:
-    issued_dt = datetime.fromisoformat(issued.replace('Z', '+00:00'))
-except:
-    print(0)
-    sys.exit(0)
-
-total = 0
-try:
-    with open(sys.argv[2], 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-                ts = entry.get('timestamp', '')
-                entry_dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
-                if entry_dt >= issued_dt:
-                    total += int(entry.get('input_tokens', 0))
-                    total += int(entry.get('output_tokens', 0))
-            except:
-                continue
-except:
-    pass
-
-print(total)
+            CURRENT_TOKENS="$(node -e "
+const fs = require('fs');
+const issued = process.argv[1];
+const logFile = process.argv[2];
+try {
+  const issuedMs = new Date(issued).getTime();
+  let total = 0;
+  const lines = fs.readFileSync(logFile, 'utf-8').split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    try {
+      const entry = JSON.parse(line);
+      const entryMs = new Date(entry.timestamp || '').getTime();
+      if (entryMs >= issuedMs) {
+        total += parseInt(entry.input_tokens || 0, 10);
+        total += parseInt(entry.output_tokens || 0, 10);
+      }
+    } catch {}
+  }
+  process.stdout.write(String(total));
+} catch { process.stdout.write('0'); }
 " "$TOKEN_ISSUED" "$DASHBOARD_DATA/cost-log.json" 2>/dev/null)" || true
         fi
     fi
