@@ -64,6 +64,7 @@ function printHelp(): void {
     '  agentops stream --filter type=error',
     '  agentops plugin list',
     '  agentops config show',
+    '  agentops dashboard --port 9200',
   ];
   process.stdout.write(lines.join('\n') + '\n');
 }
