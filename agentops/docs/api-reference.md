@@ -417,7 +417,7 @@ interface PluginManifest {
 interface InstalledPlugin {
   manifest: PluginManifest; path: string;
   enabled: boolean; installedAt: string;
-  source: 'core' | 'community' | 'marketplace';
+  source: 'core' | 'community';
 }
 
 interface PluginSearchOptions {
