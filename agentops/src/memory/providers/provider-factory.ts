@@ -6,10 +6,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { StorageProvider } from './storage-provider';
 import { SqliteProvider } from './sqlite-provider';
+import { SupabaseProvider } from './supabase-provider';
 export interface MemoryConfig {
   enabled: boolean;
   provider: 'sqlite' | 'supabase';
-  embedding_provider: 'auto' | 'onnx' | 'ollama' | 'openai' | 'noop';
+  embedding_provider: 'auto' | 'onnx' | 'ollama' | 'openai' | 'voyage' | 'noop';
   database_path: string;
   max_events: number;
   auto_prune_days: number;
@@ -41,9 +42,7 @@ export function createProvider(config?: MemoryConfig): StorageProvider {
   const cfg = config ?? loadMemoryConfig();
 
   if (cfg.provider === 'supabase') {
-    throw new Error(
-      "Supabase provider is planned but not yet implemented. Use 'sqlite' (default)."
-    );
+    return new SupabaseProvider();
   }
 
   if (cfg.provider === 'sqlite') {

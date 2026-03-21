@@ -29,5 +29,19 @@ export { EventEnricher, LocalPatternMatcher } from './memory/enrichment';
 // Audit
 export { AuditIndex } from './memory/audit-index';
 
+// Coordination
+export { AgentCoordinator } from './coordination/coordinator';
+export type { AgentInfo, LockInfo, CoordinationMessage, CoordinatorOptions } from './coordination/coordinator';
+
+// Plugin Registry
+export { PluginRegistry } from './plugins/registry';
+export type { PluginManifest, InstalledPlugin, PluginSearchOptions } from './plugins/registry';
+
 // MCP Server
 export { createMcpServer } from './mcp/server';
+
+// Streaming
+export { EventStream } from './streaming/event-stream';
+export { SseTransport } from './streaming/sse-transport';
+export { WsTransport } from './streaming/ws-transport';
+export type { StreamFilter, StreamClient, StreamEvent, EventStreamOptions } from './streaming/event-stream';

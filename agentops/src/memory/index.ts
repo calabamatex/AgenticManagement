@@ -23,6 +23,7 @@ export {
 } from './schema';
 export { StorageProvider } from './providers/storage-provider';
 export { SqliteProvider } from './providers/sqlite-provider';
+export { SupabaseProvider } from './providers/supabase-provider';
 export { createProvider, loadMemoryConfig, MemoryConfig } from './providers/provider-factory';
 export {
   EmbeddingProvider,
@@ -30,6 +31,7 @@ export {
   OnnxEmbeddingProvider,
   OllamaEmbeddingProvider,
   OpenAIEmbeddingProvider,
+  VoyageEmbeddingProvider,
   detectEmbeddingProvider,
 } from './embeddings';
 export { registerEventSubscriber } from './event-subscriber';
