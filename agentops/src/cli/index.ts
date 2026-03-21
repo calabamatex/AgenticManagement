@@ -34,6 +34,7 @@ const commands: CommandDefinition[] = [
   streamCommand,
   pluginCommand,
   configCommand,
+  dashboardCommand,
 ];
 
 const commandMap = new Map(commands.map((c) => [c.name, c]));
