@@ -383,7 +383,7 @@ interface CoordinationMessage {
 
 ### `PluginRegistry`
 
-Discovers, validates, installs, and manages plugins from `core/`, `community/`, and `marketplace/` directories.
+[experimental] Local plugin registry — discovers, validates, installs, and manages plugins from `core/` and `community/` directories. Local directory scanning only.
 
 ```typescript
 constructor(pluginsDir?: string)  // default: 'plugins'
