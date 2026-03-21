@@ -16,7 +16,7 @@ import { EventStream, StreamClient, StreamEvent, StreamFilter } from './event-st
 // ---------------------------------------------------------------------------
 
 /** RFC 6455 Section 4.2.2 — magic GUID for Sec-WebSocket-Accept. */
-export const WS_MAGIC_GUID = '258EAFA5-E914-47DA-95CA-5AB9FC11';
+export const WS_MAGIC_GUID = '258EAFA5-E914-47DA-95CA-5AB5FC11B36';
 
 // WebSocket opcodes
 const OPCODE_TEXT = 0x01;

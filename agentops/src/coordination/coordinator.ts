@@ -386,17 +386,29 @@ export class AgentCoordinator {
       limit: 500,
     });
 
-    // Find latest event for this task
+    // Collect all events for this task and pick the terminal status.
+    // Events come DESC by timestamp, but same-ms events may be unordered.
+    // Terminal statuses (complete, failed) always win over pending.
+    let best: { status: string; result?: Record<string, unknown>; ts: string } | null = null;
+    const terminalStatuses = new Set(['complete', 'failed']);
+
     for (const evt of events) {
       const meta = evt.metadata as Record<string, unknown>;
       if (meta.taskId !== taskId) continue;
-      return {
-        status: meta.status as string,
-        result: meta.result as Record<string, unknown> | undefined,
-      };
+      const status = meta.status as string;
+      const result = meta.result as Record<string, unknown> | undefined;
+
+      if (!best) {
+        best = { status, result, ts: evt.timestamp };
+      } else if (terminalStatuses.has(status) && !terminalStatuses.has(best.status)) {
+        best = { status, result, ts: evt.timestamp };
+      } else if (evt.timestamp > best.ts) {
+        best = { status, result, ts: evt.timestamp };
+      }
     }
 
-    return null;
+    if (!best) return null;
+    return { status: best.status, result: best.result };
   }
 
   private buildRegistryEvent(info: AgentInfo): OpsEventInput {
