@@ -29,5 +29,9 @@ export { EventEnricher, LocalPatternMatcher } from './memory/enrichment';
 // Audit
 export { AuditIndex } from './memory/audit-index';
 
+// Coordination
+export { AgentCoordinator } from './coordination/coordinator';
+export type { AgentInfo, LockInfo, CoordinationMessage, CoordinatorOptions } from './coordination/coordinator';
+
 // MCP Server
 export { createMcpServer } from './mcp/server';
