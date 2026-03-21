@@ -33,5 +33,9 @@ export { AuditIndex } from './memory/audit-index';
 export { AgentCoordinator } from './coordination/coordinator';
 export type { AgentInfo, LockInfo, CoordinationMessage, CoordinatorOptions } from './coordination/coordinator';
 
+// Plugin Registry
+export { PluginRegistry } from './plugins/registry';
+export type { PluginManifest, InstalledPlugin, PluginSearchOptions } from './plugins/registry';
+
 // MCP Server
 export { createMcpServer } from './mcp/server';
