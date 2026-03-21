@@ -30,3 +30,14 @@
 {"timestamp":"2026-03-21T16:40:12Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 2 file(s) changed","severity":"info"}
 {"timestamp":"2026-03-21T16:58:27Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 5 file(s) changed","severity":"info"}
 {"timestamp":"2026-03-21T17:18:34Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 7 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:18:41Z","type":"session-end","message":"Session ended cleanly — no uncommitted changes","severity":"info"}
+{"timestamp":"2026-03-21T17:21:39Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 1 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:24:18Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 3 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:29:11Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 6 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:29:19Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 3 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:29:40Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 3 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:29:44Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 3 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:30:12Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 5 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:30:17Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 2 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:30:37Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 1 file(s) changed","severity":"info"}
+{"timestamp":"2026-03-21T17:30:41Z","type":"session-end","message":"Session ended with auto-commit: [agentops] session-end checkpoint — 1 file(s) changed","severity":"info"}
