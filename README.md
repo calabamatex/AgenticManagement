@@ -70,7 +70,7 @@ cd /path/to/your/project
 bash agentops/scripts/setup-wizard.sh
 ```
 
-The wizard asks what level you want to start at, generates your `agentops.config.json`, sets up git hooks, and registers only the hooks you need. Level 1 (Safe Ground) takes 5 minutes and gives you automatic git checkpoints and branch protection.
+The wizard prompts for your preferred enablement level (1-5) and generates the corresponding enablement configuration in `agentops.config.json`. It does not install git hooks, register MCP servers, or modify `.claude/settings.json` -- see the Manual Setup section below for those steps.
 
 ### Manual Setup
 
@@ -227,7 +227,7 @@ When running as an MCP server, AgentOps exposes 8 tools that any compatible AI c
 | `agentops_check_context` | Context window usage, degradation signals, continue/refresh recommendation |
 | `agentops_check_rules` | Validates a proposed change against rules files, returns violations |
 | `agentops_size_task` | Risk score + decomposition recommendation for a task description |
-| `agentops_scan_security` | Scans content for secrets, PII, missing error handling |
+| `agentops_scan_security` | Scans content for secrets and dangerous code patterns (SQL injection, eval, private keys) |
 | `agentops_capture_event` | Writes a decision, violation, or incident to persistent memory |
 | `agentops_search_history` | Semantic search across all stored operational events |
 | `agentops_health` | Current health scores, KPIs, and skill-level status as JSON |
