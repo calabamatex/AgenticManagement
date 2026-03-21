@@ -2,8 +2,9 @@
 
 **Last updated:** 2026-03-20
 **Branch:** main
-**Test count:** 411+ tests passing
+**Test count:** 427 tests passing
 **Build status:** Clean
+Last verified: 2026-03-20
 
 ## Recent Work
 
@@ -14,7 +15,7 @@ This session completed all 4 build phases of AgentOps v4.0, plus P0 scaling fixe
 | Area | Entry Point |
 |------|-------------|
 | Memory Store | `agentops/src/memory/store.ts` |
-| MCP Server | `agentops/src/mcp/server.ts` |
+| MCP Server | `agentops/src/mcp/server.ts` (built: `agentops/dist/src/mcp/server.js`) |
 | Primitives | `agentops/src/primitives/index.ts` |
 | Enablement | `agentops/src/enablement/engine.ts` |
 | Enrichment | `agentops/src/memory/enrichment.ts` |
