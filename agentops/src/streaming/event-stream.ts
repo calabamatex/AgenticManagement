@@ -69,9 +69,12 @@ export class EventStream extends EventEmitter {
   private maxClients: number;
   private bufferSize: number;
   private heartbeatIntervalMs: number;
+  private maxClientBacklog: number;
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private started: boolean = false;
   private eventsPublished: number = 0;
+  private eventsDropped: number = 0;
+  private clientBacklog: Map<string, number> = new Map();
   private busHandler: ((payload: EventPayload) => void) | null = null;
 
   constructor(options?: EventStreamOptions) {
