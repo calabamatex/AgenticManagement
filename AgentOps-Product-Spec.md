@@ -1629,14 +1629,14 @@ AgentOps exposes its full management layer via the Model Context Protocol (MCP),
 
 ```bash
 # Start
-node agentops/src/mcp/server.js
+node agentops/dist/src/mcp/server.js
 ```
 
 **HTTP (optional):** For remote or team access. Requires an access key (generated on install, stored in `.env`). Rate limited to 100 req/min by default.
 
 ```bash
 # Start
-node agentops/src/mcp/server.js --http --port 3100
+node agentops/dist/src/mcp/server.js --http --port 3100
 # Auth: x-agentops-key header or ?key= query param
 ```
 
@@ -1644,7 +1644,7 @@ node agentops/src/mcp/server.js --http --port 3100
 
 **Claude Code:**
 ```bash
-claude mcp add agentops -- node agentops/src/mcp/server.js
+claude mcp add agentops -- node agentops/dist/src/mcp/server.js
 ```
 
 **Cursor (`.cursor/mcp.json`):**
@@ -1653,7 +1653,7 @@ claude mcp add agentops -- node agentops/src/mcp/server.js
   "mcpServers": {
     "agentops": {
       "command": "node",
-      "args": ["agentops/src/mcp/server.js"]
+      "args": ["agentops/dist/src/mcp/server.js"]
     }
   }
 }
@@ -1743,14 +1743,16 @@ New users should not face a wall of 5 skills and 30+ configuration options on da
 
 ### 28.3 Setup Wizard
 
-The interactive CLI wizard (`scripts/setup-wizard.sh`) asks the user for their preferred level and generates the appropriate `agentops.config.json`, creates only the scaffold docs needed for that level, and registers only the relevant hooks.
+The interactive CLI wizard (`scripts/setup-wizard.sh`) prompts for the user's preferred level, generates the corresponding enablement JSON, and merges it into `agentops.config.json`. It supports `--level N` for non-interactive use and `--dry-run` to preview without writing changes.
+
+> **Note:** The wizard is config-only. It does not install git hooks, register MCP servers, or modify `.claude/settings.json`. Hook and MCP wiring are documented separately in the Quick Start guide (`docs/quick-start.md`).
 
 ```bash
-# Quick start — Level 1 in under 5 minutes
-node agentops/scripts/setup-wizard.js --level 1
+# Quick start — Level 1
+bash agentops/scripts/setup-wizard.sh --level 1
 
 # Or interactive
-node agentops/scripts/setup-wizard.js
+bash agentops/scripts/setup-wizard.sh
 ```
 
 ### 28.4 Dashboard Adaptation
@@ -1800,7 +1802,7 @@ The hash-chained audit trail (§19) gains optional vector indexing. When an audi
 | File | Purpose |
 |---|---|
 | `agentops/scripts/*.sh` | Monitoring and audit scripts |
-| `agentops/scripts/setup-wizard.js` | Interactive setup for progressive enablement |
+| `agentops/scripts/setup-wizard.sh` | Enablement configuration generator (config-only; does not install hooks or MCP) |
 | `agentops/templates/*.md` | Scaffold document templates |
 | `agentops/agentops.config.json` | Configuration |
 | `agentops/dashboard/agentops-dashboard.html` | Web dashboard |
@@ -1872,7 +1874,7 @@ npm install agentops
 node agentops/scripts/setup-wizard.js
 ```
 
-The wizard asks for your preferred enablement level (1-5), generates `agentops.config.json`, creates scaffold docs, registers hooks, and optionally adds the MCP server to your AI tool.
+The wizard prompts for your preferred enablement level (1-5) and generates the corresponding enablement configuration in `agentops.config.json`. It does not install hooks or register MCP servers -- see Option B below for those steps.
 
 ### Option B: Manual Setup
 
@@ -1886,7 +1888,7 @@ The wizard asks for your preferred enablement level (1-5), generates `agentops.c
    - For others: Create equivalent hook integrations
 
 3. **Add MCP integration (optional):**
-   - Claude Code: `claude mcp add agentops -- node agentops/src/mcp/server.js`
+   - Claude Code: `claude mcp add agentops -- node agentops/dist/src/mcp/server.js`
    - Cursor: Add to `.cursor/mcp.json` (see §26.4)
 
 4. **Create rules files:**
