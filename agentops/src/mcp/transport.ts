@@ -3,7 +3,10 @@
  */
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createServer, IncomingMessage, ServerResponse } from 'http';
+import type { AddressInfo } from 'net';
+import { randomUUID } from 'crypto';
 import { validateAccessKey, createRateLimiter } from './auth';
 
 /**
@@ -17,14 +20,16 @@ export function createStdioTransport(): StdioServerTransport {
 export interface HttpTransportServer {
   server: ReturnType<typeof createServer>;
   port: number;
+  transport: StreamableHTTPServerTransport;
   close(): Promise<void>;
 }
 
 /**
  * Creates an HTTP transport that wraps the MCP server.
  * Validates access keys and applies rate limiting.
+ * Uses the real StreamableHTTPServerTransport from the MCP SDK.
  *
- * @param port Port to listen on
+ * @param port Port to listen on (use 0 for random available port)
  * @param accessKey Optional access key for authentication
  */
 export function createHttpTransport(
@@ -33,11 +38,15 @@ export function createHttpTransport(
 ): HttpTransportServer {
   const rateLimiter = createRateLimiter(100, 60000);
 
+  const mcpTransport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: () => randomUUID(),
+  });
+
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-agentops-key');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-agentops-key, Mcp-Session-Id');
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
@@ -48,7 +57,8 @@ export function createHttpTransport(
     // Access key validation
     if (accessKey) {
       const headerKey = req.headers['x-agentops-key'] as string | undefined;
-      const url = new URL(req.url ?? '/', `http://localhost:${port}`);
+      const actualPort = result.port || port;
+      const url = new URL(req.url ?? '/', `http://localhost:${actualPort}`);
       const queryKey = url.searchParams.get('key') ?? undefined;
       const providedKey = headerKey ?? queryKey ?? '';
 
@@ -68,42 +78,26 @@ export function createHttpTransport(
         return;
       }
 
-      // MCP JSON-RPC endpoint
-      if (req.method === 'POST') {
-        let body = '';
-        req.on('data', (chunk: Buffer) => {
-          body += chunk.toString();
-        });
-        req.on('end', () => {
-          try {
-            const parsed = JSON.parse(body);
-            // Store parsed body on request for downstream handling
-            (req as IncomingMessage & { body: unknown }).body = parsed;
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({
-              jsonrpc: '2.0',
-              id: parsed.id,
-              result: { message: 'HTTP transport ready. Use stdio for full MCP protocol.' },
-            }));
-          } catch {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Invalid JSON' }));
-          }
-        });
-        return;
-      }
-
-      res.writeHead(405, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Method Not Allowed' }));
+      // Delegate all other requests to the MCP StreamableHTTPServerTransport
+      mcpTransport.handleRequest(req, res).catch((err: unknown) => {
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Internal server error' }));
+        }
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error('MCP transport error:', errorMessage);
+      });
     });
   });
 
   server.listen(port);
 
-  return {
+  const result: HttpTransportServer = {
     server,
     port,
+    transport: mcpTransport,
     async close(): Promise<void> {
+      await mcpTransport.close();
       return new Promise((resolve, reject) => {
         server.close((err) => {
           if (err) reject(err);
@@ -112,4 +106,15 @@ export function createHttpTransport(
       });
     },
   };
+
+  // Once the server is listening, update the port from the actual address
+  // (important when port 0 is used for random assignment)
+  server.on('listening', () => {
+    const addr = server.address() as AddressInfo;
+    if (addr) {
+      result.port = addr.port;
+    }
+  });
+
+  return result;
 }
