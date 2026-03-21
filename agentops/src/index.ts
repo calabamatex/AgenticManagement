@@ -1,0 +1,33 @@
+/**
+ * AgentOps v4.0 — Public API
+ *
+ * Re-exports the core modules for programmatic use.
+ * This barrel file prepares the codebase for future npm packaging.
+ */
+
+// Memory Store
+export { MemoryStore } from './memory/store';
+export type { OpsEvent, EventType, Severity, Skill, SearchResult, OpsStats, ChainVerification } from './memory/schema';
+
+// Providers
+export type { StorageProvider } from './memory/providers/storage-provider';
+export { createProvider, loadMemoryConfig } from './memory/providers/provider-factory';
+export { detectEmbeddingProvider } from './memory/embeddings';
+export type { EmbeddingProvider } from './memory/embeddings';
+
+// Primitives
+export { assessRisk } from './primitives/risk-scoring';
+export { validateRules } from './primitives/rules-validation';
+export { scanForSecrets } from './primitives/secret-detection';
+
+// Enablement
+export { generateConfigForLevel, isSkillEnabled, getActiveSkills, getNextLevel, validateEnablementConfig, LEVEL_NAMES } from './enablement/engine';
+
+// Enrichment
+export { EventEnricher, LocalPatternMatcher } from './memory/enrichment';
+
+// Audit
+export { AuditIndex } from './memory/audit-index';
+
+// MCP Server
+export { createMcpServer } from './mcp/server';

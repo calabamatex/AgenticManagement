@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const name = 'agentops_scan_security';
 export const description =
-  'Scan code or text content for security issues including API keys, hardcoded passwords, SQL injection patterns, and eval usage.';
+  'Scan code content for security issues: API keys, hardcoded passwords, SQL injection patterns, eval usage, and private keys.';
 
 export const inputSchema = {
   type: 'object' as const,
