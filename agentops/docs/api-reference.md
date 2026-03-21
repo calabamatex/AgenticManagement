@@ -443,11 +443,14 @@ Returns a `@modelcontextprotocol/sdk` `Server` instance ready for transport conn
 
 ---
 
-## Streaming
+## Streaming [beta]
+
+> Local event streaming for the development dashboard. Not a cloud event platform.
+> See ADR-001 for architecture decision.
 
 ### `EventStream`
 
-Real-time event streaming bridge. Subscribes to the internal event bus and fans out to connected clients with filter-based routing and a rolling replay buffer.
+Real-time event streaming bridge with backpressure handling. Subscribes to the internal event bus and fans out to connected clients with filter-based routing and a rolling replay buffer.
 
 ```typescript
 constructor(options?: EventStreamOptions)
