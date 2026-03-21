@@ -289,11 +289,14 @@ getSessionTimeline(sessionId: string): Promise<AuditSearchResult[]>
 
 ---
 
-## Coordination
+## Coordination [experimental]
+
+> Single-machine, event-sourced coordination. Not a distributed system.
+> No consensus protocol. Best-effort only. See `lease.ts` for formal lease model.
 
 ### `AgentCoordinator`
 
-Multi-agent coordination with agent registry, distributed locks, messaging, and task delegation.
+Multi-agent coordination with agent registry, locks, messaging, and task delegation.
 
 ```typescript
 constructor(options: CoordinatorOptions)
