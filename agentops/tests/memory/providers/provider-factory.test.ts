@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createProvider, loadMemoryConfig } from '../../../src/memory/providers/provider-factory';
 import { SqliteProvider } from '../../../src/memory/providers/sqlite-provider';
+import { SupabaseProvider } from '../../../src/memory/providers/supabase-provider';
 
 describe('ProviderFactory', () => {
   describe('loadMemoryConfig()', () => {
@@ -26,17 +27,18 @@ describe('ProviderFactory', () => {
       expect(provider.name).toBe('sqlite');
     });
 
-    it('throws when Supabase provider is configured', () => {
-      expect(() =>
-        createProvider({
-          enabled: true,
-          provider: 'supabase',
-          embedding_provider: 'auto',
-          database_path: '',
-          max_events: 100000,
-          auto_prune_days: 365,
-        })
-      ).toThrow("Supabase provider is planned but not yet implemented. Use 'sqlite' (default).");
+    it('creates SupabaseProvider when configured', () => {
+      const provider = createProvider({
+        enabled: true,
+        provider: 'supabase',
+        embedding_provider: 'auto',
+        database_path: '',
+        max_events: 100000,
+        auto_prune_days: 365,
+      });
+      expect(provider).toBeInstanceOf(SupabaseProvider);
+      expect(provider.name).toBe('supabase');
+      expect(provider.mode).toBe('remote');
     });
   });
 });
