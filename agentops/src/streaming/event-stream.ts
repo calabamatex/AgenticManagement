@@ -48,6 +48,8 @@ export interface EventStreamOptions {
   bufferSize?: number;
   /** Heartbeat interval in milliseconds (default 30000). */
   heartbeatIntervalMs?: number;
+  /** Maximum queued events per client before dropping (default 100). Backpressure. */
+  maxClientBacklog?: number;
 }
 
 // ---------------------------------------------------------------------------
