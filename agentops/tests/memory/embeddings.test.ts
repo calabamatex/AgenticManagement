@@ -5,6 +5,15 @@ import {
   VoyageEmbeddingProvider,
 } from '../../src/memory/embeddings';
 
+// Mock https module for VoyageEmbeddingProvider.embed() tests
+vi.mock('https', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('https')>();
+  return {
+    ...actual,
+    request: vi.fn(actual.request),
+  };
+});
+
 describe('EmbeddingProvider', () => {
   describe('NoopEmbeddingProvider', () => {
     it('returns empty array for any input', async () => {
@@ -134,7 +143,7 @@ describe('EmbeddingProvider', () => {
         end: vi.fn(),
       };
 
-      const requestSpy = vi.spyOn(https, 'request').mockImplementation(
+      vi.mocked(https.request).mockImplementation(
         (_opts: any, cb: any) => {
           cb(mockResponse);
           return mockReq as any;
@@ -146,7 +155,7 @@ describe('EmbeddingProvider', () => {
       const result = await provider.embed('test text');
 
       expect(result).toEqual(mockEmbedding);
-      expect(requestSpy).toHaveBeenCalledWith(
+      expect(https.request).toHaveBeenCalledWith(
         expect.objectContaining({
           hostname: 'api.voyageai.com',
           path: '/v1/embeddings',
@@ -162,7 +171,7 @@ describe('EmbeddingProvider', () => {
       expect(body.input).toEqual(['test text']);
       expect(body.output_dimension).toBe(384);
 
-      requestSpy.mockRestore();
+      vi.mocked(https.request).mockRestore();
     });
   });
 });
