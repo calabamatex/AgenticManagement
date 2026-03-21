@@ -7,6 +7,26 @@
   "bin": {
     "agentops": "./dist/src/cli/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ruvnet/agentops.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agentops",
+    "agent",
+    "observability",
+    "memory",
+    "ai",
+    "llm",
+    "mcp"
+  ],
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
