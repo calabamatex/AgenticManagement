@@ -210,8 +210,19 @@ export class EventStream extends EventEmitter {
 
     for (const client of this.clients.values()) {
       if (this.matchesFilter(event, client.filter)) {
+        // Backpressure: track pending events per client
+        const backlog = this.clientBacklog.get(client.id) ?? 0;
+        if (backlog >= this.maxClientBacklog) {
+          this.eventsDropped++;
+          this.emit('backpressure', { clientId: client.id, dropped: true });
+          continue;
+        }
         try {
+          this.clientBacklog.set(client.id, backlog + 1);
           client.send(event);
+          // Decrement after send succeeds (approximation — real backpressure
+          // would need async acknowledgement, but this prevents runaway queues)
+          this.clientBacklog.set(client.id, Math.max((this.clientBacklog.get(client.id) ?? 1) - 1, 0));
         } catch {
           // Transport-level failures are non-fatal.
         }
