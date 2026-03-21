@@ -13,6 +13,16 @@ vi.mock('@modelcontextprotocol/sdk/server/stdio.js', () => {
   };
 });
 
+vi.mock('@modelcontextprotocol/sdk/server/streamableHttp.js', () => {
+  return {
+    StreamableHTTPServerTransport: vi.fn().mockImplementation(() => ({
+      type: 'streamableHttp',
+      handleRequest: vi.fn().mockResolvedValue(undefined),
+      close: vi.fn().mockResolvedValue(undefined),
+    })),
+  };
+});
+
 import { createStdioTransport, createHttpTransport } from '../../src/mcp/transport';
 
 describe('Transport', () => {
@@ -35,13 +45,22 @@ describe('Transport', () => {
     });
 
     it('should create an HTTP server on specified port', async () => {
-      httpTransport = createHttpTransport(0); // port 0 = random available port
+      httpTransport = createHttpTransport(0);
+      await httpTransport.ready;
       const addr = httpTransport.server.address();
       expect(addr).not.toBeNull();
     });
 
+    it('should expose a transport property', async () => {
+      httpTransport = createHttpTransport(0);
+      await httpTransport.ready;
+      expect(httpTransport.transport).toBeDefined();
+      expect((httpTransport.transport as unknown as { type: string }).type).toBe('streamableHttp');
+    });
+
     it('should respond to health check', async () => {
       httpTransport = createHttpTransport(0);
+      await httpTransport.ready;
       const addr = httpTransport.server.address();
       if (!addr || typeof addr === 'string') return;
 
@@ -57,6 +76,7 @@ describe('Transport', () => {
 
       try {
         httpTransport = createHttpTransport(0, 'test-secret-key');
+        await httpTransport.ready;
         const addr = httpTransport.server.address();
         if (!addr || typeof addr === 'string') return;
 
@@ -77,6 +97,7 @@ describe('Transport', () => {
 
       try {
         httpTransport = createHttpTransport(0, 'test-secret-key');
+        await httpTransport.ready;
         const addr = httpTransport.server.address();
         if (!addr || typeof addr === 'string') return;
 
@@ -99,6 +120,7 @@ describe('Transport', () => {
 
       try {
         httpTransport = createHttpTransport(0, 'test-secret-key');
+        await httpTransport.ready;
         const addr = httpTransport.server.address();
         if (!addr || typeof addr === 'string') return;
 
@@ -113,44 +135,21 @@ describe('Transport', () => {
       }
     });
 
-    it('should reject invalid POST JSON', async () => {
+    it('should handle CORS preflight', async () => {
       httpTransport = createHttpTransport(0);
+      await httpTransport.ready;
       const addr = httpTransport.server.address();
       if (!addr || typeof addr === 'string') return;
 
-      const response = await fetch(`http://127.0.0.1:${addr.port}/`, {
-        method: 'POST',
-        body: 'not json',
+      const response = await fetch(`http://127.0.0.1:${addr.port}/mcp`, {
+        method: 'OPTIONS',
       });
-      expect(response.status).toBe(400);
-    });
-
-    it('should accept valid POST JSON', async () => {
-      httpTransport = createHttpTransport(0);
-      const addr = httpTransport.server.address();
-      if (!addr || typeof addr === 'string') return;
-
-      const response = await fetch(`http://127.0.0.1:${addr.port}/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'test' }),
-      });
-      expect(response.status).toBe(200);
-    });
-
-    it('should reject unsupported methods', async () => {
-      httpTransport = createHttpTransport(0);
-      const addr = httpTransport.server.address();
-      if (!addr || typeof addr === 'string') return;
-
-      const response = await fetch(`http://127.0.0.1:${addr.port}/`, {
-        method: 'DELETE',
-      });
-      expect(response.status).toBe(405);
+      expect(response.status).toBe(204);
     });
 
     it('should close cleanly', async () => {
       httpTransport = createHttpTransport(0);
+      await httpTransport.ready;
       await httpTransport.close();
       httpTransport = null;
     });
