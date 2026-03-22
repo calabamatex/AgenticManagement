@@ -192,8 +192,8 @@ export class WsTransport {
           closeFrame[1] = 0;
           socket.write(closeFrame);
           socket.end();
-        } catch {
-          // Best-effort close.
+        } catch (e) {
+          logger.debug('WebSocket close frame send failed', { error: e instanceof Error ? e.message : String(e) });
         }
       },
     };
