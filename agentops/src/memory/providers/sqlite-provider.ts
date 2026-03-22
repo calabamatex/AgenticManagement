@@ -349,7 +349,8 @@ function safeJsonParse<T>(value: string | null | undefined, fallback: T): T {
   if (!value) return fallback;
   try {
     return JSON.parse(value);
-  } catch {
+  } catch (e) {
+    logger.debug('JSON parse failed in safeJsonParse', { error: e instanceof Error ? e.message : String(e) });
     return fallback;
   }
 }
