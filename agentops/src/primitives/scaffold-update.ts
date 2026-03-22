@@ -5,6 +5,9 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
+import { Logger } from '../observability/logger';
+
+const logger = new Logger({ module: 'scaffold-update' });
 
 export interface ScaffoldFile {
   path: string;
