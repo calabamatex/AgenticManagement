@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-22T17:42:52.664Z",
+  "timestamp": "2026-03-22T17:43:39.443Z",
   "system": {
     "nodeVersion": "v22.14.0",
     "platform": "darwin",
@@ -11,29 +11,29 @@
     {
       "name": "Insert (single)",
       "iterations": 100,
-      "totalTimeMs": 3548.148662999998,
-      "avgTimeMs": 35.48148662999998,
-      "opsPerSecond": 28.18371198557642,
-      "p50Ms": 21.395665999999892,
-      "p95Ms": 80.50425000000087,
-      "p99Ms": 103.75129100000004
+      "totalTimeMs": 10619.226661000006,
+      "avgTimeMs": 106.19226661000006,
+      "opsPerSecond": 9.416881585855807,
+      "p50Ms": 44.2626250000003,
+      "p95Ms": 199.93116700000064,
+      "p99Ms": 507.18804100000034
     },
     {
       "name": "Search (keyword)",
       "iterations": 100,
-      "totalTimeMs": 1404.1768720000018,
-      "avgTimeMs": 14.041768720000018,
-      "opsPerSecond": 71.21609961967802,
-      "p50Ms": 11.776208000001134,
-      "p95Ms": 22.58349999999973,
-      "p99Ms": 38.40241600000081
+      "totalTimeMs": 3745.629661999992,
+      "avgTimeMs": 37.45629661999992,
+      "opsPerSecond": 26.69778088702038,
+      "p50Ms": 21.56775000000198,
+      "p95Ms": 81.41279199999917,
+      "p99Ms": 167.67250000000058
     },
     {
       "name": "Insert (batch)",
       "iterations": 100,
-      "totalTimeMs": 944.7683750000015,
-      "avgTimeMs": 9.447683750000015,
-      "opsPerSecond": 105.846049302825,
+      "totalTimeMs": 1639.2719169999982,
+      "avgTimeMs": 16.39271916999998,
+      "opsPerSecond": 61.00269208723357,
       "metadata": {
         "batchSize": 100,
         "captured": 100,
@@ -43,29 +43,29 @@
     {
       "name": "Cache (hit/miss)",
       "iterations": 100,
-      "totalTimeMs": 1763.4045420000002,
-      "avgTimeMs": 17.634045420000003,
-      "opsPerSecond": 56.70848498926005,
-      "p50Ms": 15.118875000000116,
-      "p95Ms": 31.933791000001293,
-      "p99Ms": 36.49237499999981,
+      "totalTimeMs": 2504.580455999985,
+      "avgTimeMs": 25.04580455999985,
+      "opsPerSecond": 39.92684673412647,
+      "p50Ms": 21.039624999997613,
+      "p95Ms": 40.60475000000224,
+      "p99Ms": 75.03154100000029,
       "metadata": {
         "coldQueries": 20,
         "hotQueries": 80,
-        "coldAvgMs": 16.4237,
-        "hotAvgMs": 17.9366,
-        "speedup": 0.92
+        "coldAvgMs": 22.1785,
+        "hotAvgMs": 25.7626,
+        "speedup": 0.86
       }
     },
     {
       "name": "Concurrent R/W",
       "iterations": 100,
-      "totalTimeMs": 1640.997707999999,
-      "avgTimeMs": 16.40997707999999,
-      "opsPerSecond": 60.93853727673827,
-      "p50Ms": 135.46550000000025,
-      "p95Ms": 286.5837080000001,
-      "p99Ms": 318.81529200000114,
+      "totalTimeMs": 2556.636374999998,
+      "avgTimeMs": 25.566363749999983,
+      "opsPerSecond": 39.1138923696179,
+      "p50Ms": 235.30229099999997,
+      "p95Ms": 430.81745899999805,
+      "p99Ms": 489.26079200000095,
       "metadata": {
         "readers": 5,
         "writers": 5,
@@ -74,5 +74,5 @@
       }
     }
   ],
-  "totalTimeMs": 12116.655665999999
+  "totalTimeMs": 28275.242833999997
 }
