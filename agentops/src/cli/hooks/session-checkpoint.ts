@@ -2,8 +2,8 @@
 /**
  * session-checkpoint.ts — TypeScript implementation of the session-end checkpoint hook.
  *
- * Runs when a session ends: auto-commits uncommitted changes,
- * resets tracking state files, and logs a session-end event.
+ * Runs when a session ends: creates a git stash snapshot of uncommitted changes,
+ * resets tracking state files, and logs a session-end event with the snapshot SHA.
  * Always exits 0 (advisory only, never blocks).
  */
 
@@ -47,9 +47,9 @@ function logEvent(sessionLog: string, msg: string, severity = 'info'): void {
   fs.appendFileSync(sessionLog, entry + '\n');
 }
 
-function autoCommit(config: Record<string, unknown>): string {
+function stashSnapshot(config: Record<string, unknown>): string {
   if (!isGitRepo()) {
-    console.log(`${PREFIX} Not inside a git repository — skipping auto-commit.`);
+    console.log(`${PREFIX} Not inside a git repository — skipping snapshot.`);
     return '';
   }
 
@@ -68,24 +68,39 @@ function autoCommit(config: Record<string, unknown>): string {
   }
 
   const summary = `${changedFiles} file(s) changed`;
-  const commitMsg = `[agentops] session-end checkpoint — ${summary}`;
   const savePoints = config?.save_points as Record<string, unknown> | undefined;
   const autoEnabled = savePoints?.auto_commit_enabled ?? true;
 
   if (!autoEnabled) {
-    console.log(`${PREFIX} Uncommitted changes detected (${summary}). Auto-commit disabled — skipping.`);
+    console.log(`${PREFIX} Uncommitted changes detected (${summary}). Auto-snapshot disabled — skipping.`);
     return '';
   }
 
-  console.log(`${PREFIX} Uncommitted changes detected (${summary}). Auto-committing...`);
+  console.log(`${PREFIX} Uncommitted changes detected (${summary}). Creating stash snapshot...`);
 
   try {
+    // Stage everything so git stash create captures all changes (including untracked)
     execSync('git add -A -- . ":!*.db" ":!*.db-journal" ":!*.db-wal"', { stdio: 'pipe' });
-    execSync(`git commit -m "${commitMsg}" --no-verify`, { stdio: 'pipe' });
-    console.log(`${PREFIX} Committed: ${commitMsg}`);
-    return commitMsg;
+
+    // git stash create: produces a SHA without modifying HEAD or the stash reflog
+    const sha = execSync('git stash create', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+
+    // Unstage so the working tree stays dirty (stash create doesn't reset)
+    execSync('git reset HEAD', { stdio: 'pipe' });
+
+    if (!sha) {
+      console.log(`${PREFIX} git stash create returned empty — no snapshot needed.`);
+      return '';
+    }
+
+    // Protect the SHA from garbage collection by storing it in the stash reflog
+    const stashMsg = `AgentOps checkpoint — ${summary}`;
+    execSync(`git stash store -m "${stashMsg}" ${sha}`, { stdio: 'pipe' });
+
+    console.log(`${PREFIX} Snapshot created: ${sha} (${summary})`);
+    return sha;
   } catch (e) {
-    logger.warn('Auto-commit failed during session checkpoint', { error: e instanceof Error ? e.message : String(e) });
+    logger.warn('Stash snapshot failed during session checkpoint', { error: e instanceof Error ? e.message : String(e) });
     return '';
   }
 }
@@ -128,15 +143,15 @@ function main(): void {
   fs.mkdirSync(dashboardData, { recursive: true });
   const sessionLog = path.join(dashboardData, 'session-log.json');
 
-  // Step 1: Auto-commit
-  const commitMsg = autoCommit(config);
+  // Step 1: Create stash snapshot (replaces auto-commit)
+  const snapshotSha = stashSnapshot(config);
 
   // Step 2: Reset tracking state
   resetTrackingState();
 
-  // Step 3: Log session-end event
-  if (commitMsg) {
-    logEvent(sessionLog, `Session ended with auto-commit: ${commitMsg}`, 'info');
+  // Step 3: Log session-end event with snapshot SHA
+  if (snapshotSha) {
+    logEvent(sessionLog, `Session ended with stash snapshot: ${snapshotSha}`, 'info');
   } else {
     logEvent(sessionLog, 'Session ended cleanly — no uncommitted changes', 'info');
   }

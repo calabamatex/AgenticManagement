@@ -82,44 +82,47 @@ function checkBlastRadius(filePath: string): void {
 
   if (!needsCheckpoint) return;
 
-  console.log(`${PREFIX} WARN: ${uniqueCount} files modified without a checkpoint. Auto-saving.`);
-
-  // Attempt auto-commit
-  let anyAdded = false;
-  for (const f of uniqueFiles) {
-    if (fs.existsSync(f)) {
-      try {
-        if (f.endsWith('.db') || f.endsWith('.db-journal') || f.endsWith('.db-wal')) {
-          continue;
-        }
-        execSync(`git add "${f}"`, { stdio: 'pipe' });
-        anyAdded = true;
-      } catch (e) {
-        logger.debug('Failed to git add file', { error: e instanceof Error ? e.message : String(e), file: f });
-      }
-    }
-  }
-
-  if (!anyAdded) return;
+  console.log(`${PREFIX} WARN: ${uniqueCount} files modified without a checkpoint. Creating stash snapshot.`);
 
   const config = readConfig();
   const savePoints = config?.save_points as Record<string, unknown> | undefined;
   const autoEnabled = savePoints?.auto_commit_enabled ?? true;
 
   if (!autoEnabled) {
-    try {
-      execSync('git reset HEAD', { stdio: 'pipe' });
-    } catch (e) {
-      logger.debug('Failed to reset staged files', { error: e instanceof Error ? e.message : String(e) });
-    }
     console.log(`${PREFIX} ADVISORY: Auto-checkpoint would fire (blast radius ${uniqueCount} files) but auto_commit_enabled=false.`);
-  } else {
-    try {
-      execSync(`git commit -m "chore(agentops): auto-checkpoint — blast radius ${uniqueCount} files"`, { stdio: 'pipe' });
-      console.log(`${PREFIX} Auto-checkpoint commit created.`);
-    } catch (e) {
-      logger.debug('Auto-checkpoint commit failed', { error: e instanceof Error ? e.message : String(e) });
+    return;
+  }
+
+  try {
+    // Stage tracked files for the stash snapshot (exclude DB files)
+    for (const f of uniqueFiles) {
+      if (fs.existsSync(f) && !f.endsWith('.db') && !f.endsWith('.db-journal') && !f.endsWith('.db-wal')) {
+        try {
+          execSync(`git add "${f}"`, { stdio: 'pipe' });
+        } catch (e) {
+          logger.debug('Failed to git add file', { error: e instanceof Error ? e.message : String(e), file: f });
+        }
+      }
     }
+
+    // Create stash snapshot without touching HEAD
+    const sha = execSync('git stash create', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+
+    // Unstage so working tree stays dirty
+    execSync('git reset HEAD', { stdio: 'pipe' });
+
+    if (!sha) {
+      console.log(`${PREFIX} git stash create returned empty — no snapshot needed.`);
+      return;
+    }
+
+    // Protect SHA from garbage collection
+    const stashMsg = `AgentOps auto-checkpoint — blast radius ${uniqueCount} files`;
+    execSync(`git stash store -m "${stashMsg}" ${sha}`, { stdio: 'pipe' });
+
+    console.log(`${PREFIX} Stash snapshot created: ${sha} (${uniqueCount} files)`);
+  } catch (e) {
+    logger.debug('Stash snapshot failed during blast-radius checkpoint', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
