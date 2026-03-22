@@ -25,12 +25,29 @@ That's it. SQLite storage and noop embeddings work out of the box — no API key
 | Layer | What it does |
 |-------|-------------|
 | **Memory Store** | Hash-chained event storage with auto-pruning, incremental chain verification, and chunked vector search |
-| **MCP Server** | 8 tools exposed via Model Context Protocol (stdio + HTTP) |
+| **MCP Server** | 9 tools exposed via Model Context Protocol (stdio + HTTP) |
 | **Primitives** | 7 composable modules — risk scoring, rules validation, secret scanning, context health, git checks, task sizing, file analysis |
 | **Enablement Engine** | 5 progressive levels from Safe Ground to Full Guard |
 | **Enrichment** | Auto-classification by domain (auth, db, api, testing, config, infra) with root-cause detection |
+| **Intelligence** | Cross-session summaries, pattern detection, and context recall |
 | **Audit Index** | Full-text search over events, file audit trails, session timelines |
 | **Plugin System** | JSON Schema-validated plugins with 11-check validation script |
+
+## Feature Maturity
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| SQLite memory store | **Stable** | Default provider, hash-chained, auto-pruning |
+| MCP server (9 tools) | **Stable** | stdio + HTTP transport |
+| Claude Code hooks | **Stable** | TypeScript implementations with shell wrappers |
+| Progressive enablement | **Stable** | 5 levels |
+| CLI (8 commands) | **Stable** | health, memory, config, enable, plugin, metrics, stream, dashboard |
+| Enrichment & observability | **Stable** | Auto-classification, circuit breaker, structured logging |
+| Supabase provider | **Beta** | Requires external Supabase instance |
+| Dashboard / streaming | **Beta** | Local SSE/WebSocket, in-process bus |
+| Cross-session intelligence | **Beta** | Session summaries, pattern detection, context recall |
+| Plugin registry | Experimental | Local directory scanning only |
+| Multi-agent coordination | Experimental | Event-sourced, single-machine only |
 
 ## MCP Tools
 
@@ -46,52 +63,62 @@ Once wired, these tools are available in any Claude Code session:
 | `agentops_search_history` | Search the event audit trail |
 | `agentops_scan_security` | Detect secrets in file content |
 | `agentops_check_git` | Git status and hygiene checks |
+| `agentops_recall_context` | Cross-session context recall for current task |
 
 ## Progressive Enablement
 
 | Level | Name | What's active |
 |-------|------|--------------|
 | 1 | Safe Ground | Save points only |
-| 2 | Guarded Start | + context health, standing orders |
-| 3 | Guided Flow | + risk scoring, rules checking (default) |
-| 4 | Full Assist | + enrichment, audit search, plugins |
+| 2 | Clear Head | + context health, standing orders |
+| 3 | House Rules | + risk scoring, rules checking (default) |
+| 4 | Right Size | + enrichment, audit search, plugins |
 | 5 | Full Guard | All features, strict mode |
 
 ## Storage
 
 - **Default**: SQLite (local, zero-config)
 - **Embeddings**: ONNX all-MiniLM-L6-v2 (384 dimensions) — falls back to noop if model unavailable
-- **Supabase**: Planned for a future release (provider interface exists, not yet implemented)
+- **Supabase** [beta]: Remote PostgreSQL via Supabase REST API — set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
 
 Auto-pruning keeps the database bounded — configure `max_events` and `max_age_days` in `agentops.config.json`.
 
 ## Development
 
 ```bash
-npm run build     # TypeScript compilation
-npm test          # 427 tests via vitest
+npm run build      # TypeScript compilation
+npm test           # 1003 tests via vitest
 npm run test:watch # Watch mode
+npm run benchmark  # Run performance benchmarks
 ```
 
 ## Project Structure
 
 ```
 src/
-  memory/       # Store, schema, providers, migrations, enrichment, audit
-  mcp/          # MCP server + 8 tool handlers
-  primitives/   # Risk scoring, rules, secrets, context, git, sizing, files
+  memory/       # Store, schema, providers, migrations, enrichment, intelligence, audit
+  mcp/          # MCP server + 9 tool handlers
+  cli/          # CLI commands, TypeScript hook handlers
+  primitives/   # 7 reusable management patterns
   enablement/   # Progressive enablement engine
-plugins/        # Plugin system (core/commit-monitor included)
-scripts/        # Shell hooks + validation utilities
-tests/          # Mirror of src/ structure
-docs/           # Quick-start, API reference, handoff docs
+  analyzers/    # Error handling & PII detection analyzers
+  coordination/ # Multi-agent coordination [experimental]
+  streaming/    # SSE/WebSocket event transport [beta]
+  dashboard/    # Single-file HTML monitoring dashboard [beta]
+  observability/ # Logger, circuit breaker, health, metrics, shutdown
+  plugins/      # Plugin registry
+scripts/        # Thin shell wrappers for hooks
+tests/          # Mirror of src/ structure + e2e + performance
+docs/           # Getting started, API reference, schema, roadmap
 ```
 
 ## Documentation
 
-- [Quick Start](../docs/quick-start.md) — Install and first audit in 10 minutes
-- [API Reference](../docs/api-reference.md) — Every script, command, and module
-- [Product Spec](../AgentOps-Product-Spec.md) — Full v4.0 specification
+- [Getting Started](docs/getting-started.md) — Install and first audit
+- [API Reference](docs/api-reference.md) — Every module and method
+- [Memory Schema](docs/memory-schema.md) — Event schema for building integrations
+- [Plugin Tutorial](docs/plugin-tutorial.md) — Build custom plugins
+- [Roadmap](docs/ROADMAP.md) — Feature maturity and planned work
 
 ## License
 
