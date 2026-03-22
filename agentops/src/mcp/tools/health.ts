@@ -102,7 +102,8 @@ export async function handler(
       if (!embeddingInfo.available) {
         issues.push('No embedding provider available — semantic search disabled, using text-only fallback');
       }
-    } catch {
+    } catch (e) {
+      logger.warn('Embedding provider detection failed', { error: e instanceof Error ? e.message : String(e) });
       issues.push('Embedding provider detection failed');
     }
 
