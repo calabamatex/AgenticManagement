@@ -4,6 +4,9 @@
 
 import type Database from 'better-sqlite3';
 import { MIGRATION_V3_SQL } from './migration-v3';
+import { Logger } from '../../observability/logger';
+
+const logger = new Logger({ module: 'sqlite-migrations' });
 
 const MIGRATIONS: { version: number; sql: string }[] = [
   {
