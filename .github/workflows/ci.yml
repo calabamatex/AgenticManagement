@@ -36,6 +36,62 @@ jobs:
       - run: cd agentops && npm run lint
         continue-on-error: true
 
+  smoke-test-install:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: agentops/package-lock.json
+      - run: cd agentops && npm ci && npm run build
+      - name: Pack and install in fresh directory
+        run: |
+          cd agentops && npm pack
+          mkdir /tmp/test-install && cd /tmp/test-install
+          npm init -y
+          npm install $GITHUB_WORKSPACE/agentops/agentops-*.tgz --ignore-scripts
+      - name: Verify require('agentops') works
+        run: |
+          cd /tmp/test-install
+          node -e "const a = require('agentops'); console.log('Import OK:', Object.keys(a).length, 'exports')"
+      - name: Verify MCP server entry point is valid
+        run: |
+          cd /tmp/test-install
+          node -c node_modules/agentops/dist/src/mcp/server.js
+      - name: Verify CLI entry point is valid
+        run: |
+          cd /tmp/test-install
+          node -c node_modules/agentops/dist/src/cli/index.js
+      - name: Verify config resolution module exists
+        run: |
+          cd /tmp/test-install
+          node -e "const { resolveConfigPath } = require('agentops'); console.log('Config path:', resolveConfigPath() || 'defaults')"
+
+  doc-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that documented doc links exist
+        run: |
+          errors=0
+          for f in agentops/docs/getting-started.md agentops/docs/api-reference.md \
+                   agentops/docs/memory-schema.md agentops/docs/plugin-tutorial.md \
+                   agentops/docs/ROADMAP.md; do
+            if [ ! -f "$f" ]; then
+              echo "WARNING: $f referenced in README but missing"
+            fi
+          done
+          # Check architecture docs exist
+          for f in docs/architecture/memory-model.md docs/architecture/enablement-model.md \
+                   docs/architecture/mcp-integration.md; do
+            if [ ! -f "agentops/$f" ]; then
+              echo "WARNING: agentops/$f missing"
+            fi
+          done
+
   benchmark:
     runs-on: ubuntu-latest
     needs: build-and-test

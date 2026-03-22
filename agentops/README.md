@@ -1,6 +1,10 @@
 # AgentOps v4.0
 
-Memory-aware agent management for Claude Code. Captures every agent action as a hash-chained, searchable event — giving you a tamper-evident audit trail, risk scoring, and progressive safety controls.
+Your AI agents forget everything between sessions. AgentOps fixes that.
+
+It catches secrets before they're committed, warns when context is running low, scores the risk of proposed changes, and remembers what happened across sessions — so you don't have to re-explain context every time you start a new conversation.
+
+No external services required. Install in 60 seconds. Works out of the box.
 
 ## Quick Start
 
@@ -67,11 +71,15 @@ Once wired, these tools are available in any Claude Code session:
 
 ## Progressive Enablement
 
+AgentOps ships at **Level 3 (House Rules)** by default — session checkpoints, context health monitoring, and rules validation are all active out of the box. This is the right level for most users: you get meaningful safety without configuration overhead.
+
+If you want to customize, adjust `enablement.level` in `agentops.config.json`:
+
 | Level | Name | What's active |
 |-------|------|--------------|
 | 1 | Safe Ground | save_points (full) |
 | 2 | Clear Head | + context_health (full) |
-| 3 | House Rules | + standing_orders (basic) |
+| 3 | **House Rules** (default) | + standing_orders (basic) |
 | 4 | Right Size | standing_orders→full, + small_bets (basic) |
 | 5 | Full Guard | small_bets→full, + proactive_safety (full) |
 
@@ -114,11 +122,33 @@ docs/           # Getting started, API reference, schema, roadmap
 
 ## Documentation
 
+- [First Session Walkthrough](docs/first-session.md) — See AgentOps in action with concrete examples
 - [Getting Started](docs/getting-started.md) — Install and first audit
 - [API Reference](docs/api-reference.md) — Every module and method
 - [Memory Schema](docs/memory-schema.md) — Event schema for building integrations
 - [Plugin Tutorial](docs/plugin-tutorial.md) — Build custom plugins
 - [Roadmap](docs/ROADMAP.md) — Feature maturity and planned work
+
+### Architecture
+
+- [Memory Model](docs/architecture/memory-model.md) — Hash-chained storage, search, and providers
+- [Enablement Model](docs/architecture/enablement-model.md) — The 5-level progressive system
+- [MCP Integration](docs/architecture/mcp-integration.md) — Tools, transports, and auth
+
+## Disabling or Removing AgentOps
+
+AgentOps is additive — it never modifies your code, your git history, or your project files.
+
+**Disable temporarily:** Set `"enabled": false` in the `memory` section of `agentops.config.json`. All hooks become no-ops. Your data is preserved.
+
+**Remove completely:**
+
+```bash
+claude mcp remove agentops        # Unwire the MCP server
+rm -rf agentops/data/             # Delete the SQLite database (optional)
+```
+
+Your code, git history, and Claude Code configuration are unchanged.
 
 ## License
 

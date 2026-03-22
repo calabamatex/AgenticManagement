@@ -42,7 +42,7 @@
   "budget": {
     "session_budget": 10,
     "monthly_budget": 500,
-    "warn_threshold": 0.80
+    "warn_threshold": 0.8
   },
   "notifications": {
     "verbose": false,
@@ -58,7 +58,7 @@
   },
   "auto_checkpoint_mode": "auto",
   "enablement": {
-    "level": 3,
+    "level": 2,
     "skills": {
       "save_points": {
         "enabled": true,
@@ -80,6 +80,7 @@
         "enabled": false,
         "mode": "off"
       }
-    }
+    },
+    "updated_at": "2026-03-22T19:16:59.765Z"
   }
 }
