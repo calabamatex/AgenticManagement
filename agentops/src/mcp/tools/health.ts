@@ -6,6 +6,9 @@ import { MemoryStore } from '../../memory/store';
 import { loadMemoryConfig } from '../../memory/providers/provider-factory';
 import { detectEmbeddingProvider } from '../../memory/embeddings';
 import { getActiveSkills, generateConfigForLevel, LEVEL_NAMES } from '../../enablement/engine';
+import { Logger } from '../../observability/logger';
+
+const logger = new Logger({ module: 'mcp-health' });
 
 export const name = 'agentops_health';
 export const description =
