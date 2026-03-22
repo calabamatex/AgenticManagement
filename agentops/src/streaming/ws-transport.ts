@@ -10,6 +10,9 @@ import * as http from 'http';
 import * as net from 'net';
 import * as crypto from 'crypto';
 import { EventStream, StreamClient, StreamEvent, StreamFilter } from './event-stream';
+import { Logger } from '../observability/logger';
+
+const logger = new Logger({ module: 'ws-transport' });
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -94,7 +97,7 @@ export class WsTransport {
 
     // Destroy all tracked WebSocket sockets so the server can close promptly.
     for (const socket of this.sockets) {
-      try { socket.destroy(); } catch { /* best-effort */ }
+      try { socket.destroy(); } catch (e) { logger.debug('Socket destroy failed during stop', { error: e instanceof Error ? e.message : String(e) }); }
     }
     this.sockets.clear();
 
@@ -175,8 +178,8 @@ export class WsTransport {
         const frame = this.encodeFrame(payload);
         try {
           socket.write(frame);
-        } catch {
-          // Socket write failure.
+        } catch (e) {
+          logger.debug('WebSocket frame write failed', { error: e instanceof Error ? e.message : String(e) });
         }
       },
       close: (): void => {
@@ -189,8 +192,8 @@ export class WsTransport {
           closeFrame[1] = 0;
           socket.write(closeFrame);
           socket.end();
-        } catch {
-          // Best-effort close.
+        } catch (e) {
+          logger.debug('WebSocket close frame send failed', { error: e instanceof Error ? e.message : String(e) });
         }
       },
     };
@@ -223,7 +226,7 @@ export class WsTransport {
           const closeFrame = Buffer.alloc(2);
           closeFrame[0] = 0x80 | OPCODE_CLOSE;
           closeFrame[1] = 0;
-          try { socket.write(closeFrame); } catch { /* ignore */ }
+          try { socket.write(closeFrame); } catch (e) { logger.debug('Close frame echo failed', { error: e instanceof Error ? e.message : String(e) }); }
           socket.end();
           return;
         }
@@ -231,7 +234,7 @@ export class WsTransport {
         if (result.opcode === OPCODE_PING) {
           // Respond with pong
           const pong = this.encodePongFrame(result.payload);
-          try { socket.write(pong); } catch { /* ignore */ }
+          try { socket.write(pong); } catch (e) { logger.debug('Pong frame write failed', { error: e instanceof Error ? e.message : String(e) }); }
           continue;
         }
 

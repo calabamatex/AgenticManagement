@@ -5,6 +5,9 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
+import { Logger } from '../observability/logger';
+
+const logger = new Logger({ module: 'rules-validation' });
 
 export interface RuleViolation {
   rule: string;
@@ -163,8 +166,8 @@ function buildRules(rulesContent: string): ParsedRule[] {
               };
             }
           }
-        } catch {
-          // File not readable, skip
+        } catch (e) {
+          logger.debug('File not readable for size check', { error: e instanceof Error ? e.message : String(e), file: filePath });
         }
         return null;
       },

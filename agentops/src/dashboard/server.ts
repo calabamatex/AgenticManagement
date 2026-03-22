@@ -15,6 +15,9 @@
 import * as http from 'http';
 import * as crypto from 'crypto';
 import { EventStream, StreamClient, StreamEvent, StreamFilter } from '../streaming/event-stream';
+import { Logger } from '../observability/logger';
+
+const logger = new Logger({ module: 'dashboard-server' });
 import { HealthChecker, memoryUsageCheck, eventLoopCheck } from '../observability/health';
 import { MetricsCollector } from '../observability/metrics';
 import { PluginRegistry } from '../plugins/registry';
@@ -260,7 +263,8 @@ export class DashboardServer {
       const plugins = await this.pluginRegistry.list();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(plugins));
-    } catch {
+    } catch (e) {
+      logger.warn('Failed to list plugins for dashboard', { error: e instanceof Error ? e.message : String(e) });
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end('[]');
     }
@@ -279,8 +283,8 @@ export class DashboardServer {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ...streamStats, memory: memoryStats }));
         return;
-      } catch {
-        // Fall through to stream-only stats
+      } catch (e) {
+        logger.debug('Failed to get memory stats for dashboard', { error: e instanceof Error ? e.message : String(e) });
       }
     }
 

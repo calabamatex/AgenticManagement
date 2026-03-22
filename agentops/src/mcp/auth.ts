@@ -56,6 +56,7 @@ export function createRateLimiter(
   windowMs: number = 60000,
 ): RateLimiter {
   const store = new Map<string, RateLimitEntry>();
+  const MAX_STORE_SIZE = 10000;
 
   // Periodic cleanup of expired entries
   const cleanupInterval = setInterval(() => {
@@ -77,6 +78,17 @@ export function createRateLimiter(
     const entry = store.get(ip);
 
     if (!entry || now >= entry.resetAt) {
+      // Enforce size limit to prevent memory exhaustion
+      if (store.size >= MAX_STORE_SIZE && !store.has(ip)) {
+        // Emergency cleanup: remove all expired entries
+        for (const [key, val] of store) {
+          if (now >= val.resetAt) store.delete(key);
+        }
+        // If still over limit, reject (DoS protection)
+        if (store.size >= MAX_STORE_SIZE) {
+          return false;
+        }
+      }
       store.set(ip, { count: 1, resetAt: now + windowMs });
       return true;
     }

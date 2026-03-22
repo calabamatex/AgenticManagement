@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as http from 'http';
 import * as https from 'https';
-import {
-  ConnectionPool,
-  PooledSupabaseProvider,
-} from '../../src/memory/providers/connection-pool';
+import { ConnectionPool } from '../../src/memory/providers/connection-pool';
+import { PooledSupabaseProvider } from '../../src/memory/providers/pooled-supabase-provider';
 
 // ---------------------------------------------------------------------------
 // ConnectionPool

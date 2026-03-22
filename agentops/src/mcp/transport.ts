@@ -49,7 +49,8 @@ export function createHttpTransport(
 
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const corsOrigin = accessKey ? (process.env.AGENTOPS_CORS_ORIGIN || 'http://localhost') : '*';
+    res.setHeader('Access-Control-Allow-Origin', corsOrigin);
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-agentops-key, Mcp-Session-Id');
 

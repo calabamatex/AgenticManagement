@@ -6,6 +6,9 @@ import { MemoryStore } from '../../memory/store';
 import { loadMemoryConfig } from '../../memory/providers/provider-factory';
 import { detectEmbeddingProvider } from '../../memory/embeddings';
 import { getActiveSkills, generateConfigForLevel, LEVEL_NAMES } from '../../enablement/engine';
+import { Logger } from '../../observability/logger';
+
+const logger = new Logger({ module: 'mcp-health' });
 
 export const name = 'agentops_health';
 export const description =
@@ -99,7 +102,8 @@ export async function handler(
       if (!embeddingInfo.available) {
         issues.push('No embedding provider available — semantic search disabled, using text-only fallback');
       }
-    } catch {
+    } catch (e) {
+      logger.warn('Embedding provider detection failed', { error: e instanceof Error ? e.message : String(e) });
       issues.push('Embedding provider detection failed');
     }
 
@@ -113,8 +117,8 @@ export async function handler(
       if (raw.enablement?.level && typeof raw.enablement.level === 'number') {
         enablementLevel = raw.enablement.level;
       }
-    } catch {
-      // Use default level
+    } catch (e) {
+      logger.debug('Failed to read enablement level from config', { error: e instanceof Error ? e.message : String(e) });
     }
     const enablementConfig = generateConfigForLevel(enablementLevel);
     const enablementInfo = {

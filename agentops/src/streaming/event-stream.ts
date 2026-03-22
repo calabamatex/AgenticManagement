@@ -11,6 +11,9 @@
 
 import { EventEmitter } from 'events';
 import { getEventBus, EventType as BusEventType, EventPayload } from '../../core/event-bus';
+import { Logger } from '../observability/logger';
+
+const logger = new Logger({ module: 'event-stream' });
 
 // ---------------------------------------------------------------------------
 // Types
@@ -114,8 +117,8 @@ export class EventStream extends EventEmitter {
       for (const client of this.clients.values()) {
         try {
           client.send({ id: '', type: 'heartbeat', timestamp: new Date().toISOString(), data: {} });
-        } catch {
-          // Client send failure handled silently; transport will clean up.
+        } catch (e) {
+          logger.debug('Heartbeat send failed for client', { error: e instanceof Error ? e.message : String(e) });
         }
       }
     }, this.heartbeatIntervalMs);
@@ -147,8 +150,8 @@ export class EventStream extends EventEmitter {
     for (const client of this.clients.values()) {
       try {
         client.close();
-      } catch {
-        // Best-effort close.
+      } catch (e) {
+        logger.debug('Client close failed during stream stop', { error: e instanceof Error ? e.message : String(e) });
       }
     }
     this.clients.clear();
@@ -223,8 +226,8 @@ export class EventStream extends EventEmitter {
           // Decrement after send succeeds (approximation — real backpressure
           // would need async acknowledgement, but this prevents runaway queues)
           this.clientBacklog.set(client.id, Math.max((this.clientBacklog.get(client.id) ?? 1) - 1, 0));
-        } catch {
-          // Transport-level failures are non-fatal.
+        } catch (e) {
+          logger.debug('Failed to send event to client', { error: e instanceof Error ? e.message : String(e), clientId: client.id });
         }
       }
     }
@@ -286,7 +289,8 @@ export class EventStream extends EventEmitter {
     for (const event of events) {
       try {
         client.send(event);
-      } catch {
+      } catch (e) {
+        logger.debug('Replay send failed for client', { error: e instanceof Error ? e.message : String(e), clientId });
         break;
       }
     }
