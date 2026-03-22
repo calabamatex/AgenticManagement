@@ -125,8 +125,10 @@ describe('checkpoint-and-branch security', () => {
     it('should call execFileSync, not execSync', async () => {
       await createCheckpoint('test msg', ['file.txt']);
       expect(childProcess.execFileSync).toHaveBeenCalled();
-      // execSync should not exist in the mock (we only exported execFileSync)
-      expect((childProcess as any).execSync).toBeUndefined();
+      // The mock only defines execFileSync; accessing execSync on the mock
+      // will throw because it was never defined, confirming the source
+      // does not import or use execSync.
+      expect(() => (childProcess as any).execSync).toThrow();
     });
 
     it('should always pass arguments as an array, never as a concatenated string', async () => {
