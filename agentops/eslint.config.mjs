@@ -8,8 +8,9 @@ export default tseslint.config(
     ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-require-imports': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-empty': ['warn', { allowEmptyCatches: false }],
+      'no-empty': ['warn', { allowEmptyCatch: false }],
     },
   },
   {
