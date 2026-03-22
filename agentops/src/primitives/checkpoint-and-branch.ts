@@ -3,7 +3,7 @@
  * Used by Skills 1 (save_points) and 4 (small_bets).
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export interface CheckpointResult {
   success: boolean;

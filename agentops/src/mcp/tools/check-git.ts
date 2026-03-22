@@ -2,7 +2,7 @@
  * check-git.ts — agentops_check_git tool: Inspect current git repository state.
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export const name = 'agentops_check_git';
 export const description =
