@@ -150,8 +150,8 @@ export class EventStream extends EventEmitter {
     for (const client of this.clients.values()) {
       try {
         client.close();
-      } catch {
-        // Best-effort close.
+      } catch (e) {
+        logger.debug('Client close failed during stream stop', { error: e instanceof Error ? e.message : String(e) });
       }
     }
     this.clients.clear();
