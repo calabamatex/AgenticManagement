@@ -95,7 +95,7 @@ describe('Hook Lifecycle (e2e)', () => {
       const input = JSON.stringify({
         tool_input: {
           file_path: '/tmp/test-secret.ts',
-          content: 'const key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc";',
+          content: 'const db = "postgresql://admin:hunter2@localhost:5432/mydb";',
         },
       });
       const { exitCode, stderr } = runHook('secret-scanner.sh', input);
