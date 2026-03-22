@@ -160,8 +160,8 @@ The dashboard exposes these endpoints:
 | Feature                  | Status         | Notes                                    |
 |--------------------------|----------------|------------------------------------------|
 | SQLite memory store      | **Stable**     | Default provider, hash-chained events    |
-| MCP server (8 tools)     | **Stable**     | stdio transport                          |
-| Claude Code hooks        | **Stable**     | Session start, post-write, checkpoint    |
+| MCP server (9 tools)     | **Stable**     | stdio + HTTP transport                   |
+| Claude Code hooks        | **Stable**     | TypeScript implementations + shell wrappers |
 | Progressive enablement   | **Stable**     | 5 levels, progressive skill unlock       |
 | Observability suite      | **Stable**     | Logger, circuit breaker, metrics, health |
 | Supabase provider        | Beta           | Requires external Supabase instance      |
