@@ -35,7 +35,7 @@ cd AgenticManagement && npm install && npm run build
 
 ## What AgentOps Does
 
-AgentOps is a standalone framework for managing, monitoring, and safeguarding AI coding agents. It works with **Claude Code**, **Cursor**, **Codex**, **ChatGPT**, **GitHub Copilot**, and any agent that supports MCP or operates through a CLI.
+AgentOps is a local-first memory and safety layer for AI coding sessions. Primary integration: **Claude Code**. The MCP server interface enables compatibility with any MCP-compatible tool (Cursor, Codex, ChatGPT, GitHub Copilot, etc.).
 
 What makes it different: AgentOps *remembers*. Every decision, violation, incident, and handoff is captured to a vector-indexed memory store that survives across sessions. When a new session starts next week, it can ask "what went wrong the last time someone touched the payment system?" and get a ranked answer from weeks of operational history.
 
@@ -56,7 +56,7 @@ What makes it different: AgentOps *remembers*. Every decision, violation, incide
 ### Memory & Intelligence (v4.0)
 
 - **Persistent Memory Store** -- Vector-indexed database with semantic search. Dual-backend: SQLite + sqlite-vec locally, Supabase + pgvector for teams.
-- **MCP Server Interface** -- All 5 core skills plus memory read/write exposed as 8 MCP tools. Works with any MCP-compatible client.
+- **MCP Server Interface** -- All 5 core skills plus memory read/write exposed as 9 MCP tools. Works with any MCP-compatible client.
 - **Primitives Library** -- 7 reusable management patterns (checkpoint-and-branch, risk-scoring, secret-detection, rules-validation, context-estimation, scaffold-update, event-capture).
 - **Auto-Classification** -- Events enriched with tags, root cause hints, related event links, and severity context. Local pattern matching at <10ms.
 - **Progressive Enablement** -- 5 levels from beginner to advanced. Start simple, add capabilities when ready.
@@ -99,7 +99,7 @@ const results = await store.search('authentication patterns');
 
 ### Option 2: MCP Server
 
-For any MCP-compatible client (Claude Code, Cursor, ChatGPT):
+For any MCP-compatible client (Claude Code is the primary tested integration):
 
 ```bash
 # Add AgentOps as an MCP server
@@ -150,7 +150,7 @@ Prompts for your enablement level (1-5) and generates `agentops.config.json`.
 
 ## MCP Tools
 
-When running as an MCP server, AgentOps exposes 8 tools:
+When running as an MCP server, AgentOps exposes 9 tools:
 
 | Tool | What It Does |
 |------|-------------|
@@ -161,6 +161,7 @@ When running as an MCP server, AgentOps exposes 8 tools:
 | `agentops_scan_security` | Scans for secrets and dangerous code patterns (SQL injection, eval, private keys) |
 | `agentops_capture_event` | Writes a decision, violation, or incident to persistent memory |
 | `agentops_search_history` | Semantic search across all stored operational events |
+| `agentops_recall_context` | Cross-session context recall -- finds relevant prior session data for current task |
 | `agentops_health` | Current health scores, KPIs, and skill-level status |
 
 ---
@@ -253,7 +254,7 @@ npm run benchmark
 ```bash
 npm install        # Install dependencies
 npm run build      # Compile TypeScript
-npm test           # Run tests (907 passing)
+npm test           # Run tests (1003 passing)
 npm run benchmark  # Run performance benchmarks
 ```
 
@@ -265,9 +266,10 @@ npm run benchmark  # Run performance benchmarks
 agentops/
   src/
     memory/           # MemoryStore, embeddings, providers, migrations
-    mcp/              # MCP server, 8 tools, transport, auth
+    mcp/              # MCP server, 9 tools, transport, auth
     primitives/       # 7 reusable management patterns
-  scripts/            # Setup wizard, hooks, scanners, validators
+    cli/              # CLI commands, TypeScript hook handlers
+  scripts/            # Thin wrapper hooks, setup wizard, validators
   templates/          # CONTEXT.md, PLANNING.md, TASKS.md, WORKFLOW.md
   dashboard/          # Single-file HTML monitoring dashboard
   tracing/            # Span-based tracing
