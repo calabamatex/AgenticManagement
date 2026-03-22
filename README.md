@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/calabamatex/AgenticManagement/actions/workflows/ci.yml/badge.svg)](https://github.com/calabamatex/AgenticManagement/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
-[![Tests](https://img.shields.io/badge/tests-1003%20passing-brightgreen.svg)](#)
+[![Tests](https://img.shields.io/badge/tests-1042%20passing-brightgreen.svg)](#)
 
 **Memory-aware management and safety framework for AI agents.**
 
@@ -29,7 +29,8 @@ cd AgenticManagement/agentops && npm install && npm run build
 
 **Requirements:** Node.js >= 18
 
-**Dependencies:** `@modelcontextprotocol/sdk`, `better-sqlite3`, `onnxruntime-node`, `uuid`, `zod`
+**Dependencies:** `@modelcontextprotocol/sdk`, `better-sqlite3`, `uuid`, `zod`
+**Optional:** `onnxruntime-node` (for native ONNX embeddings — falls back to JS cosine similarity if absent)
 
 ---
 
@@ -241,11 +242,11 @@ Baseline performance on Node v22, darwin/arm64, 8 CPU / 16 GB:
 
 | Operation | ops/sec |
 |-----------|---------|
-| Insert | 93 |
-| Search | 49 |
-| Batch | 151 |
-| Cache | 38 |
-| Concurrent | 61 |
+| Insert | 30 |
+| Search | 62 |
+| Batch | 184 |
+| Cache | 118 |
+| Concurrent | 147 |
 
 Run benchmarks locally:
 
@@ -260,7 +261,7 @@ npm run benchmark
 ```bash
 npm install        # Install dependencies
 npm run build      # Compile TypeScript
-npm test           # Run tests (1003 passing)
+npm test           # Run tests (1042 passing)
 npm run benchmark  # Run performance benchmarks
 ```
 
@@ -287,6 +288,20 @@ agentops/
 
 ---
 
+## CLI Commands
+
+```bash
+npx agentops init           # Interactive project setup wizard
+npx agentops config          # View or update agentops.config.json
+npx agentops enable <level>  # Set enablement level (1-5)
+npx agentops health          # System health and embedding status
+npx agentops memory          # Query persistent memory store
+npx agentops metrics         # Session and cost metrics
+npx agentops dashboard       # Launch monitoring dashboard
+npx agentops stream          # Live event stream
+npx agentops plugin          # Plugin management
+```
+
 ## Slash Commands
 
 - `/agentops check` -- Run all health and safety checks
@@ -303,9 +318,13 @@ MIT -- see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- [API Reference](agentops/docs/api-reference.md)
 - [Getting Started Guide](agentops/docs/getting-started.md)
-- [Product Specification](AgentOps-Product-Spec.md) -- Full v4.0 spec covering architecture, skills, memory, MCP, and integrations
-- [Architecture Evolution](AgentOps-Architecture-Evolution.md) -- Design decisions and architectural history
-- [Implementation Guide](Agent-Management-Implementation-Guide.md) -- Practical guide for managing AI agents
-- [Synopsis](AgentOps-Synopsis.md) -- Non-technical project overview
+- [First Session Walkthrough](agentops/docs/first-session.md)
+- [API Reference](agentops/docs/api-reference.md)
+- [Product Specification](docs/planning/AgentOps-Product-Spec.md) -- Full v4.0 spec covering architecture, skills, memory, MCP, and integrations
+- [Architecture Evolution](docs/planning/AgentOps-Architecture-Evolution.md) -- Design decisions and architectural history
+- [Implementation Guide](docs/planning/Agent-Management-Implementation-Guide.md) -- Practical guide for managing AI agents
+- [Synopsis](docs/planning/AgentOps-Synopsis.md) -- Non-technical project overview
+- [Memory Model](agentops/docs/architecture/memory-model.md) -- Hash chains, search, and storage providers
+- [Enablement Model](agentops/docs/architecture/enablement-model.md) -- 5 levels with skill mapping
+- [MCP Integration](agentops/docs/architecture/mcp-integration.md) -- Tools, transports, and auth
