@@ -231,7 +231,12 @@ export class SupabaseProvider implements StorageProvider {
         );
         if (oldestRows && oldestRows.length > 0) {
           const ids = oldestRows.map((r: any) => r.id);
-          const idList = ids.map((id: string) => `"${id}"`).join(',');
+          const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const validIds = ids.filter((id: string) => UUID_REGEX.test(id));
+          if (validIds.length === 0) {
+            return { deleted: totalDeleted };
+          }
+          const idList = validIds.map((id: string) => `"${id}"`).join(',');
           const deleteResult = await this.request<any>(
             `/rest/v1/ops_events?id=in.(${idList})`,
             {
