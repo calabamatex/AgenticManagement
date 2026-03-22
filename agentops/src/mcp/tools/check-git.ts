@@ -22,9 +22,9 @@ export interface CheckGitResult {
   risk_score: number;
 }
 
-function execGit(command: string): string {
+function execGit(args: string[]): string {
   try {
-    return execSync(command, { encoding: 'utf-8', timeout: 10000 }).trim();
+    return execFileSync('git', args, { encoding: 'utf-8', timeout: 10000 }).trim();
   } catch {
     return '';
   }
@@ -35,16 +35,16 @@ export async function handler(
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   try {
     // Get uncommitted files
-    const statusOutput = execGit('git status --porcelain');
+    const statusOutput = execGit(['status', '--porcelain']);
     const uncommitted_files = statusOutput
       ? statusOutput.split('\n').filter((line) => line.length > 0)
       : [];
 
     // Get last commit age
-    const last_commit_age = execGit('git log -1 --format=%cr') || 'unknown';
+    const last_commit_age = execGit(['log', '-1', '--format=%cr']) || 'unknown';
 
     // Get current branch
-    const current_branch = execGit('git branch --show-current') || 'unknown';
+    const current_branch = execGit(['branch', '--show-current']) || 'unknown';
 
     // Calculate risk score
     let risk_score = 0;
@@ -57,7 +57,7 @@ export async function handler(
     }
 
     // Check if last commit is more than 1 hour old
-    const lastCommitTimestamp = execGit('git log -1 --format=%ct');
+    const lastCommitTimestamp = execGit(['log', '-1', '--format=%ct']);
     if (lastCommitTimestamp) {
       const commitTime = parseInt(lastCommitTimestamp, 10) * 1000;
       const hourAgo = Date.now() - 3600000;

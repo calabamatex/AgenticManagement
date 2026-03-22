@@ -23,18 +23,17 @@ export async function createCheckpoint(
 ): Promise<CheckpointResult> {
   try {
     if (files && files.length > 0) {
-      const escaped = files.map((f) => `"${f}"`).join(' ');
-      execSync(`git add ${escaped}`, { encoding: 'utf-8', stdio: 'pipe' });
+      execFileSync('git', ['add', ...files], { encoding: 'utf-8', stdio: 'pipe' });
     } else {
-      execSync('git add -A', { encoding: 'utf-8', stdio: 'pipe' });
+      execFileSync('git', ['add', '-A'], { encoding: 'utf-8', stdio: 'pipe' });
     }
 
-    execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
+    execFileSync('git', ['commit', '-m', message], {
       encoding: 'utf-8',
       stdio: 'pipe',
     });
 
-    const commitHash = execSync('git rev-parse HEAD', {
+    const commitHash = execFileSync('git', ['rev-parse', 'HEAD'], {
       encoding: 'utf-8',
       stdio: 'pipe',
     }).trim();
@@ -61,7 +60,7 @@ export async function createSafetyBranch(
   name: string
 ): Promise<CheckpointResult> {
   try {
-    execSync(`git checkout -b "${name}"`, {
+    execFileSync('git', ['checkout', '-b', name], {
       encoding: 'utf-8',
       stdio: 'pipe',
     });
@@ -84,7 +83,7 @@ export async function createSafetyBranch(
  * Returns the name of the current git branch.
  */
 export async function getCurrentBranch(): Promise<string> {
-  return execSync('git branch --show-current', {
+  return execFileSync('git', ['branch', '--show-current'], {
     encoding: 'utf-8',
     stdio: 'pipe',
   }).trim();
