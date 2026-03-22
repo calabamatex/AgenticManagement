@@ -184,7 +184,8 @@ export class HandoffGenerator {
         cwd,
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();
-    } catch {
+    } catch (e) {
+      logger.debug('Failed to get git diff stat', { error: e instanceof Error ? e.message : String(e) });
       return '';
     }
   }
@@ -199,7 +200,8 @@ export class HandoffGenerator {
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();
       return log.split('\n').filter(Boolean);
-    } catch {
+    } catch (e) {
+      logger.debug('Failed to get recent commits', { error: e instanceof Error ? e.message : String(e) });
       return [];
     }
   }
