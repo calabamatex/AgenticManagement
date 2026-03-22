@@ -3,6 +3,9 @@
  */
 
 import { execFileSync } from 'child_process';
+import { Logger } from '../../observability/logger';
+
+const logger = new Logger({ module: 'mcp-check-git' });
 
 export const name = 'agentops_check_git';
 export const description =
