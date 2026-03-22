@@ -28,7 +28,8 @@ export interface CheckGitResult {
 function execGit(args: string[]): string {
   try {
     return execFileSync('git', args, { encoding: 'utf-8', timeout: 10000 }).trim();
-  } catch {
+  } catch (e) {
+    logger.debug('Git command failed', { error: e instanceof Error ? e.message : String(e), args });
     return '';
   }
 }
