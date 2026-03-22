@@ -166,8 +166,8 @@ function buildRules(rulesContent: string): ParsedRule[] {
               };
             }
           }
-        } catch {
-          // File not readable, skip
+        } catch (e) {
+          logger.debug('File not readable for size check', { error: e instanceof Error ? e.message : String(e), file: filePath });
         }
         return null;
       },
