@@ -2151,3 +2151,4 @@
 {"timestamp":"2026-03-22T16:57:27Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.738000","session_calls":258,"budget_status":"ok","budget_pct":"7.4","input_tokens":0,"output_tokens":0,"monthly_total":"6.267000"}
 {"timestamp":"2026-03-22T16:57:28Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.741000","session_calls":259,"budget_status":"ok","budget_pct":"7.4","input_tokens":0,"output_tokens":0,"monthly_total":"6.270000"}
 {"timestamp":"2026-03-22T16:57:28Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.744000","session_calls":260,"budget_status":"ok","budget_pct":"7.4","input_tokens":0,"output_tokens":0,"monthly_total":"6.273000"}
+{"timestamp":"2026-03-22T16:57:51Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.747000","session_calls":261,"budget_status":"ok","budget_pct":"7.5","input_tokens":0,"output_tokens":0,"monthly_total":"6.276000"}
