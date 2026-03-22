@@ -178,8 +178,8 @@ export class WsTransport {
         const frame = this.encodeFrame(payload);
         try {
           socket.write(frame);
-        } catch {
-          // Socket write failure.
+        } catch (e) {
+          logger.debug('WebSocket frame write failed', { error: e instanceof Error ? e.message : String(e) });
         }
       },
       close: (): void => {
