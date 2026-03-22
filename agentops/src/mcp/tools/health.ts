@@ -98,16 +98,22 @@ export async function handler(
     }
 
     // Check embedding provider
-    let embeddingInfo = { provider: 'noop', dimension: 0, available: false };
+    const onnxModelPath = require('path').resolve(__dirname, '../../../models/all-MiniLM-L6-v2.onnx');
+    const onnxModelPresent = require('fs').existsSync(onnxModelPath);
+    let embeddingInfo = { provider: 'noop', dimension: 0, available: false, onnx_model_present: onnxModelPresent };
     try {
       const embProvider = await detectEmbeddingProvider();
       embeddingInfo = {
         provider: embProvider.name,
         dimension: embProvider.dimension,
         available: embProvider.dimension > 0,
+        onnx_model_present: onnxModelPresent,
       };
       if (!embeddingInfo.available) {
-        issues.push('No embedding provider available — semantic search disabled, using text-only fallback');
+        const hint = onnxModelPresent
+          ? 'ONNX model present but onnxruntime-node not installed — run: npm install onnxruntime-node'
+          : 'No embedding provider available — install onnxruntime-node and model will auto-download, or set embedding_provider in config';
+        issues.push(`${hint} (semantic search disabled, using text-only fallback)`);
       }
     } catch (e) {
       logger.warn('Embedding provider detection failed', { error: e instanceof Error ? e.message : String(e) });
@@ -198,7 +204,7 @@ export async function handler(
           status: 'error',
           store: { provider: 'unknown', total_events: 0, by_type: {}, by_severity: {}, by_skill: {} },
           chain: { verified: false, total_checked: 0 },
-          embedding: { provider: 'unknown', dimension: 0, available: false },
+          embedding: { provider: 'unknown', dimension: 0, available: false, onnx_model_present: false },
           enablement: { level: 0, name: 'unknown', active_skills: [] },
           config: { max_events: 0, auto_prune_days: 0, database_path: '' },
           issues: [`Store initialization failed: ${message}`],
