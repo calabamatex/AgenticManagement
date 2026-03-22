@@ -26,12 +26,29 @@ async function main() {
   }
 
   // Load config to check if memory is enabled
-  const configPath = path.resolve(__dirname, '../../agentops.config.json');
+  // Inline config resolution (mirrors src/config/resolve.ts for .js compatibility)
+  let configPath;
+  const envCfg = process.env.AGENTOPS_CONFIG;
+  if (envCfg && fs.existsSync(envCfg)) {
+    configPath = path.resolve(envCfg);
+  } else if (fs.existsSync(path.resolve('agentops.config.json'))) {
+    configPath = path.resolve('agentops.config.json');
+  } else if (fs.existsSync(path.resolve('agentops/agentops.config.json'))) {
+    configPath = path.resolve('agentops/agentops.config.json');
+  } else {
+    const pkgRelative = path.join(__dirname, '..', '..', 'agentops.config.json');
+    if (fs.existsSync(pkgRelative)) {
+      configPath = path.resolve(pkgRelative);
+    }
+  }
+
   let config = {};
-  try {
-    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch {
-    // No config — use defaults
+  if (configPath) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    } catch {
+      // Config unreadable — use defaults
+    }
   }
 
   if (config.memory && config.memory.enabled === false) {

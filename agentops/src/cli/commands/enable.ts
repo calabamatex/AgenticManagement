@@ -8,6 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { CommandDefinition, ParsedArgs, output, isJson } from '../parser';
+import { resolveConfigPath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'cli-enable' });
@@ -19,7 +20,11 @@ import {
   ALL_SKILLS,
 } from '../../enablement/engine';
 
-const CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+const DEFAULT_CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+
+function getConfigPath(): string {
+  return resolveConfigPath() ?? DEFAULT_CONFIG_PATH;
+}
 
 /** Skill descriptions for onboarding output. */
 const SKILL_DESCRIPTIONS: Record<string, string> = {
@@ -133,7 +138,7 @@ export const enableCommand: CommandDefinition = {
         skill: 'system',
         title: `enablement:set-level:${level}`,
         detail: `Enablement level set to ${level} (${LEVEL_NAMES[level]}). Active skills: ${active.join(', ')}`,
-        affected_files: [CONFIG_PATH],
+        affected_files: [getConfigPath()],
         tags: ['enablement', 'enablement:level-change'],
         metadata: { level, name: LEVEL_NAMES[level], active },
       });
@@ -150,7 +155,8 @@ export const enableCommand: CommandDefinition = {
 
 function loadEnablementLevel(): number {
   try {
-    const raw = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    const cfgPath = getConfigPath();
+    const raw = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
     const level = raw?.enablement?.level;
     if (typeof level === 'number' && level >= 1 && level <= 5) return level;
   } catch (e) {
@@ -160,9 +166,10 @@ function loadEnablementLevel(): number {
 }
 
 function saveEnablementLevel(level: number): void {
+  const cfgPath = getConfigPath();
   let config: Record<string, unknown> = {};
   try {
-    config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    config = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
   } catch (e) {
     logger.debug('Config file not found, starting fresh', { error: e instanceof Error ? e.message : String(e) });
   }
@@ -173,11 +180,11 @@ function saveEnablementLevel(level: number): void {
   (config.enablement as Record<string, unknown>).level = level;
   (config.enablement as Record<string, unknown>).updated_at = new Date().toISOString();
 
-  const dir = path.dirname(CONFIG_PATH);
+  const dir = path.dirname(cfgPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(cfgPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
 }
 
 function printCurrentLevel(

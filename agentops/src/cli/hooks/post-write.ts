@@ -16,6 +16,7 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 import { scanErrorHandling } from '../../analyzers/error-handling';
 import { scanPiiLogging } from '../../analyzers/pii-scanner';
+import { resolveConfigPath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'hook-post-write' });
@@ -27,13 +28,13 @@ interface HookInput {
   input?: { file_path?: string };
 }
 
-function getConfigPath(): string {
-  return path.join(__dirname, '..', '..', '..', 'agentops.config.json');
-}
-
 function readConfig(): Record<string, unknown> {
+  const configPath = resolveConfigPath();
+  if (!configPath) {
+    return {};
+  }
   try {
-    return JSON.parse(fs.readFileSync(getConfigPath(), 'utf-8'));
+    return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
   } catch (e) {
     logger.debug('Failed to read config file', { error: e instanceof Error ? e.message : String(e) });
     return {};

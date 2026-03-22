@@ -6,9 +6,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { enableCommand } from '../../src/cli/commands/enable';
+import { resolveConfigPath } from '../../src/config/resolve';
 import type { ParsedArgs } from '../../src/cli/parser';
 
-const CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+const CONFIG_PATH = resolveConfigPath() ?? path.resolve('agentops.config.json');
 let originalConfig: string | null = null;
 
 function makeArgs(overrides: Partial<ParsedArgs> = {}): ParsedArgs {

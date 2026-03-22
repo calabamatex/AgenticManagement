@@ -28,10 +28,7 @@ describe('Package contents', () => {
       'dist/src/cli/hooks/session-checkpoint.js',
       'dist/src/analyzers/error-handling.js',
       'dist/src/analyzers/pii-scanner.js',
-      'scripts/session-start-checks.sh',
-      'scripts/post-write-checks.sh',
-      'scripts/session-checkpoint.sh',
-      'scripts/secret-scanner.sh',
+      'dist/src/config/resolve.js',
       'agentops.config.json',
     ];
 

@@ -9,6 +9,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import { resolveConfigPath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'hook-session-start' });
@@ -41,7 +42,10 @@ function isGitRepo(): boolean {
 }
 
 function readConfig(): { claudeMdMaxLines: number; agentsMdMaxLines: number } {
-  const configPath = path.join(__dirname, '..', '..', '..', 'agentops.config.json');
+  const configPath = resolveConfigPath();
+  if (!configPath) {
+    return { claudeMdMaxLines: 300, agentsMdMaxLines: 300 };
+  }
   try {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     return {

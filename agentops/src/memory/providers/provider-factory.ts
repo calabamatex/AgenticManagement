@@ -7,6 +7,7 @@ import * as path from 'path';
 import { StorageProvider } from './storage-provider';
 import { SqliteProvider } from './sqlite-provider';
 import { SupabaseProvider } from './supabase-provider';
+import { resolveConfigPath, resolveDatabasePath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'provider-factory' });
@@ -33,7 +34,10 @@ const DEFAULT_CONFIG: MemoryConfig = {
 };
 
 export function loadMemoryConfig(configPath?: string): MemoryConfig {
-  const cfgPath = configPath ?? path.resolve('agentops/agentops.config.json');
+  const cfgPath = configPath ?? resolveConfigPath();
+  if (!cfgPath) {
+    return { ...DEFAULT_CONFIG };
+  }
   try {
     const raw = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
     if (raw.memory) {
@@ -47,6 +51,8 @@ export function loadMemoryConfig(configPath?: string): MemoryConfig {
 
 export function createProvider(config?: MemoryConfig): StorageProvider {
   const cfg = config ?? loadMemoryConfig();
+  const configFilePath = resolveConfigPath();
+  const resolvedDbPath = resolveDatabasePath(cfg.database_path, configFilePath);
 
   if (cfg.provider === 'supabase') {
     return new SupabaseProvider({
@@ -56,7 +62,7 @@ export function createProvider(config?: MemoryConfig): StorageProvider {
   }
 
   if (cfg.provider === 'sqlite') {
-    return new SqliteProvider(cfg.database_path);
+    return new SqliteProvider(resolvedDbPath);
   }
 
   // Auto-detect: if Supabase env vars are present, warn but use SQLite
@@ -64,5 +70,5 @@ export function createProvider(config?: MemoryConfig): StorageProvider {
     // Supabase env vars present but provider not implemented — fall through to SQLite
   }
 
-  return new SqliteProvider(cfg.database_path);
+  return new SqliteProvider(resolvedDbPath);
 }

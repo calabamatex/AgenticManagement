@@ -8,11 +8,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CommandDefinition, ParsedArgs, output, isJson, table } from '../parser';
 import { loadMemoryConfig } from '../../memory/providers/provider-factory';
+import { resolveConfigPath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'cli-config' });
 
-const CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+const DEFAULT_CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+
+function getConfigPath(): string {
+  return resolveConfigPath() ?? DEFAULT_CONFIG_PATH;
+}
 
 export const configCommand: CommandDefinition = {
   name: 'config',
@@ -87,7 +92,8 @@ export const configCommand: CommandDefinition = {
     }
 
     if (sub === 'path') {
-      output(json ? { path: CONFIG_PATH } : CONFIG_PATH, json);
+      const resolvedPath = getConfigPath();
+      output(json ? { path: resolvedPath } : resolvedPath, json);
       return;
     }
 
@@ -102,7 +108,7 @@ export const configCommand: CommandDefinition = {
 
 function loadFullConfig(): Record<string, unknown> {
   try {
-    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    return JSON.parse(fs.readFileSync(getConfigPath(), 'utf8'));
   } catch (e) {
     logger.debug('Failed to load config file', { error: e instanceof Error ? e.message : String(e) });
     return { memory: {} };
@@ -110,11 +116,12 @@ function loadFullConfig(): Record<string, unknown> {
 }
 
 function saveConfig(config: Record<string, unknown>): void {
-  const dir = path.dirname(CONFIG_PATH);
+  const cfgPath = getConfigPath();
+  const dir = path.dirname(cfgPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(cfgPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
 }
 
 function getNestedValue(obj: Record<string, unknown>, dotPath: string): unknown {

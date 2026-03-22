@@ -5,6 +5,9 @@
  * This barrel file prepares the codebase for future npm packaging.
  */
 
+// Config Resolution
+export { resolveConfigPath, resolveDatabasePath } from './config/resolve';
+
 // Memory Store
 export { MemoryStore } from './memory/store';
 export type { OpsEvent, EventType, Severity, Skill, SearchResult, OpsStats, ChainVerification } from './memory/schema';

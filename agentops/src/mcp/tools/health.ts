@@ -6,6 +6,7 @@ import { MemoryStore } from '../../memory/store';
 import { loadMemoryConfig } from '../../memory/providers/provider-factory';
 import { detectEmbeddingProvider } from '../../memory/embeddings';
 import { getActiveSkills, generateConfigForLevel, LEVEL_NAMES } from '../../enablement/engine';
+import { resolveConfigPath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'mcp-health' });
@@ -110,12 +111,13 @@ export async function handler(
     // Check enablement
     let enablementLevel = 3; // default
     try {
-      const fsModule = await import('fs');
-      const pathModule = await import('path');
-      const cfgPath = pathModule.resolve('agentops/agentops.config.json');
-      const raw = JSON.parse(fsModule.readFileSync(cfgPath, 'utf8'));
-      if (raw.enablement?.level && typeof raw.enablement.level === 'number') {
-        enablementLevel = raw.enablement.level;
+      const cfgPath = resolveConfigPath();
+      if (cfgPath) {
+        const fsModule = await import('fs');
+        const raw = JSON.parse(fsModule.readFileSync(cfgPath, 'utf8'));
+        if (raw.enablement?.level && typeof raw.enablement.level === 'number') {
+          enablementLevel = raw.enablement.level;
+        }
       }
     } catch (e) {
       logger.debug('Failed to read enablement level from config', { error: e instanceof Error ? e.message : String(e) });

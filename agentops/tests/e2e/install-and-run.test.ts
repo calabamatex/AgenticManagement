@@ -64,12 +64,9 @@ describe('Install and Run (e2e)', () => {
     expect(existsSync(indexPath)).toBe(true);
   });
 
-  it('installed package contains scripts/', () => {
-    const scriptsDir = join(tempDir, 'node_modules/agentops/scripts');
-    expect(existsSync(scriptsDir)).toBe(true);
-    expect(existsSync(join(scriptsDir, 'session-start-checks.sh'))).toBe(true);
-    expect(existsSync(join(scriptsDir, 'post-write-checks.sh'))).toBe(true);
-    expect(existsSync(join(scriptsDir, 'secret-scanner.sh'))).toBe(true);
+  it('installed package contains config resolution module', () => {
+    const resolvePath = join(tempDir, 'node_modules/agentops/dist/src/config/resolve.js');
+    expect(existsSync(resolvePath)).toBe(true);
   });
 
   it('installed package contains agentops.config.json', () => {
