@@ -283,8 +283,8 @@ export class DashboardServer {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ...streamStats, memory: memoryStats }));
         return;
-      } catch {
-        // Fall through to stream-only stats
+      } catch (e) {
+        logger.debug('Failed to get memory stats for dashboard', { error: e instanceof Error ? e.message : String(e) });
       }
     }
 
