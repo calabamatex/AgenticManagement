@@ -23,6 +23,12 @@ const logger = new Logger({ module: 'cli-handoff' });
 // Types
 // ---------------------------------------------------------------------------
 
+export interface TodoItem {
+  content: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  activeForm?: string;
+}
+
 export interface HandoffResult {
   generated_at: string;
   branch: string;
@@ -32,6 +38,7 @@ export interface HandoffResult {
   recent_commits: string[];
   session_summary: string;
   remaining_work: string[];
+  todos: TodoItem[];
   handoff_prompt: string;
   saved_to?: string;
 }
@@ -173,6 +180,72 @@ async function getRemainingWork(): Promise<string[]> {
 }
 
 // ---------------------------------------------------------------------------
+// TodoWrite state reader
+// ---------------------------------------------------------------------------
+
+/**
+ * Read the current session's TodoWrite state from ~/.claude/todos/.
+ * Returns an array of todo items if found, otherwise empty array.
+ */
+function readTodoState(): TodoItem[] {
+  try {
+    const home = process.env.HOME ?? process.env.USERPROFILE ?? '';
+    if (!home) return [];
+
+    const todosDir = path.join(home, '.claude', 'todos');
+    if (!fs.existsSync(todosDir)) return [];
+
+    // Try to find the current session's todo file
+    // Session ID may be in env, or we pick the most recently modified file
+    const sessionId = process.env.CLAUDE_SESSION_ID;
+    const files = fs.readdirSync(todosDir).filter(f => f.endsWith('.json'));
+
+    let todoFile: string | undefined;
+    if (sessionId) {
+      todoFile = files.find(f => f.startsWith(sessionId));
+    }
+
+    // Fallback: find the most recently modified non-empty todo file
+    if (!todoFile) {
+      let newest = 0;
+      for (const f of files) {
+        const fullPath = path.join(todosDir, f);
+        const stat = fs.statSync(fullPath);
+        const size = stat.size;
+        // Skip empty files (just "[]")
+        if (size <= 4) continue;
+        if (stat.mtimeMs > newest) {
+          newest = stat.mtimeMs;
+          todoFile = f;
+        }
+      }
+    }
+
+    if (!todoFile) return [];
+
+    const content = fs.readFileSync(path.join(todosDir, todoFile), 'utf-8');
+    const parsed = JSON.parse(content);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter((item: unknown): item is TodoItem =>
+        typeof item === 'object' &&
+        item !== null &&
+        'content' in item &&
+        'status' in item
+      )
+      .map((item: TodoItem) => ({
+        content: item.content,
+        status: item.status,
+        activeForm: item.activeForm,
+      }));
+  } catch (e) {
+    logger.debug('Failed to read todo state', { error: e instanceof Error ? e.message : String(e) });
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Handoff formatter
 // ---------------------------------------------------------------------------
 
@@ -241,6 +314,16 @@ function formatHandoff(result: HandoffResult): string {
     lines.push('');
   }
 
+  // Todos
+  if (result.todos.length > 0) {
+    lines.push('## Task List (TodoWrite State)');
+    for (const todo of result.todos) {
+      const icon = todo.status === 'completed' ? '[x]' : todo.status === 'in_progress' ? '[~]' : '[ ]';
+      lines.push(`- ${icon} ${todo.content}`);
+    }
+    lines.push('');
+  }
+
   // The paste-ready handoff prompt
   lines.push('## Handoff Prompt');
   lines.push('');
@@ -284,9 +367,75 @@ function buildHandoffPrompt(result: Omit<HandoffResult, 'handoff_prompt'>): stri
     lines.push('');
   }
 
+  const incompleteTodos = result.todos.filter(t => t.status !== 'completed');
+  if (incompleteTodos.length > 0) {
+    lines.push('Incomplete tasks from previous session:');
+    for (const t of incompleteTodos) {
+      const prefix = t.status === 'in_progress' ? '[in progress]' : '[pending]';
+      lines.push(`  - ${prefix} ${t.content}`);
+    }
+    lines.push('');
+  }
+
   lines.push('Pick up where the previous session left off.');
 
   return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Exported generation function (used by session-checkpoint hook)
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate a HandoffResult without any I/O side-effects.
+ * Used by the CLI command and the auto-save hook.
+ */
+export async function generateHandoffResult(options?: {
+  remaining?: string[];
+}): Promise<HandoffResult> {
+  const branch = git('branch --show-current') || git('rev-parse --abbrev-ref HEAD') || 'unknown';
+  const lastCommit = git('log -1 --oneline') || 'no commits';
+  const uncommitted = git('status --short') || '';
+  const diffStat = git('diff --stat') || '';
+  const recentCommits = git('log --oneline -10').split('\n').filter(Boolean);
+  const sessionSummary = await getSessionSummary();
+  const todos = readTodoState();
+  let remaining = options?.remaining ?? [];
+  if (remaining.length === 0) {
+    remaining = await getRemainingWork();
+  }
+
+  const partial: Omit<HandoffResult, 'handoff_prompt'> = {
+    generated_at: new Date().toISOString(),
+    branch,
+    last_commit: lastCommit,
+    uncommitted_changes: uncommitted,
+    git_diff_stat: diffStat,
+    recent_commits: recentCommits,
+    session_summary: sessionSummary,
+    remaining_work: remaining,
+    todos,
+  };
+
+  return {
+    ...partial,
+    handoff_prompt: buildHandoffPrompt(partial),
+  };
+}
+
+/**
+ * Save a handoff result to the project memory directory.
+ * Returns the file path if saved, undefined otherwise.
+ */
+export function saveHandoffToMemory(result: HandoffResult): string | undefined {
+  const memoryDir = resolveMemoryDir();
+  if (!memoryDir) return undefined;
+  const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const filename = `project_handoff_auto_${timestamp}.md`;
+  const filePath = path.join(memoryDir, filename);
+  const formatted = formatHandoff(result);
+  fs.writeFileSync(filePath, formatted + '\n', 'utf-8');
+  return filePath;
 }
 
 // ---------------------------------------------------------------------------
@@ -327,50 +476,13 @@ export const handoffCommand: CommandDefinition = {
       remaining = remainingFlag.split(',').map(s => s.trim()).filter(Boolean);
     }
 
-    // Gather git state
-    const branch = git('branch --show-current') || git('rev-parse --abbrev-ref HEAD') || 'unknown';
-    const lastCommit = git('log -1 --oneline') || 'no commits';
-    const uncommitted = git('status --short') || '';
-    const diffStat = git('diff --stat') || '';
-    const recentCommits = git('log --oneline -10').split('\n').filter(Boolean);
-
-    // Gather session data
-    const sessionSummary = await getSessionSummary();
-
-    // If no remaining work provided, try to get from memory
-    if (remaining.length === 0) {
-      remaining = await getRemainingWork();
-    }
-
-    // Build result (without prompt first)
-    const partial: Omit<HandoffResult, 'handoff_prompt'> = {
-      generated_at: new Date().toISOString(),
-      branch,
-      last_commit: lastCommit,
-      uncommitted_changes: uncommitted,
-      git_diff_stat: diffStat,
-      recent_commits: recentCommits,
-      session_summary: sessionSummary,
-      remaining_work: remaining,
-    };
-
-    const handoffPrompt = buildHandoffPrompt(partial);
-
-    const result: HandoffResult = {
-      ...partial,
-      handoff_prompt: handoffPrompt,
-    };
+    const result = await generateHandoffResult({ remaining: remaining.length > 0 ? remaining : undefined });
 
     // Save to memory directory if requested
     if (save) {
-      const memoryDir = resolveMemoryDir();
-      if (memoryDir) {
-        const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const filename = `project_handoff_auto_${timestamp}.md`;
-        const filePath = path.join(memoryDir, filename);
-        const formatted = formatHandoff(result);
-        fs.writeFileSync(filePath, formatted + '\n', 'utf-8');
-        result.saved_to = filePath;
+      const savedPath = saveHandoffToMemory(result);
+      if (savedPath) {
+        result.saved_to = savedPath;
       }
     }
 
@@ -387,10 +499,10 @@ export const handoffCommand: CommandDefinition = {
         severity: 'low',
         skill: 'system',
         title: `auto-handoff:${sessionId}`,
-        detail: `Handoff generated. Branch: ${branch}. ${recentCommits.length} recent commits.`,
+        detail: `Handoff generated. Branch: ${result.branch}. ${result.recent_commits.length} recent commits.`,
         affected_files: [],
         tags: ['handoff', 'auto-generated'],
-        metadata: { branch, commit_count: recentCommits.length },
+        metadata: { branch: result.branch, commit_count: result.recent_commits.length },
       });
       await store.close();
     } catch (e) {

@@ -135,7 +135,23 @@ function resetTrackingState(): void {
   }
 }
 
-function main(): void {
+async function autoSaveHandoff(): Promise<void> {
+  try {
+    const { generateHandoffResult, saveHandoffToMemory } = await import('../commands/handoff');
+    const result = await generateHandoffResult();
+    const savedPath = saveHandoffToMemory(result);
+    if (savedPath) {
+      console.log(`${PREFIX} Auto-saved handoff: ${savedPath}`);
+    } else {
+      console.log(`${PREFIX} Could not resolve memory directory — handoff not saved.`);
+    }
+  } catch (e) {
+    logger.debug('Auto-save handoff failed', { error: e instanceof Error ? e.message : String(e) });
+    console.log(`${PREFIX} Auto-save handoff skipped (not critical).`);
+  }
+}
+
+async function main(): Promise<void> {
   const config = readConfig();
 
   // Ensure dashboard data directory exists
@@ -149,7 +165,10 @@ function main(): void {
   // Step 2: Reset tracking state
   resetTrackingState();
 
-  // Step 3: Log session-end event with snapshot SHA
+  // Step 3: Auto-save handoff for next session
+  await autoSaveHandoff();
+
+  // Step 4: Log session-end event with snapshot SHA
   if (snapshotSha) {
     logEvent(sessionLog, `Session ended with stash snapshot: ${snapshotSha}`, 'info');
   } else {
@@ -159,5 +178,4 @@ function main(): void {
   console.log(`${PREFIX} Session end checkpoint complete.`);
 }
 
-main();
-process.exit(0);
+main().then(() => process.exit(0)).catch(() => process.exit(0));

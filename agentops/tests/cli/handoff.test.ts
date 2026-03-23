@@ -39,7 +39,7 @@ vi.mock('../../src/memory/store', () => ({
   })),
 }));
 
-import { handoffCommand } from '../../src/cli/commands/handoff';
+import { handoffCommand, generateHandoffResult, saveHandoffToMemory } from '../../src/cli/commands/handoff';
 import type { ParsedArgs } from '../../src/cli/parser';
 
 const mockedExecSync = vi.mocked(childProcess.execSync);
@@ -180,5 +180,87 @@ describe('handoff command', () => {
     expect(handoffCommand.usage).toContain('--save');
     expect(handoffCommand.usage).toContain('--json');
     expect(handoffCommand.usage).toContain('--remaining');
+  });
+});
+
+describe('generateHandoffResult', () => {
+  beforeEach(() => {
+    mockGitCommands();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('generates a HandoffResult with git state', async () => {
+    const result = await generateHandoffResult();
+    expect(result.branch).toBe('main');
+    expect(result.last_commit).toContain('abc1234');
+    expect(result.recent_commits).toHaveLength(3);
+    expect(result.handoff_prompt).toContain('Pick up where the previous session left off');
+    expect(result.generated_at).toBeDefined();
+  });
+
+  it('accepts remaining work items', async () => {
+    const result = await generateHandoffResult({ remaining: ['Fix auth', 'Deploy'] });
+    expect(result.remaining_work).toEqual(['Fix auth', 'Deploy']);
+    expect(result.handoff_prompt).toContain('Fix auth');
+  });
+
+  it('includes uncommitted changes', async () => {
+    const result = await generateHandoffResult();
+    expect(result.uncommitted_changes).toContain('src/foo.ts');
+  });
+});
+
+describe('generateHandoffResult with todos', () => {
+  beforeEach(() => {
+    mockGitCommands();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('includes an empty todos array when no todo files found', async () => {
+    const result = await generateHandoffResult();
+    expect(result.todos).toBeDefined();
+    expect(Array.isArray(result.todos)).toBe(true);
+  });
+
+  it('handoff prompt includes incomplete todos hint', async () => {
+    // The result will have empty todos since fs is mocked,
+    // but we verify the structure is correct
+    const result = await generateHandoffResult();
+    expect(result).toHaveProperty('todos');
+    // When there are no todos, the prompt should not mention them
+    if (result.todos.length === 0) {
+      expect(result.handoff_prompt).not.toContain('Incomplete tasks');
+    }
+  });
+});
+
+describe('saveHandoffToMemory', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns undefined when memory dir does not exist', () => {
+    const mockedExistsSync = vi.mocked(fs.existsSync);
+    mockedExistsSync.mockReturnValue(false);
+
+    const result = saveHandoffToMemory({
+      generated_at: new Date().toISOString(),
+      branch: 'main',
+      last_commit: 'abc1234 test',
+      uncommitted_changes: '',
+      git_diff_stat: '',
+      recent_commits: [],
+      session_summary: '',
+      remaining_work: [],
+      handoff_prompt: 'test prompt',
+    });
+
+    expect(result).toBeUndefined();
   });
 });

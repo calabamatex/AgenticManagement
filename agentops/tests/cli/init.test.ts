@@ -161,4 +161,132 @@ describe('initCommand', () => {
     expect(parsed.active_skills).toContain('standing_orders');
     expect(parsed.active_skills).not.toContain('small_bets');
   });
+
+  // --- Dry run tests ---
+
+  it('--dry-run does not create config file', async () => {
+    expect(fs.existsSync(tmpConfigPath)).toBe(false);
+    await initCommand.run(makeArgs({ flags: { 'dry-run': true } }));
+    expect(fs.existsSync(tmpConfigPath)).toBe(false);
+  });
+
+  it('--dry-run shows preview text', async () => {
+    await initCommand.run(makeArgs({ flags: { 'dry-run': true } }));
+    const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+    expect(allOutput).toContain('Dry Run Preview');
+    expect(allOutput).toContain('[DRY RUN]');
+    expect(allOutput).toContain('Would create');
+  });
+
+  it('--dry-run with existing config says "Would update"', async () => {
+    fs.writeFileSync(tmpConfigPath, JSON.stringify({ old: true }), 'utf8');
+    await initCommand.run(makeArgs({ flags: { 'dry-run': true } }));
+    const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+    expect(allOutput).toContain('Would update');
+  });
+
+  it('--dry-run JSON includes dry_run field', async () => {
+    await initCommand.run(makeArgs({ flags: { 'dry-run': true, json: true } }));
+    const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+    const parsed = JSON.parse(allOutput);
+    expect(parsed.dry_run).toBe(true);
+    expect(parsed.config_created).toBe(true); // would create
+  });
+
+  it('--dry-run does not update existing config', async () => {
+    const original = JSON.stringify({ enablement: { level: 1 } });
+    fs.writeFileSync(tmpConfigPath, original, 'utf8');
+    await initCommand.run(makeArgs({ flags: { 'dry-run': true, level: '5' } }));
+    const content = fs.readFileSync(tmpConfigPath, 'utf8');
+    expect(content).toBe(original); // unchanged
+  });
+
+  // --- Interactive mode tests ---
+
+  it('--interactive defaults to level 1 when stdin is not a TTY', async () => {
+    await initCommand.run(makeArgs({ flags: { interactive: true, json: true } }));
+    const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+    const parsed = JSON.parse(allOutput);
+    // In test environment, stdin is not a TTY, so defaults to 1
+    expect(parsed.level).toBe(1);
+  });
+
+  it('-i flag works the same as --interactive', async () => {
+    await initCommand.run(makeArgs({ flags: { i: true, json: true } }));
+    const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+    const parsed = JSON.parse(allOutput);
+    expect(parsed.level).toBe(1);
+  });
+
+  // --- Wire hooks tests ---
+
+  it('--wire-hooks adds agentops hooks to settings.json', async () => {
+    // Use a temp .claude/settings.json to avoid touching real one
+    const settingsDir = path.join(tmpDir, '.claude');
+    const settingsPath = path.join(settingsDir, 'settings.json');
+    fs.mkdirSync(settingsDir, { recursive: true });
+
+    // Overwrite with minimal settings (no agentops hooks)
+    const minimal = { hooks: { SessionStart: [] } };
+    fs.writeFileSync(settingsPath, JSON.stringify(minimal), 'utf8');
+
+    // Temporarily chdir so wireHooks finds our temp settings
+    const origCwd = process.cwd();
+    process.chdir(tmpDir);
+
+    try {
+      await initCommand.run(makeArgs({ flags: { 'wire-hooks': true, json: true } }));
+      const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+      const parsed = JSON.parse(allOutput);
+      expect(parsed.hooks_wired).toBe(true);
+
+      // Verify hooks were added
+      const updated = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      const sessionStartHooks = updated.hooks.SessionStart;
+      const hasAgentops = sessionStartHooks.some((group: { hooks?: Array<{ command?: string }> }) =>
+        group.hooks?.some((h: { command?: string }) => h.command?.includes('agentops/'))
+      );
+      expect(hasAgentops).toBe(true);
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  it('--wire-hooks does not duplicate existing agentops hooks', async () => {
+    const settingsDir = path.join(tmpDir, '.claude');
+    const settingsPath = path.join(settingsDir, 'settings.json');
+    fs.mkdirSync(settingsDir, { recursive: true });
+
+    // Settings that already have agentops hooks
+    const withHooks = {
+      hooks: {
+        SessionStart: [
+          { hooks: [{ type: 'command', command: 'bash agentops/scripts/session-start-checks.sh', timeout: 10000 }] },
+        ],
+        UserPromptSubmit: [
+          { hooks: [{ type: 'command', command: 'bash agentops/scripts/context-estimator.sh', timeout: 5000 }] },
+        ],
+      },
+    };
+    fs.writeFileSync(settingsPath, JSON.stringify(withHooks), 'utf8');
+
+    const origCwd = process.cwd();
+    process.chdir(tmpDir);
+
+    try {
+      await initCommand.run(makeArgs({ flags: { 'wire-hooks': true, json: true } }));
+      const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+      const parsed = JSON.parse(allOutput);
+      // Should not add duplicates
+      expect(parsed.hooks_wired).toBe(false);
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  it('--wire-hooks with --dry-run does not modify settings', async () => {
+    await initCommand.run(makeArgs({ flags: { 'wire-hooks': true, 'dry-run': true } }));
+    const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
+    expect(allOutput).toContain('Would wire hooks');
+  });
 });
