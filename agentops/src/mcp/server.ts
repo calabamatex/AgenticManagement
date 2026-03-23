@@ -20,6 +20,7 @@ import * as captureEvent from './tools/capture-event';
 import * as searchHistory from './tools/search-history';
 import * as health from './tools/health';
 import * as recallContext from './tools/recall-context';
+import * as generateHandoff from './tools/generate-handoff';
 
 /**
  * Tool definition with name, description, inputSchema, and handler.
@@ -50,6 +51,7 @@ export const tools: ToolDefinition[] = [
   searchHistory,
   health,
   recallContext,
+  generateHandoff,
 ];
 
 const toolMap = new Map<string, ToolDefinition>();

@@ -18,6 +18,7 @@ import { configCommand } from './commands/config';
 import { dashboardCommand } from './commands/dashboard';
 import { enableCommand } from './commands/enable';
 import { initCommand } from './commands/init';
+import { handoffCommand } from './commands/handoff';
 
 // ---------------------------------------------------------------------------
 // Version — single source of truth from package.json
@@ -31,6 +32,7 @@ import { VERSION } from '../version';
 
 const commands: CommandDefinition[] = [
   initCommand,
+  handoffCommand,
   healthCommand,
   metricsCommand,
   memoryCommand,
