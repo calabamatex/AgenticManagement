@@ -158,8 +158,7 @@ async function getRemainingWork(): Promise<string[]> {
     await store.initialize();
 
     // Search for open tasks / remaining work events
-    const events = await store.search({
-      query: 'remaining work next steps todo',
+    const events = await store.search('remaining work next steps todo', {
       limit: 10,
     });
     await store.close();

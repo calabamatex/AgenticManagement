@@ -74,6 +74,8 @@ function printHelp(): void {
     '  agentops config show',
     '  agentops dashboard --port 9200',
     '  agentops enable --level 1',
+    '  agentops handoff',
+    '  agentops handoff --save',
   ];
   process.stdout.write(lines.join('\n') + '\n');
 }

@@ -27,8 +27,8 @@ vi.mock('@modelcontextprotocol/sdk/types.js', () => ({
 
 describe('MCP Server', () => {
   describe('tool registration', () => {
-    it('should register all 9 tools', () => {
-      expect(tools).toHaveLength(9);
+    it('should register all 10 tools', () => {
+      expect(tools).toHaveLength(10);
     });
 
     it('should include all expected tool names', () => {
@@ -42,6 +42,7 @@ describe('MCP Server', () => {
       expect(names).toContain('agentops_search_history');
       expect(names).toContain('agentops_health');
       expect(names).toContain('agentops_recall_context');
+      expect(names).toContain('agentops_generate_handoff');
     });
 
     it('should have descriptions for all tools', () => {
@@ -74,7 +75,7 @@ describe('MCP Server', () => {
       expect(listHandler).toBeDefined();
 
       const result = await listHandler!({});
-      expect(result.tools).toHaveLength(9);
+      expect(result.tools).toHaveLength(10);
       for (const tool of result.tools) {
         expect(tool.name).toBeTruthy();
         expect(tool.description).toBeTruthy();
