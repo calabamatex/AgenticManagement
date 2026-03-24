@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [AgentOps] Context Usage Estimator — UserPromptSubmit hook
+# [AgentSentry] Context Usage Estimator — UserPromptSubmit hook
 # Estimates context window usage and message count, warns when thresholds
 # are approached or exceeded. See AgentOps-Product-Spec.md §3.2.1.
 # Exit 0 always (advisory only, never blocks prompt submission).
@@ -10,8 +10,8 @@ set -euo pipefail
 cat > /dev/null 2>&1 || true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
-PREFIX="[AgentOps]"
+CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
+PREFIX="[AgentSentry]"
 
 # ── Config ────────────────────────────────────────────────────────────
 # Read thresholds from agentops.config.json with sane defaults
@@ -21,10 +21,10 @@ MSG_WARN=$(jq -r '.context_health.message_count_warning // 20' "$CONFIG_FILE" 2>
 MSG_CRIT=$(jq -r '.context_health.message_count_critical // 30' "$CONFIG_FILE" 2>/dev/null || echo 30)
 
 # Assumed context window size in tokens (Claude default)
-MAX_TOKENS=${AGENTOPS_MAX_TOKENS:-200000}
+MAX_TOKENS=${AGENT_SENTRY_MAX_TOKENS:-200000}
 
 # ── Session State ─────────────────────────────────────────────────────
-STATE_DIR="${TMPDIR:-/tmp}/agentops"
+STATE_DIR="${TMPDIR:-/tmp}/agent-sentry"
 STATE_FILE="$STATE_DIR/context-state"
 
 mkdir -p "$STATE_DIR"

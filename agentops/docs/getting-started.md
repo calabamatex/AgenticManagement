@@ -3,13 +3,13 @@
 ## Installation
 
 ```bash
-npm install agentops
+npm install agent-sentry
 ```
 
 ## Basic Usage
 
 ```typescript
-import { MemoryStore, createProvider } from 'agentops';
+import { MemoryStore, createProvider } from 'agent-sentry';
 
 // Create a store with the default SQLite provider
 const store = new MemoryStore({
@@ -61,7 +61,7 @@ await store.close();
 
 ## Provider Configuration
 
-AgentSentry reads configuration from `agentops/agentops.config.json`:
+AgentSentry reads configuration from `agent-sentry/agent-sentry.config.json`:
 
 ```json
 {
@@ -95,28 +95,28 @@ AgentSentry reads configuration from `agentops/agentops.config.json`:
 
 ```bash
 # Capture an event
-npx agentops capture --type decision --severity low --title "Deployed v2"
+npx agent-sentry capture --type decision --severity low --title "Deployed v2"
 
 # Search event history
-npx agentops search "authentication bug"
+npx agent-sentry search "authentication bug"
 
 # List recent events
-npx agentops list --limit 20 --type incident
+npx agent-sentry list --limit 20 --type incident
 
 # Get stats
-npx agentops stats
+npx agent-sentry stats
 
 # Verify chain integrity
-npx agentops verify
+npx agent-sentry verify
 
 # Run health check
-npx agentops health
+npx agent-sentry health
 
 # Scan for secrets
-npx agentops scan --path src/
+npx agent-sentry scan --path src/
 
 # Start MCP server
-npx agentops serve
+npx agent-sentry serve
 ```
 
 ## Dashboard
@@ -124,7 +124,7 @@ npx agentops serve
 Start the built-in dashboard to get a live SSE event feed, health status, metrics, and plugin overview:
 
 ```typescript
-import { DashboardServer } from 'agentops';
+import { DashboardServer } from 'agent-sentry';
 
 const dashboard = new DashboardServer({ port: 9200 });
 const info = await dashboard.start();
@@ -135,7 +135,7 @@ console.log(`Dashboard running at ${info.url}`);
 Or from the CLI:
 
 ```bash
-npx agentops dashboard --port 9200
+npx agent-sentry dashboard --port 9200
 ```
 
 The dashboard exposes these endpoints:

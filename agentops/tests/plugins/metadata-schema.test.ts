@@ -94,7 +94,7 @@ describe('Template metadata files', () => {
         expect(metadata.author.name).toBeDefined();
         expect(metadata.version).toBeDefined();
         expect(metadata.requires).toBeDefined();
-        expect(metadata.requires.agentops).toBeDefined();
+        expect(metadata.requires['agent-sentry']).toBeDefined();
         expect(metadata.tags).toBeDefined();
         expect(metadata.tags.length).toBeGreaterThanOrEqual(1);
       });
