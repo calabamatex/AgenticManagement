@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# [AgentOps] Session End Checkpoint — thin wrapper around TypeScript implementation.
+# [AgentSentry] Session End Checkpoint — thin wrapper around TypeScript implementation.
 # Pipes stdin to the compiled TS hook and passes through exit code.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

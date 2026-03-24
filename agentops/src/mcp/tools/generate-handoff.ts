@@ -1,5 +1,5 @@
 /**
- * generate-handoff.ts — MCP tool: agentops_generate_handoff
+ * generate-handoff.ts — MCP tool: agent_sentry_generate_handoff
  *
  * Generates a structured handoff prompt when context is critically full.
  * Called by Claude when it detects the context warning, or on demand.
@@ -8,7 +8,7 @@
 import { execSync } from 'child_process';
 import { z } from 'zod';
 
-export const name = 'agentops_generate_handoff';
+export const name = 'agent_sentry_generate_handoff';
 export const description =
   'Generate a structured handoff prompt for session continuity. Use when context is critically full or when ending a session.';
 

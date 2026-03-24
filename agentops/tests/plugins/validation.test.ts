@@ -46,7 +46,7 @@ function validatePluginMetadata(metadata: Record<string, unknown>): string[] {
     }
   }
 
-  // Check 9: Requires has agentops
+  // Check 9: Requires has agent-sentry
   if (metadata.requires && typeof metadata.requires === 'object') {
     const requires = metadata.requires as Record<string, unknown>;
     if (!('agent-sentry' in requires)) {
@@ -148,7 +148,7 @@ describe('Plugin validation logic', () => {
     expect(errors.some((e) => e.includes('Author'))).toBe(true);
   });
 
-  it('should fail for missing agentops in requires', () => {
+  it('should fail for missing agent-sentry in requires', () => {
     const metadata = {
       name: 'test',
       description: 'test',

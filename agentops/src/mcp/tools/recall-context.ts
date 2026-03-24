@@ -8,7 +8,7 @@
 import { ContextRecaller } from '../../memory/intelligence';
 import { MemoryStore } from '../../memory/store';
 
-export const name = 'agentops_recall_context';
+export const name = 'agent_sentry_recall_context';
 
 export const description =
   'Search memory for relevant prior session context given a task description. ' +
