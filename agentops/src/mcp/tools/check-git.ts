@@ -1,5 +1,5 @@
 /**
- * check-git.ts — agentops_check_git tool: Inspect current git repository state.
+ * check-git.ts — agent_sentry_check_git tool: Inspect current git repository state.
  */
 
 import { execFileSync } from 'child_process';

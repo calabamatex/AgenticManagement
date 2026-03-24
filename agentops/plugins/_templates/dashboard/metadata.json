@@ -3,7 +3,7 @@
   "description": "Provides visual dashboards and reports for agent operational data",
   "category": "dashboard",
   "author": {
-    "name": "AgentOps Team",
+    "name": "AgentSentry Team",
     "github": "agentops"
   },
   "version": "1.0.0",

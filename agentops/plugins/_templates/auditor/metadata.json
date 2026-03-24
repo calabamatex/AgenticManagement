@@ -3,12 +3,12 @@
   "description": "Audits agent actions for compliance with project rules and security policies",
   "category": "auditor",
   "author": {
-    "name": "AgentOps Team",
-    "github": "agentops"
+    "name": "AgentSentry Team",
+    "github": "agent-sentry"
   },
   "version": "1.0.0",
   "requires": {
-    "agentops": ">=4.0.0",
+    "agent-sentry": ">=4.0.0",
     "primitives": ["rules-validation", "secret-detection", "risk-scoring"]
   },
   "hooks": ["PreToolUse", "PostToolUse"],

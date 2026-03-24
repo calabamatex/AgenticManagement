@@ -53,7 +53,7 @@ vi.mock('../../../src/memory/providers/provider-factory', () => ({
     enabled: true,
     provider: 'sqlite',
     embedding_provider: 'auto',
-    database_path: 'agentops/data/ops.db',
+    database_path: 'agent-sentry/data/ops.db',
     max_events: 100000,
     auto_prune_days: 365,
   }),
@@ -176,7 +176,7 @@ describe('agent_sentry_health', () => {
     expect(parsed.config).toBeDefined();
     expect(parsed.config.max_events).toBe(100000);
     expect(parsed.config.auto_prune_days).toBe(365);
-    expect(parsed.config.database_path).toBe('agentops/data/ops.db');
+    expect(parsed.config.database_path).toBe('agent-sentry/data/ops.db');
   });
 
   it('should return degraded status for many critical events', async () => {

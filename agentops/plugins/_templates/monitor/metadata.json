@@ -3,12 +3,12 @@
   "description": "Monitors agent activity and captures operational events for analysis",
   "category": "monitor",
   "author": {
-    "name": "AgentOps Team",
-    "github": "agentops"
+    "name": "AgentSentry Team",
+    "github": "agent-sentry"
   },
   "version": "1.0.0",
   "requires": {
-    "agentops": ">=4.0.0",
+    "agent-sentry": ">=4.0.0",
     "primitives": ["event-capture", "context-estimation"]
   },
   "hooks": ["PostToolUse", "SessionStart"],
