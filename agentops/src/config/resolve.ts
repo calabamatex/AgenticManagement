@@ -38,7 +38,7 @@ export function resolveConfigPath(explicit?: string): string | undefined {
   }
 
   // 5. Package-relative (works for npm install)
-  const pkgRelative = path.join(__dirname, '..', '..', 'agentops.config.json');
+  const pkgRelative = path.join(__dirname, '..', '..', 'agent-sentry.config.json');
   if (fs.existsSync(pkgRelative)) {
     return path.resolve(pkgRelative);
   }
@@ -49,7 +49,7 @@ export function resolveConfigPath(explicit?: string): string | undefined {
 
 /**
  * Resolve a database path. If relative, resolve relative to the config file's
- * directory. If no config file, use ~/.agentops/data/ as home-dir fallback.
+ * directory. If no config file, use ~/.agent-sentry/data/ as home-dir fallback.
  */
 export function resolveDatabasePath(dbPath: string, configFilePath?: string): string {
   // SQLite special paths (e.g. ':memory:') used as-is

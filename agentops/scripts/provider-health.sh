@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# [AgentOps] Multi-Provider Health Monitor (§17 Multi-Provider Orchestration Awareness)
+# [AgentSentry] Multi-Provider Health Monitor (§17 Multi-Provider Orchestration Awareness)
 # Tracks per-provider metrics, logs failover events, and aggregates stats.
 # Standalone script invoked by hooks or commands.
 # Exit 0 always (advisory only, never blocks).
 
 set -euo pipefail
 
-PREFIX="[AgentOps]"
+PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DASHBOARD_DATA="$SCRIPT_DIR/../dashboard/data"
 COST_LOG="$DASHBOARD_DATA/cost-log.json"
 HEALTH_LOG="$DASHBOARD_DATA/provider-health.json"
-TMPBASE="${TMPDIR:-/tmp}/agentops"
+TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
 PROVIDER_STATE="$TMPBASE/provider-state"
 
 mkdir -p "$TMPBASE" "$DASHBOARD_DATA" "$PROVIDER_STATE"

@@ -15,8 +15,8 @@ set -euo pipefail
 #   lifecycle-manager.sh list
 ###############################################################################
 
-PREFIX="[AgentOps]"
-LIFECYCLE_DIR="${TMPDIR:-/tmp}/agentops/lifecycle"
+PREFIX="[AgentSentry]"
+LIFECYCLE_DIR="${TMPDIR:-/tmp}/agent-sentry/lifecycle"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVENT_LOG="${SCRIPT_DIR}/../dashboard/data/lifecycle.json"
 
