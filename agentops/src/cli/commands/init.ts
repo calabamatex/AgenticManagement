@@ -60,7 +60,7 @@ function defaultConfig(level: number): Record<string, unknown> {
     },
     notifications: {
       verbose: false,
-      prefix_all_messages: '[AgentOps]',
+      prefix_all_messages: '[AgentSentry]',
     },
     memory: {
       enabled: true,

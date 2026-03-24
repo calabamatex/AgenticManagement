@@ -2,7 +2,7 @@
 
 ## Overview
 
-AgentOps exposes its capabilities as a Model Context Protocol (MCP) server with 9 tools. The server supports two transport modes: stdio for local CLI usage and HTTP for networked/team deployments. HTTP mode adds access-key authentication and per-IP rate limiting.
+AgentSentry exposes its capabilities as a Model Context Protocol (MCP) server with 9 tools. The server supports two transport modes: stdio for local CLI usage and HTTP for networked/team deployments. HTTP mode adds access-key authentication and per-IP rate limiting.
 
 Source files: `src/mcp/server.ts`, `src/mcp/transport.ts`, `src/mcp/auth.ts`, `src/mcp/tools/*.ts`.
 
