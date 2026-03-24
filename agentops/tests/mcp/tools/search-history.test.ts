@@ -1,5 +1,5 @@
 /**
- * search-history.test.ts — Tests for agentops_search_history tool.
+ * search-history.test.ts — Tests for agent_sentry_search_history tool.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -58,7 +58,7 @@ vi.mock('../../../src/memory/store', () => {
 import { handler } from '../../../src/mcp/tools/search-history';
 import { MemoryStore } from '../../../src/memory/store';
 
-describe('agentops_search_history', () => {
+describe('agent_sentry_search_history', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

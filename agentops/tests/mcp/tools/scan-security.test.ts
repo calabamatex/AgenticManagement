@@ -1,11 +1,11 @@
 /**
- * scan-security.test.ts — Tests for agentops_scan_security tool.
+ * scan-security.test.ts — Tests for agent_sentry_scan_security tool.
  */
 
 import { describe, it, expect } from 'vitest';
 import { handler } from '../../../src/mcp/tools/scan-security';
 
-describe('agentops_scan_security', () => {
+describe('agent_sentry_scan_security', () => {
   it('should return clean for safe content', async () => {
     const result = await handler({
       content: 'const x = 1;\nconst y = x + 2;\nconsole.log(y);',

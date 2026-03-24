@@ -1,5 +1,5 @@
 /**
- * check-rules.test.ts — Tests for agentops_check_rules tool (delegates to rules-validation primitive).
+ * check-rules.test.ts — Tests for agent_sentry_check_rules tool (delegates to rules-validation primitive).
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -14,7 +14,7 @@ const mockValidateRules = validateRules as unknown as ReturnType<typeof vi.fn>;
 
 import { handler } from '../../../src/mcp/tools/check-rules';
 
-describe('agentops_check_rules', () => {
+describe('agent_sentry_check_rules', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

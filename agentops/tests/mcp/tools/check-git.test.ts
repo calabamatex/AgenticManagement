@@ -1,5 +1,5 @@
 /**
- * check-git.test.ts — Tests for agentops_check_git tool.
+ * check-git.test.ts — Tests for agent_sentry_check_git tool.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -26,7 +26,7 @@ function setupGitMock(responses: Record<string, string>) {
   });
 }
 
-describe('agentops_check_git', () => {
+describe('agent_sentry_check_git', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

@@ -32,7 +32,7 @@
 # Exit 0:    Delegation valid (or no delegation token — direct user session).
 # Exit 2:    Delegation check failed — BLOCK the tool use.
 #
-# Logs every check to agentops/dashboard/data/delegation-log.json (NDJSON).
+# Logs every check to agent-sentry/dashboard/data/delegation-log.json (NDJSON).
 # =============================================================================
 
 set -euo pipefail
@@ -41,15 +41,15 @@ set -euo pipefail
 # Dependency checks — fail loudly, not silently
 # ---------------------------------------------------------------------------
 if ! command -v jq &>/dev/null; then
-    echo "[AgentOps] CRITICAL: 'jq' is required but not found. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
+    echo "[AgentSentry] CRITICAL: 'jq' is required but not found. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
     exit 0
 fi
 if ! command -v node &>/dev/null; then
-    echo "[AgentOps] CRITICAL: 'node' is required but not found. AgentOps is a Node.js package." >&2
+    echo "[AgentSentry] CRITICAL: 'node' is required but not found. AgentOps is a Node.js package." >&2
     exit 0
 fi
 
-PREFIX="[AgentOps]"
+PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 DASHBOARD_DATA="$REPO_ROOT/agentops/dashboard/data"
