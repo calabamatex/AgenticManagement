@@ -12,6 +12,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vitest", "--watch"],
       "port": 0
+    },
+    {
+      "name": "website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "--prefix", "website", "dev"],
+      "port": 3000
     }
   ]
 }
