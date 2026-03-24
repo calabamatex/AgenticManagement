@@ -1,12 +1,12 @@
 /**
- * search-history.ts — agentops_search_history tool: Search event history.
+ * search-history.ts — agent_sentry_search_history tool: Search event history.
  */
 
 import { z } from 'zod';
 import { MemoryStore } from '../../memory/store';
 import { EVENT_TYPES, SEVERITIES, type EventType, type Severity } from '../../memory/schema';
 
-export const name = 'agentops_search_history';
+export const name = 'agent_sentry_search_history';
 export const description =
   'Search the AgentOps event history using text queries with optional filters.';
 

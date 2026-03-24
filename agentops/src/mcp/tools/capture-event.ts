@@ -80,8 +80,8 @@ export async function handler(
 
     const eventInput: OpsEventInput = {
       timestamp: new Date().toISOString(),
-      session_id: process.env.AGENTOPS_SESSION_ID ?? `session-${Date.now()}`,
-      agent_id: process.env.AGENTOPS_AGENT_ID ?? 'mcp-server',
+      session_id: process.env.AGENT_SENTRY_SESSION_ID ?? `session-${Date.now()}`,
+      agent_id: process.env.AGENT_SENTRY_AGENT_ID ?? 'mcp-server',
       event_type: parsed.event_type as EventType,
       severity: parsed.severity as Severity,
       skill: parsed.skill as Skill,

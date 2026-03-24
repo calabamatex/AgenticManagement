@@ -2,11 +2,11 @@
 
 ## What It Does
 
-This template provides a starting point for building integration plugins that connect AgentOps with external services, APIs, and tools via MCP (Model Context Protocol).
+This template provides a starting point for building integration plugins that connect AgentSentry with external services, APIs, and tools via MCP (Model Context Protocol).
 
 ## Prerequisites
 
-- AgentOps v4.0 or higher
+- AgentSentry v4.0 or higher
 - Node.js 18+
 - Access to the `event-capture` and `checkpoint-and-branch` primitives
 - External service credentials (configured via environment variables)
@@ -27,7 +27,7 @@ Edit `metadata.json` to configure:
 
 ## How It Works
 
-The integration plugin hooks into the AgentOps lifecycle:
+The integration plugin hooks into the AgentSentry lifecycle:
 1. `SessionStart` — Establishes connection to external service
 2. `PreToolUse` / `PostToolUse` — Syncs data with external service
 3. `Stop` — Gracefully disconnects and flushes pending data

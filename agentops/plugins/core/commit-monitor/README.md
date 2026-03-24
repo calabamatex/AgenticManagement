@@ -10,16 +10,16 @@ Tracks time since last git commit and number of uncommitted files. Emits warning
 ## Prerequisites
 
 - Git repository initialized
-- AgentOps v4.0+ installed
+- AgentSentry v4.0+ installed
 - Node.js 18+
 
 ## Installation
 
-This plugin ships with AgentOps core. No additional installation needed.
+This plugin ships with AgentSentry core. No additional installation needed.
 
 ## Configuration
 
-Add to `agentops.config.json`:
+Add to `agent-sentry.config.json`:
 
 ```json
 {

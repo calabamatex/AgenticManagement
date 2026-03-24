@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] Permission Enforcer - PreToolUse Hook (Section 14)
+# [AgentSentry] Permission Enforcer - PreToolUse Hook (Section 14)
 # =============================================================================
 # Implements Agent Identity and Permissions (section 14).
 #
