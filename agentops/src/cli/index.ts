@@ -51,9 +51,9 @@ const commandMap = new Map(commands.map((c) => [c.name, c]));
 
 function printHelp(): void {
   const lines = [
-    `agentops v${VERSION} — CLI for AgentOps agent management`,
+    `agent-sentry v${VERSION} — CLI for AgentSentry agent management`,
     '',
-    'Usage: agentops <command> [options]',
+    'Usage: agent-sentry <command> [options]',
     '',
     'Commands:',
     ...commands.map((c) => `  ${c.name.padEnd(12)} ${c.description}`),

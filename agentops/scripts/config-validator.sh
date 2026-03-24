@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] Config Validator — Schema Validation for agentops.config.json
+# [AgentSentry] Config Validator — Schema Validation for agent-sentry.config.json
 # =============================================================================
 # Validates the AgentOps configuration file against the expected schema.
 # Checks for:

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENTOPS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+AGENT_SENTRY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PASS=0
 FAIL=0
 
@@ -18,24 +18,24 @@ check() {
   fi
 }
 
-echo "AgentOps Smoke Test"
+echo "AgentSentry Smoke Test"
 echo "==================="
 
 # 1. Build output exists
-[ -f "$AGENTOPS_ROOT/dist/src/mcp/server.js" ] && check "MCP server entrypoint" "pass" || check "MCP server entrypoint" "fail"
-[ -f "$AGENTOPS_ROOT/dist/src/index.js" ] && check "Barrel export" "pass" || check "Barrel export" "fail"
-[ -f "$AGENTOPS_ROOT/dist/src/memory/store.js" ] && check "Memory store" "pass" || check "Memory store" "fail"
-[ -f "$AGENTOPS_ROOT/dist/src/enablement/engine.js" ] && check "Enablement engine" "pass" || check "Enablement engine" "fail"
+[ -f "$AGENT_SENTRY_ROOT/dist/src/mcp/server.js" ] && check "MCP server entrypoint" "pass" || check "MCP server entrypoint" "fail"
+[ -f "$AGENT_SENTRY_ROOT/dist/src/index.js" ] && check "Barrel export" "pass" || check "Barrel export" "fail"
+[ -f "$AGENT_SENTRY_ROOT/dist/src/memory/store.js" ] && check "Memory store" "pass" || check "Memory store" "fail"
+[ -f "$AGENT_SENTRY_ROOT/dist/src/enablement/engine.js" ] && check "Enablement engine" "pass" || check "Enablement engine" "fail"
 
 # 2. Plugin validation
-[ -f "$AGENTOPS_ROOT/plugins/core/commit-monitor/metadata.json" ] && check "Plugin metadata" "pass" || check "Plugin metadata" "fail"
+[ -f "$AGENT_SENTRY_ROOT/plugins/core/commit-monitor/metadata.json" ] && check "Plugin metadata" "pass" || check "Plugin metadata" "fail"
 
 # 3. Config exists
-[ -f "$AGENTOPS_ROOT/agentops.config.json" ] && check "Config file" "pass" || check "Config file" "fail"
+[ -f "$AGENT_SENTRY_ROOT/agent-sentry.config.json" ] && check "Config file" "pass" || check "Config file" "fail"
 
 # 4. Package.json main resolves
-MAIN=$(node -e "console.log(require('$AGENTOPS_ROOT/package.json').main)" 2>/dev/null || echo "")
-[ -f "$AGENTOPS_ROOT/$MAIN" ] && check "package.json main resolves" "pass" || check "package.json main resolves" "fail"
+MAIN=$(node -e "console.log(require('$AGENT_SENTRY_ROOT/package.json').main)" 2>/dev/null || echo "")
+[ -f "$AGENT_SENTRY_ROOT/$MAIN" ] && check "package.json main resolves" "pass" || check "package.json main resolves" "fail"
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
