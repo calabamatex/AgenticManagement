@@ -1,5 +1,5 @@
 /**
- * intelligence.ts — Cross-session intelligence for AgentOps.
+ * intelligence.ts — Cross-session intelligence for AgentSentry.
  *
  * Provides:
  *  - Session summary generation (structured summary of a session's work)

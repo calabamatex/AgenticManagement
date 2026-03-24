@@ -1,5 +1,5 @@
 /**
- * benchmark.ts — Programmatic benchmark suite for the AgentOps memory system.
+ * benchmark.ts — Programmatic benchmark suite for the AgentSentry memory system.
  * Measures insert throughput, search latency, batch vs single operations,
  * cache hit/miss ratio, and concurrent read/write performance.
  */

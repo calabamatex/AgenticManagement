@@ -1,5 +1,5 @@
 /**
- * index.ts — Public API exports for AgentOps memory store.
+ * index.ts — Public API exports for AgentSentry memory store.
  */
 
 export { MemoryStore, MemoryStoreOptions } from './store';

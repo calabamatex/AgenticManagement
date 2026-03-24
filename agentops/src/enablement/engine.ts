@@ -1,9 +1,9 @@
 /**
- * Enablement Engine — Progressive skill enablement for AgentOps v4.0
+ * Enablement Engine — Progressive skill enablement for AgentSentry v4.0
  *
- * Controls which AgentOps skills are active based on the user's chosen
+ * Controls which AgentSentry skills are active based on the user's chosen
  * enablement level. Levels unlock skills incrementally so that non-experts
- * can adopt AgentOps without being overwhelmed.
+ * can adopt AgentSentry without being overwhelmed.
  */
 
 // ---------------------------------------------------------------------------

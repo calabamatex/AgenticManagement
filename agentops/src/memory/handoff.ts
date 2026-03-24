@@ -1,7 +1,7 @@
 /**
  * handoff.ts — Auto-generated handoff message builder.
  *
- * When AgentOps detects context is critically full, this module generates
+ * When AgentSentry detects context is critically full, this module generates
  * a structured handoff message summarizing the session's work, remaining
  * tasks, and key patterns learned. The user can copy/paste it into a new
  * session to maintain continuity.
