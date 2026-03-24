@@ -100,7 +100,7 @@ describe('captureEvent', () => {
 
     const capturedInput = mockCapture.mock.calls[0][0];
     expect(capturedInput.session_id).toMatch(/^session-/);
-    expect(capturedInput.agent_id).toBe('agentops-primitives');
+    expect(capturedInput.agent_id).toBe('agent-sentry-primitives');
   });
 
   it('should pass affected files and tags', async () => {
