@@ -1,8 +1,8 @@
-# AgentOps v4.0
+# AgentSentry v4.0
 
-![AgentOps Banner](agentops/dashboard/assets/agentops-banner.png)
+![AgentSentry Banner](agent-sentry/dashboard/assets/agent-sentry-banner.png)
 
-[![npm version](https://img.shields.io/npm/v/agentops.svg)](https://www.npmjs.com/package/agentops)
+[![npm version](https://img.shields.io/npm/v/agent-sentry.svg)](https://www.npmjs.com/package/agent-sentry)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/calabamatex/AgenticManagement/actions/workflows/ci.yml/badge.svg)](https://github.com/calabamatex/AgenticManagement/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
@@ -10,21 +10,21 @@
 
 **Memory-aware management and safety framework for AI agents.**
 
-> Your AI agents forget everything between sessions. AgentOps gives them persistent memory, safety guardrails, and operational oversight — so every session builds on the last.
+> Your AI agents forget everything between sessions. AgentSentry gives them persistent memory, safety guardrails, and operational oversight — so every session builds on the last.
 
 ---
 
 ## Install
 
 ```bash
-npm install agentops
+npm install agent-sentry
 ```
 
 Or clone and use directly:
 
 ```bash
 git clone https://github.com/calabamatex/AgenticManagement.git
-cd AgenticManagement/agentops && npm install && npm run build
+cd AgenticManagement/agent-sentry && npm install && npm run build
 ```
 
 **Requirements:** Node.js >= 18
@@ -34,11 +34,11 @@ cd AgenticManagement/agentops && npm install && npm run build
 
 ---
 
-## What AgentOps Does
+## What AgentSentry Does
 
-AgentOps is a local-first memory and safety layer for AI coding sessions. Primary integration: **Claude Code**. The MCP server interface enables compatibility with any MCP-compatible tool (Cursor, Codex, ChatGPT, GitHub Copilot, etc.).
+AgentSentry is a local-first memory and safety layer for AI coding sessions. Primary integration: **Claude Code**. The MCP server interface enables compatibility with any MCP-compatible tool (Cursor, Codex, ChatGPT, GitHub Copilot, etc.).
 
-What makes it different: AgentOps *remembers*. Every decision, violation, incident, and handoff is captured to a vector-indexed memory store that survives across sessions. When a new session starts next week, it can ask "what went wrong the last time someone touched the payment system?" and get a ranked answer from weeks of operational history.
+What makes it different: AgentSentry *remembers*. Every decision, violation, incident, and handoff is captured to a vector-indexed memory store that survives across sessions. When a new session starts next week, it can ask "what went wrong the last time someone touched the payment system?" and get a ranked answer from weeks of operational history.
 
 ---
 
@@ -78,11 +78,11 @@ What makes it different: AgentOps *remembers*. Every decision, violation, incide
 ### Option 1: npm Package
 
 ```bash
-npm install agentops
+npm install agent-sentry
 ```
 
 ```typescript
-import { MemoryStore, createProvider } from 'agentops';
+import { MemoryStore, createProvider } from 'agent-sentry';
 
 const store = new MemoryStore({
   provider: createProvider({ provider: 'sqlite', database_path: './ops.db' }),
@@ -113,8 +113,8 @@ const results = await store.search('authentication patterns');
 For any MCP-compatible client (Claude Code is the primary tested integration):
 
 ```bash
-# Add AgentOps as an MCP server
-claude mcp add agentops -- node agentops/dist/src/mcp/server.js
+# Add AgentSentry as an MCP server
+claude mcp add agent-sentry -- node agent-sentry/dist/src/mcp/server.js
 ```
 
 Or in `.cursor/mcp.json`:
@@ -122,9 +122,9 @@ Or in `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "agentops": {
+    "agent-sentry": {
       "command": "node",
-      "args": ["agentops/dist/src/mcp/server.js"]
+      "args": ["agent-sentry/dist/src/mcp/server.js"]
     }
   }
 }
@@ -134,7 +134,7 @@ Or in `.cursor/mcp.json`:
 
 ```bash
 # Copy slash commands
-cp -r agentops/.claude/commands/agentops/ .claude/commands/agentops/
+cp -r agent-sentry/.claude/commands/agent-sentry/ .claude/commands/agent-sentry/
 ```
 
 Add to `.claude/settings.json`:
@@ -142,9 +142,9 @@ Add to `.claude/settings.json`:
 ```json
 {
   "hooks": {
-    "PreToolUse": [{ "command": "bash agentops/scripts/permission-enforcer.sh" }],
-    "PostToolUse": [{ "command": "bash agentops/scripts/post-write-checks.sh" }],
-    "SessionStart": [{ "command": "bash agentops/scripts/session-start-checks.sh" }]
+    "PreToolUse": [{ "command": "bash agent-sentry/scripts/permission-enforcer.sh" }],
+    "PostToolUse": [{ "command": "bash agent-sentry/scripts/post-write-checks.sh" }],
+    "SessionStart": [{ "command": "bash agent-sentry/scripts/session-start-checks.sh" }]
   }
 }
 ```
@@ -152,28 +152,28 @@ Add to `.claude/settings.json`:
 ### Setup Wizard
 
 ```bash
-bash agentops/scripts/setup-wizard.sh
+bash agent-sentry/scripts/setup-wizard.sh
 ```
 
-Prompts for your enablement level (1-5) and generates `agentops.config.json`.
+Prompts for your enablement level (1-5) and generates `agent-sentry.config.json`.
 
 ---
 
 ## MCP Tools
 
-When running as an MCP server, AgentOps exposes 9 tools:
+When running as an MCP server, AgentSentry exposes 9 tools:
 
 | Tool | What It Does |
 |------|-------------|
-| `agentops_check_git` | Git hygiene status -- uncommitted files, time since last commit, branch safety |
-| `agentops_check_context` | Context window usage, degradation signals, continue/refresh recommendation |
-| `agentops_check_rules` | Validates a proposed change against rules files, returns violations |
-| `agentops_size_task` | Risk score + decomposition recommendation for a task description |
-| `agentops_scan_security` | Scans for secrets and dangerous code patterns (SQL injection, eval, private keys) |
-| `agentops_capture_event` | Writes a decision, violation, or incident to persistent memory |
-| `agentops_search_history` | Semantic search across all stored operational events |
-| `agentops_recall_context` | Cross-session context recall -- finds relevant prior session data for current task |
-| `agentops_health` | Current health scores, KPIs, and skill-level status |
+| `agent_sentry_check_git` | Git hygiene status -- uncommitted files, time since last commit, branch safety |
+| `agent_sentry_check_context` | Context window usage, degradation signals, continue/refresh recommendation |
+| `agent_sentry_check_rules` | Validates a proposed change against rules files, returns violations |
+| `agent_sentry_size_task` | Risk score + decomposition recommendation for a task description |
+| `agent_sentry_scan_security` | Scans for secrets and dangerous code patterns (SQL injection, eval, private keys) |
+| `agent_sentry_capture_event` | Writes a decision, violation, or incident to persistent memory |
+| `agent_sentry_search_history` | Semantic search across all stored operational events |
+| `agent_sentry_recall_context` | Cross-session context recall -- finds relevant prior session data for current task |
+| `agent_sentry_health` | Current health scores, KPIs, and skill-level status |
 
 ---
 
@@ -193,7 +193,7 @@ Start at Level 1. Upgrade when ready. Each level builds on the last.
 
 ## Configuration
 
-All settings in `agentops/agentops.config.json`:
+All settings in `agent-sentry/agent-sentry.config.json`:
 
 | Section | Setting | Default |
 |---------|---------|---------|
@@ -212,7 +212,7 @@ All settings in `agentops/agentops.config.json`:
 
 ```json
 // Solo developer (default -- zero config):
-{ "memory": { "provider": "sqlite", "database_path": "agentops/data/ops.db" } }
+{ "memory": { "provider": "sqlite", "database_path": "agent-sentry/data/ops.db" } }
 
 // Team setup (shared memory) [beta]:
 // Supabase provider reads credentials from environment variables:
@@ -229,9 +229,9 @@ All settings in `agentops/agentops.config.json`:
 Single-file HTML dashboard with no external dependencies. Adapts to your enablement level.
 
 ```bash
-open agentops/dashboard/agentops-dashboard.html
+open agent-sentry/dashboard/agent-sentry-dashboard.html
 # Or serve it:
-npx serve agentops/dashboard/
+npx serve agent-sentry/dashboard/
 ```
 
 ---
@@ -270,7 +270,7 @@ npm run benchmark  # Run performance benchmarks
 ## Project Structure
 
 ```
-agentops/
+agent-sentry/
   src/
     memory/           # MemoryStore, embeddings, providers, migrations
     mcp/              # MCP server, 9 tools, transport, auth
@@ -291,22 +291,22 @@ agentops/
 ## CLI Commands
 
 ```bash
-npx agentops init           # Interactive project setup wizard
-npx agentops config          # View or update agentops.config.json
-npx agentops enable <level>  # Set enablement level (1-5)
-npx agentops health          # System health and embedding status
-npx agentops memory          # Query persistent memory store
-npx agentops metrics         # Session and cost metrics
-npx agentops dashboard       # Launch monitoring dashboard
-npx agentops stream          # Live event stream
-npx agentops plugin          # Plugin management
+npx agent-sentry init           # Interactive project setup wizard
+npx agent-sentry config          # View or update agent-sentry.config.json
+npx agent-sentry enable <level>  # Set enablement level (1-5)
+npx agent-sentry health          # System health and embedding status
+npx agent-sentry memory          # Query persistent memory store
+npx agent-sentry metrics         # Session and cost metrics
+npx agent-sentry dashboard       # Launch monitoring dashboard
+npx agent-sentry stream          # Live event stream
+npx agent-sentry plugin          # Plugin management
 ```
 
 ## Slash Commands
 
-- `/agentops check` -- Run all health and safety checks
-- `/agentops audit` -- Generate a full security audit report
-- `/agentops scaffold` -- Create planning and workflow files from templates
+- `/agent-sentry check` -- Run all health and safety checks
+- `/agent-sentry audit` -- Generate a full security audit report
+- `/agent-sentry scaffold` -- Create planning and workflow files from templates
 
 ---
 
@@ -318,13 +318,13 @@ MIT -- see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- [Getting Started Guide](agentops/docs/getting-started.md)
-- [First Session Walkthrough](agentops/docs/first-session.md)
-- [API Reference](agentops/docs/api-reference.md)
+- [Getting Started Guide](agent-sentry/docs/getting-started.md)
+- [First Session Walkthrough](agent-sentry/docs/first-session.md)
+- [API Reference](agent-sentry/docs/api-reference.md)
 - [Product Specification](docs/planning/AgentOps-Product-Spec.md) -- Full v4.0 spec covering architecture, skills, memory, MCP, and integrations
 - [Architecture Evolution](docs/planning/AgentOps-Architecture-Evolution.md) -- Design decisions and architectural history
 - [Implementation Guide](docs/planning/Agent-Management-Implementation-Guide.md) -- Practical guide for managing AI agents
 - [Synopsis](docs/planning/AgentOps-Synopsis.md) -- Non-technical project overview
-- [Memory Model](agentops/docs/architecture/memory-model.md) -- Hash chains, search, and storage providers
-- [Enablement Model](agentops/docs/architecture/enablement-model.md) -- 5 levels with skill mapping
-- [MCP Integration](agentops/docs/architecture/mcp-integration.md) -- Tools, transports, and auth
+- [Memory Model](agent-sentry/docs/architecture/memory-model.md) -- Hash chains, search, and storage providers
+- [Enablement Model](agent-sentry/docs/architecture/enablement-model.md) -- 5 levels with skill mapping
+- [MCP Integration](agent-sentry/docs/architecture/mcp-integration.md) -- Tools, transports, and auth
