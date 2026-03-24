@@ -1,5 +1,5 @@
 /**
- * auth.ts — Access key validation and rate limiting for AgentOps MCP server.
+ * auth.ts — Access key validation and rate limiting for AgentSentry MCP server.
  */
 
 import { IncomingMessage, ServerResponse } from 'http';
