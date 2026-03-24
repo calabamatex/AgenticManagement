@@ -21,6 +21,7 @@ export interface EnablementConfig {
     save_points: SkillConfig;
     context_health: SkillConfig;
     standing_orders: SkillConfig;
+    directive_compliance: SkillConfig;
     small_bets: SkillConfig;
     proactive_safety: SkillConfig;
   };
@@ -42,6 +43,7 @@ export const ALL_SKILLS = [
   'save_points',
   'context_health',
   'standing_orders',
+  'directive_compliance',
   'small_bets',
   'proactive_safety',
 ] as const;
@@ -86,6 +88,7 @@ export function generateConfigForLevel(level: number): EnablementConfig {
       save_points: off(),
       context_health: off(),
       standing_orders: off(),
+      directive_compliance: off(),
       small_bets: off(),
       proactive_safety: off(),
     },
@@ -101,9 +104,12 @@ export function generateConfigForLevel(level: number): EnablementConfig {
     config.skills.context_health = full();
   }
 
-  // Level 3+
+  // Level 3+: standing_orders (basic) + directive_compliance (full)
+  // directive_compliance ensures agent executes ACTION/RECOMMEND directives
+  // from AgentSentry hooks immediately rather than ignoring them.
   if (level >= 3) {
     config.skills.standing_orders = basic();
+    config.skills.directive_compliance = full();
   }
 
   // Level 4+

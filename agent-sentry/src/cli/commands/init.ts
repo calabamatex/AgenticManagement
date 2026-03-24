@@ -12,7 +12,7 @@ import { resolveConfigPath } from '../../config/resolve';
 import { generateConfigForLevel, getActiveSkills, LEVEL_NAMES, ALL_SKILLS } from '../../enablement/engine';
 import { VERSION } from '../../version';
 import { Logger } from '../../observability/logger';
-import { isGitRepo, promptForLevel, wireHooksIntoSettings, runHealthAudit } from './init-wizard';
+import { isGitRepo, promptForLevel, wireHooksIntoSettings, runHealthAudit, appendAgentSentryRulesToClaudeMd } from './init-wizard';
 import type { HealthSummary } from './init-wizard';
 
 const logger = new Logger({ module: 'cli-init' });
@@ -180,6 +180,19 @@ export const initCommand: CommandDefinition = {
     let hooksWired = false;
     if (wireHooks && !dryRun) {
       hooksWired = wireHooksIntoSettings();
+    }
+
+    // Step 1c: Append directive compliance rules to CLAUDE.md (Level 3+)
+    let rulesAppended = false;
+    if (!dryRun && level >= 3) {
+      try {
+        const repoRoot = require('child_process')
+          .execSync('git rev-parse --show-toplevel', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] })
+          .trim();
+        rulesAppended = appendAgentSentryRulesToClaudeMd(repoRoot);
+      } catch {
+        // Not in a git repo or CLAUDE.md doesn't exist — skip
+      }
     }
 
     // Step 2: Gather info

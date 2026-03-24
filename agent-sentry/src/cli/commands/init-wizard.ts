@@ -111,6 +111,10 @@ export function wireHooksIntoSettings(): boolean {
       command: 'bash agent-sentry/scripts/context-estimator.sh',
       timeout: 5000,
     },
+    Stop: {
+      command: 'bash agent-sentry/scripts/context-critical-stop.sh',
+      timeout: 5000,
+    },
   };
 
   for (const [event, hookDef] of Object.entries(agentSentryHooks)) {
@@ -143,6 +147,47 @@ export function wireHooksIntoSettings(): boolean {
   }
 
   return modified;
+}
+
+/**
+ * AgentSentry CLAUDE.md rules block — appended to CLAUDE.md by `agent-sentry init`.
+ * Includes the directive compliance rule (Level 3+).
+ */
+export const AGENT_SENTRY_CLAUDE_MD_RULES = `
+## AgentSentry — Directive Compliance
+
+When AgentSentry hook output contains ACTION or RECOMMEND directives, execute the
+specified tool or command immediately. Do not substitute alternatives or defer action.
+
+- **ACTION directives** are mandatory: run the exact tool/command specified.
+- **RECOMMEND directives** are strongly advised: follow unless you have an explicit
+  user instruction that contradicts them.
+- **BLOCKED directives** from Stop hooks are enforced automatically — the agent cannot
+  continue until the blocking condition is resolved.
+
+This is a standing order at enablement Level 3+ (House Rules).
+`.trim();
+
+/**
+ * Append AgentSentry rules to CLAUDE.md if not already present.
+ * Returns true if the file was modified.
+ */
+export function appendAgentSentryRulesToClaudeMd(repoRoot: string): boolean {
+  const claudeMd = path.join(repoRoot, 'CLAUDE.md');
+
+  if (!fs.existsSync(claudeMd)) {
+    return false;
+  }
+
+  const content = fs.readFileSync(claudeMd, 'utf-8');
+
+  // Already has directive compliance rules
+  if (/directive.compliance|ACTION.*RECOMMEND.*immediately/i.test(content)) {
+    return false;
+  }
+
+  fs.appendFileSync(claudeMd, '\n\n' + AGENT_SENTRY_CLAUDE_MD_RULES + '\n', 'utf-8');
+  return true;
 }
 
 export function runHealthAudit(): HealthSummary {
