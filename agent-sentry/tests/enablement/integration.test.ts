@@ -26,7 +26,7 @@ describe('integration: config generation -> validation -> dashboard', () => {
 
       // Step 3: Derive dashboard panels
       const panels = getDashboardPanels(config);
-      expect(panels).toHaveLength(5);
+      expect(panels).toHaveLength(6);
 
       // Step 4: Derive dashboard header
       const header = getDashboardHeader(config);

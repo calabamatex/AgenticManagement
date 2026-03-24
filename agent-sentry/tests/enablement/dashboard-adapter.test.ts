@@ -41,6 +41,7 @@ describe('getDashboardPanels', () => {
     const expected: Record<string, string> = {
       context_health: 'Enable Level 2 to unlock',
       standing_orders: 'Enable Level 3 to unlock',
+      directive_compliance: 'Enable Level 3 to unlock',
       small_bets: 'Enable Level 4 to unlock',
       proactive_safety: 'Enable Level 5 to unlock',
     };
@@ -57,6 +58,7 @@ describe('getDashboardPanels', () => {
     expect(titles).toContain('Save Points');
     expect(titles).toContain('Context Health');
     expect(titles).toContain('Standing Orders');
+    expect(titles).toContain('Directive Compliance');
     expect(titles).toContain('Small Bets');
     expect(titles).toContain('Proactive Safety');
   });
@@ -85,27 +87,27 @@ describe('getDashboardHeader', () => {
     expect(header.level).toBe(1);
     expect(header.name).toBe('Safe Ground');
     expect(header.activeCount).toBe(1);
-    expect(header.totalCount).toBe(5);
+    expect(header.totalCount).toBe(6);
   });
 
-  it('level 3: three active', () => {
+  it('level 3: four active', () => {
     const header = getDashboardHeader(generateConfigForLevel(3));
     expect(header.level).toBe(3);
     expect(header.name).toBe('House Rules');
-    expect(header.activeCount).toBe(3);
+    expect(header.activeCount).toBe(4);
   });
 
   it('level 5: all active', () => {
     const header = getDashboardHeader(generateConfigForLevel(5));
     expect(header.level).toBe(5);
     expect(header.name).toBe('Full Guard');
-    expect(header.activeCount).toBe(5);
-    expect(header.totalCount).toBe(5);
+    expect(header.activeCount).toBe(6);
+    expect(header.totalCount).toBe(6);
   });
 
-  it('totalCount is always 5', () => {
+  it('totalCount is always 6', () => {
     for (let i = 1; i <= 5; i++) {
-      expect(getDashboardHeader(generateConfigForLevel(i)).totalCount).toBe(5);
+      expect(getDashboardHeader(generateConfigForLevel(i)).totalCount).toBe(6);
     }
   });
 

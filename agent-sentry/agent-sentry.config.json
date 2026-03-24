@@ -71,6 +71,10 @@
         "enabled": false,
         "mode": "off"
       },
+      "directive_compliance": {
+        "enabled": false,
+        "mode": "off"
+      },
       "small_bets": {
         "enabled": false,
         "mode": "off"

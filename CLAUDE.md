@@ -221,3 +221,17 @@ npx @claude-flow/cli@latest doctor --fix
 
 - Documentation: https://github.com/ruvnet/claude-flow
 - Issues: https://github.com/ruvnet/claude-flow/issues
+
+
+## AgentSentry — Directive Compliance
+
+When AgentSentry hook output contains ACTION or RECOMMEND directives, execute the
+specified tool or command immediately. Do not substitute alternatives or defer action.
+
+- **ACTION directives** are mandatory: run the exact tool/command specified.
+- **RECOMMEND directives** are strongly advised: follow unless you have an explicit
+  user instruction that contradicts them.
+- **BLOCKED directives** from Stop hooks are enforced automatically — the agent cannot
+  continue until the blocking condition is resolved.
+
+This is a standing order at enablement Level 3+ (House Rules).

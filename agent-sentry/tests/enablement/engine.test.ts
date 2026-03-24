@@ -21,6 +21,7 @@ describe('generateConfigForLevel', () => {
     expect(cfg.skills.save_points).toEqual({ enabled: true, mode: 'full' });
     expect(cfg.skills.context_health).toEqual({ enabled: false, mode: 'off' });
     expect(cfg.skills.standing_orders).toEqual({ enabled: false, mode: 'off' });
+    expect(cfg.skills.directive_compliance).toEqual({ enabled: false, mode: 'off' });
     expect(cfg.skills.small_bets).toEqual({ enabled: false, mode: 'off' });
     expect(cfg.skills.proactive_safety).toEqual({ enabled: false, mode: 'off' });
   });
@@ -31,15 +32,17 @@ describe('generateConfigForLevel', () => {
     expect(cfg.skills.save_points).toEqual({ enabled: true, mode: 'full' });
     expect(cfg.skills.context_health).toEqual({ enabled: true, mode: 'full' });
     expect(cfg.skills.standing_orders).toEqual({ enabled: false, mode: 'off' });
+    expect(cfg.skills.directive_compliance).toEqual({ enabled: false, mode: 'off' });
     expect(cfg.skills.small_bets).toEqual({ enabled: false, mode: 'off' });
     expect(cfg.skills.proactive_safety).toEqual({ enabled: false, mode: 'off' });
   });
 
-  it('level 3: + standing_orders (basic)', () => {
+  it('level 3: + standing_orders (basic) + directive_compliance (full)', () => {
     const cfg = generateConfigForLevel(3);
     expect(cfg.skills.save_points).toEqual({ enabled: true, mode: 'full' });
     expect(cfg.skills.context_health).toEqual({ enabled: true, mode: 'full' });
     expect(cfg.skills.standing_orders).toEqual({ enabled: true, mode: 'basic' });
+    expect(cfg.skills.directive_compliance).toEqual({ enabled: true, mode: 'full' });
     expect(cfg.skills.small_bets).toEqual({ enabled: false, mode: 'off' });
     expect(cfg.skills.proactive_safety).toEqual({ enabled: false, mode: 'off' });
   });
@@ -98,16 +101,17 @@ describe('getActiveSkills', () => {
     expect(getActiveSkills(generateConfigForLevel(1))).toEqual(['save_points']);
   });
 
-  it('level 3: three active skills', () => {
+  it('level 3: four active skills', () => {
     expect(getActiveSkills(generateConfigForLevel(3))).toEqual([
       'save_points',
       'context_health',
       'standing_orders',
+      'directive_compliance',
     ]);
   });
 
-  it('level 5: all five active', () => {
-    expect(getActiveSkills(generateConfigForLevel(5))).toHaveLength(5);
+  it('level 5: all six active', () => {
+    expect(getActiveSkills(generateConfigForLevel(5))).toHaveLength(6);
   });
 });
 

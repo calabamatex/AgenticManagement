@@ -159,6 +159,7 @@ describe('initCommand', () => {
     expect(parsed.active_skills).toContain('save_points');
     expect(parsed.active_skills).toContain('context_health');
     expect(parsed.active_skills).toContain('standing_orders');
+    expect(parsed.active_skills).toContain('directive_compliance');
     expect(parsed.active_skills).not.toContain('small_bets');
   });
 
@@ -257,7 +258,7 @@ describe('initCommand', () => {
     const settingsPath = path.join(settingsDir, 'settings.json');
     fs.mkdirSync(settingsDir, { recursive: true });
 
-    // Settings that already have agent-sentry hooks
+    // Settings that already have all agent-sentry hooks
     const withHooks = {
       hooks: {
         SessionStart: [
@@ -265,6 +266,9 @@ describe('initCommand', () => {
         ],
         UserPromptSubmit: [
           { hooks: [{ type: 'command', command: 'bash agent-sentry/scripts/context-estimator.sh', timeout: 5000 }] },
+        ],
+        Stop: [
+          { hooks: [{ type: 'command', command: 'bash agent-sentry/scripts/context-critical-stop.sh', timeout: 5000 }] },
         ],
       },
     };

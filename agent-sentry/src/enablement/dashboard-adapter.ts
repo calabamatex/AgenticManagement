@@ -40,6 +40,7 @@ const SKILL_TITLES: Record<string, string> = {
   save_points: 'Save Points',
   context_health: 'Context Health',
   standing_orders: 'Standing Orders',
+  directive_compliance: 'Directive Compliance',
   small_bets: 'Small Bets',
   proactive_safety: 'Proactive Safety',
 };
@@ -51,6 +52,7 @@ const SKILL_UNLOCK_LEVEL: Record<string, number> = {
   save_points: 1,
   context_health: 2,
   standing_orders: 3,
+  directive_compliance: 3,
   small_bets: 4,
   proactive_safety: 5,
 };
