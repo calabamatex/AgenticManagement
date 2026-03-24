@@ -1,11 +1,11 @@
 /**
- * size-task.test.ts — Tests for agentops_size_task tool.
+ * size-task.test.ts — Tests for agent_sentry_size_task tool.
  */
 
 import { describe, it, expect } from 'vitest';
 import { handler } from '../../../src/mcp/tools/size-task';
 
-describe('agentops_size_task', () => {
+describe('agent_sentry_size_task', () => {
   it('should rate simple task as LOW risk', async () => {
     const result = await handler({ task: 'Fix typo in readme' });
     const parsed = JSON.parse(result.content[0].text);

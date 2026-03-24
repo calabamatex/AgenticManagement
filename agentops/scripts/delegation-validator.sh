@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] Delegation Validator - PreToolUse Hook (Section 20)
+# [AgentSentry] Delegation Validator - PreToolUse Hook (Section 20)
 # =============================================================================
 # Implements Agent-to-Agent Trust and Delegation (section 20).
 #

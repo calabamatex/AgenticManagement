@@ -1,5 +1,5 @@
 /**
- * capture-event.test.ts — Tests for agentops_capture_event tool.
+ * capture-event.test.ts — Tests for agent_sentry_capture_event tool.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -35,7 +35,7 @@ vi.mock('../../../src/memory/store', () => {
 import { handler } from '../../../src/mcp/tools/capture-event';
 import { MemoryStore } from '../../../src/memory/store';
 
-describe('agentops_capture_event', () => {
+describe('agent_sentry_capture_event', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

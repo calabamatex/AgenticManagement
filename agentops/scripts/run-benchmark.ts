@@ -1,5 +1,5 @@
 /**
- * run-benchmark.ts — Runs the AgentOps benchmark suite and saves results.
+ * run-benchmark.ts — Runs the AgentSentry benchmark suite and saves results.
  *
  * Usage: npx tsx scripts/run-benchmark.ts
  */
@@ -24,7 +24,7 @@ async function main(): Promise<void> {
 
     const suite = new BenchmarkSuite({ store, iterations: 500 });
 
-    console.log('Running AgentOps benchmark suite...\n');
+    console.log('Running AgentSentry benchmark suite...\n');
     const report = await suite.runAll();
 
     // Print formatted report to stdout

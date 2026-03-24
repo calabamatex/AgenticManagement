@@ -95,7 +95,7 @@ async function main(): Promise<void> {
   if (!args.command || args.flags['help'] === true || args.flags['h'] === true) {
     if (args.command && commandMap.has(args.command)) {
       const cmd = commandMap.get(args.command)!;
-      process.stdout.write(`agentops ${cmd.name} — ${cmd.description}\n`);
+      process.stdout.write(`agent-sentry ${cmd.name} — ${cmd.description}\n`);
       if (cmd.usage) {
         process.stdout.write('\n' + cmd.usage + '\n');
       }
