@@ -69,5 +69,5 @@ export function resolveDatabasePath(dbPath: string, configFilePath?: string): st
 
   // Home directory fallback
   const home = process.env.HOME || process.env.USERPROFILE || '.';
-  return path.resolve(home, '.agentops', 'data', 'ops.db');
+  return path.resolve(home, '.agent-sentry', 'data', 'ops.db');
 }

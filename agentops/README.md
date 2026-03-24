@@ -1,6 +1,6 @@
-# AgentOps v4.0
+# AgentSentry v4.0
 
-Your AI agents forget everything between sessions. AgentOps fixes that.
+Your AI agents forget everything between sessions. AgentSentry fixes that.
 
 It catches secrets before they're committed, warns when context is running low, scores the risk of proposed changes, and remembers what happened across sessions — so you don't have to re-explain context every time you start a new conversation.
 

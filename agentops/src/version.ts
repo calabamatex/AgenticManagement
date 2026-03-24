@@ -1,5 +1,5 @@
 /**
- * version.ts — Single source of truth for the AgentOps version string.
+ * version.ts — Single source of truth for the AgentSentry version string.
  *
  * Reads from package.json so the version is never hardcoded in source.
  */

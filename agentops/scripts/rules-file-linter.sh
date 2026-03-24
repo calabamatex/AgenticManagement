@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# [AgentOps] Rules File Linter — Standalone audit script (§4.4)
+# [AgentSentry] Rules File Linter — Standalone audit script (§4.4)
 # Validates AGENTS.md, CLAUDE.md, and other tool-specific rules files for
 # structure, size, contradictions, clarity, and completeness.
-# Invoked by: /agentops audit
+# Invoked by: /agent-sentry audit
 # Exit 0 always (advisory tool, never blocks).
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
-PREFIX="[AgentOps]"
+CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
+PREFIX="[AgentSentry]"
 
 # ---------------------------------------------------------------------------
 # Locate project root (walk up to find .git or stop at /)

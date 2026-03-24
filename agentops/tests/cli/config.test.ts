@@ -44,14 +44,14 @@ describe('CLI config command', () => {
   it('shows config path', async () => {
     await configCommand.run(args(['path']));
     const out = stdoutSpy.mock.calls.map((c) => c[0]).join('');
-    expect(out).toContain('agentops.config.json');
+    expect(out).toContain('agent-sentry.config.json');
   });
 
   it('shows config path as JSON', async () => {
     await configCommand.run(args(['path'], { json: true }));
     const out = stdoutSpy.mock.calls.map((c) => c[0]).join('');
     const parsed = JSON.parse(out);
-    expect(parsed.path).toContain('agentops.config.json');
+    expect(parsed.path).toContain('agent-sentry.config.json');
   });
 
   it('errors on missing get key', async () => {
