@@ -38,6 +38,9 @@
     "test:perf": "vitest run tests/performance/",
     "test:watch": "vitest",
     "benchmark": "tsx scripts/run-benchmark.ts",
+    "sync-metadata": "tsx scripts/sync-release-metadata.ts",
+    "sync-metadata:patch": "tsx scripts/sync-release-metadata.ts --patch",
+    "sync-metadata:check": "tsx scripts/sync-release-metadata.ts --check",
     "lint": "eslint src/"
   },
   "dependencies": {

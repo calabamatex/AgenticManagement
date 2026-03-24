@@ -1,6 +1,16 @@
 /**
  * Coordination integration test — 3 agents with concurrent locks.
  *
+ * SEMANTICS: These tests validate best-effort, single-machine coordination.
+ * The coordination layer is event-sourced and append-only. It does NOT provide:
+ *  - Distributed consensus or cross-machine coordination
+ *  - Compare-and-swap (CAS) atomicity
+ *  - Guaranteed mutual exclusion under high concurrency
+ *  - Background lease enforcement (expiry is checked at read time)
+ *
+ * These tests verify the happy path and basic contention scenarios.
+ * They should not be interpreted as proof of distributed correctness.
+ *
  * WS-3-4: Tests lock acquire/release, expiry, lease semantics,
  * and messaging under concurrent access.
  */

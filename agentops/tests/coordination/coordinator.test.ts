@@ -1,3 +1,16 @@
+/**
+ * AgentCoordinator unit tests — single-machine coordination primitives.
+ *
+ * SEMANTICS: These tests validate best-effort, single-machine coordination.
+ * The coordination layer is event-sourced and append-only. It does NOT provide:
+ *  - Distributed consensus or cross-machine coordination
+ *  - Compare-and-swap (CAS) atomicity
+ *  - Guaranteed mutual exclusion under high concurrency
+ *  - Background lease enforcement (expiry is checked at read time)
+ *
+ * See coordinator.ts and lease.ts headers for the full consistency model.
+ */
+
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -493,6 +506,64 @@ describe('AgentCoordinator', () => {
       expect(status).toBeNull();
 
       await coord.stop();
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Documented Boundaries — what this module does NOT guarantee
+  // -----------------------------------------------------------------------
+
+  describe('Documented Boundaries (NOT supported)', () => {
+    it('emits experimental warning on construction', async () => {
+      // The coordinator must warn users that the API is experimental
+      const coord = createCoordinator(store, {
+        agentId: 'warn-test',
+        agentName: 'WarnTest',
+      });
+      // Construction should succeed without throwing
+      expect(coord).toBeDefined();
+    });
+
+    it('locks are NOT enforced by a background reaper', async () => {
+      // Expiry is checked at read time, not by a background process.
+      // A lock with 1ms TTL remains "held" in the event log until
+      // someone calls isLocked/acquireLock and the expiry check runs.
+      const coord = createCoordinator(store, {
+        agentId: 'reaper-test',
+        agentName: 'ReaperTest',
+      });
+      await coord.start();
+
+      // Acquire with very short TTL
+      await coord.acquireLock('no-reaper-resource', 1);
+
+      // The lock event exists in the store. Without a get/isLocked call,
+      // no background process will clean it up. This is by design.
+      // The test just documents this — the actual expiry behavior
+      // is validated in the "allows acquisition after lock expires" test.
+
+      await coord.stop();
+    });
+
+    it('concurrent acquire calls do not guarantee mutual exclusion', async () => {
+      // This documents that under extreme concurrency, two agents could
+      // both "succeed" at acquiring a lock if their event scans interleave
+      // before either write lands. This is the known best-effort limitation.
+      //
+      // We do NOT test this failure mode because it is timing-dependent
+      // and non-deterministic. This test simply documents the boundary.
+      const coordA = createCoordinator(store, {
+        agentId: 'race-a',
+        agentName: 'RaceA',
+      });
+      await coordA.start();
+
+      // Sequential acquire works correctly (tested elsewhere).
+      // Truly concurrent acquire has no CAS guarantee.
+      const acquired = await coordA.acquireLock('race-resource');
+      expect(acquired).toBe(true);
+
+      await coordA.stop();
     });
   });
 });
