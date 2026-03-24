@@ -1,5 +1,5 @@
 /**
- * parser.ts — Zero-dependency CLI argument parser for AgentOps.
+ * parser.ts — Zero-dependency CLI argument parser for AgentSentry.
  *
  * Parses argv into a structured result: command name, positional args,
  * and flags (--key value, --flag, --no-flag).

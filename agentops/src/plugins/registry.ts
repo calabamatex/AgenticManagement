@@ -23,7 +23,7 @@ export interface PluginManifest {
   author: { name: string; github?: string };
   version: string;
   requires: {
-    agentops: string;
+    'agent-sentry': string;
     primitives?: string[];
   };
   hooks: string[];
@@ -369,8 +369,8 @@ export class PluginRegistry {
     // Requires
     if (m.requires && typeof m.requires === 'object') {
       const requires = m.requires as Record<string, unknown>;
-      if (!('agentops' in requires)) {
-        errors.push('Requires must include agentops version');
+      if (!('agent-sentry' in requires)) {
+        errors.push('Requires must include agent-sentry version');
       }
     }
 

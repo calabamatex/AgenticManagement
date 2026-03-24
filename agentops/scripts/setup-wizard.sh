@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# AgentOps Setup Wizard — Progressive Enablement
+# AgentSentry Setup Wizard — Progressive Enablement
 #
 # Interactive setup to choose an enablement level and write the
 # configuration into agentops.config.json.

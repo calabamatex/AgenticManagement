@@ -71,9 +71,9 @@ Once wired, these tools are available in any Claude Code session:
 
 ## Progressive Enablement
 
-AgentOps ships at **Level 2 (Clear Head)** by default — session checkpoints and context health monitoring are active out of the box. This gives you meaningful safety without configuration overhead.
+AgentSentry ships at **Level 2 (Clear Head)** by default — session checkpoints and context health monitoring are active out of the box. This gives you meaningful safety without configuration overhead.
 
-If you want to customize, adjust `enablement.level` in `agentops.config.json`:
+If you want to customize, adjust `enablement.level` in `agent-sentry.config.json`:
 
 | Level | Name | What's active |
 |-------|------|--------------|
@@ -89,7 +89,7 @@ If you want to customize, adjust `enablement.level` in `agentops.config.json`:
 - **Embeddings**: ONNX all-MiniLM-L6-v2 (384 dimensions) — falls back to noop if model unavailable
 - **Supabase** [beta]: Remote PostgreSQL via Supabase REST API — set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
 
-Auto-pruning keeps the database bounded — configure `max_events` and `max_age_days` in `agentops.config.json`.
+Auto-pruning keeps the database bounded — configure `max_events` and `max_age_days` in `agent-sentry.config.json`.
 
 ## Development
 
@@ -106,7 +106,7 @@ npm run benchmark      # Run performance benchmarks
 
 ## Project Structure
 
-> **npm package scope:** The published npm package ships `dist/src/` (runtime core) and `agentops.config.json`. Shell scripts (`scripts/`), plugin templates (`plugins/`), and documentation (`docs/`) are available in the source repository.
+> **npm package scope:** The published npm package ships `dist/src/` (runtime core) and `agent-sentry.config.json`. Shell scripts (`scripts/`), plugin templates (`plugins/`), and documentation (`docs/`) are available in the source repository.
 
 ```
 src/
@@ -128,7 +128,7 @@ docs/           # Getting started, API reference, schema, roadmap
 
 ## Documentation
 
-- [First Session Walkthrough](docs/first-session.md) — See AgentOps in action with concrete examples
+- [First Session Walkthrough](docs/first-session.md) — See AgentSentry in action with concrete examples
 - [Getting Started](docs/getting-started.md) — Install and first audit
 - [API Reference](docs/api-reference.md) — Every module and method
 - [Memory Schema](docs/memory-schema.md) — Event schema for building integrations
@@ -141,11 +141,11 @@ docs/           # Getting started, API reference, schema, roadmap
 - [Enablement Model](docs/architecture/enablement-model.md) — The 5-level progressive system
 - [MCP Integration](docs/architecture/mcp-integration.md) — Tools, transports, and auth
 
-## Disabling or Removing AgentOps
+## Disabling or Removing AgentSentry
 
-AgentOps is additive — it does not modify your source code or project files. When `save_points.auto_commit_enabled` is `true` (the default), AgentOps creates git stash snapshots as safety checkpoints. These are non-destructive and do not alter your commit history. Set `auto_commit_enabled` to `false` in `agentops.config.json` to disable stash snapshots entirely.
+AgentSentry is additive — it does not modify your source code or project files. When `save_points.auto_commit_enabled` is `true` (the default), AgentSentry creates git stash snapshots as safety checkpoints. These are non-destructive and do not alter your commit history. Set `auto_commit_enabled` to `false` in `agent-sentry.config.json` to disable stash snapshots entirely.
 
-**Disable temporarily:** Set `"enabled": false` in the `memory` section of `agentops.config.json`. All hooks become no-ops. Your data is preserved.
+**Disable temporarily:** Set `"enabled": false` in the `memory` section of `agent-sentry.config.json`. All hooks become no-ops. Your data is preserved.
 
 **Remove completely:**
 

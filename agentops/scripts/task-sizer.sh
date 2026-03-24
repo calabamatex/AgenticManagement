@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [AgentOps] Task Sizer — UserPromptSubmit hook
+# [AgentSentry] Task Sizer — UserPromptSubmit hook
 # Implements §5.2 Risk Scoring Model and §5.3.1 Task Sizing Gate.
 # Scans user prompt text for risk keywords, computes a risk score,
 # and emits notifications / auto-commits based on thresholds.
@@ -8,8 +8,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
-PREFIX="[AgentOps]"
+CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
+PREFIX="[AgentSentry]"
 
 # ---------------------------------------------------------------------------
 # Read thresholds from config
@@ -92,7 +92,7 @@ auto_commit() {
                 echo "$PREFIX ADVISORY: Auto-checkpoint would fire ($uncommitted files) but auto_commit_enabled=false."
             else
                 git add -A &>/dev/null || true
-                git commit -m "[AgentOps] Auto-checkpoint before risk-score $risk_score task" --no-verify &>/dev/null || true
+                git commit -m "[AgentSentry] Auto-checkpoint before risk-score $risk_score task" --no-verify &>/dev/null || true
                 echo "$PREFIX Auto-committed $uncommitted file(s) as safety checkpoint."
             fi
         fi
