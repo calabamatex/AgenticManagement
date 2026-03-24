@@ -142,7 +142,7 @@ describe('initCommand', () => {
     const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
     expect(allOutput).toContain('Next Steps');
     expect(allOutput).toContain('agent-sentry health');
-    expect(allOutput).toContain('agentops dashboard');
+    expect(allOutput).toContain('agent-sentry dashboard');
   });
 
   it('shows hook wiring instructions', async () => {
@@ -244,7 +244,7 @@ describe('initCommand', () => {
       const updated = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
       const sessionStartHooks = updated.hooks.SessionStart;
       const hasAgentops = sessionStartHooks.some((group: { hooks?: Array<{ command?: string }> }) =>
-        group.hooks?.some((h: { command?: string }) => h.command?.includes('agentops/'))
+        group.hooks?.some((h: { command?: string }) => h.command?.includes('agent-sentry/'))
       );
       expect(hasAgentops).toBe(true);
     } finally {
@@ -261,10 +261,10 @@ describe('initCommand', () => {
     const withHooks = {
       hooks: {
         SessionStart: [
-          { hooks: [{ type: 'command', command: 'bash agentops/scripts/session-start-checks.sh', timeout: 10000 }] },
+          { hooks: [{ type: 'command', command: 'bash agent-sentry/scripts/session-start-checks.sh', timeout: 10000 }] },
         ],
         UserPromptSubmit: [
-          { hooks: [{ type: 'command', command: 'bash agentops/scripts/context-estimator.sh', timeout: 5000 }] },
+          { hooks: [{ type: 'command', command: 'bash agent-sentry/scripts/context-estimator.sh', timeout: 5000 }] },
         ],
       },
     };

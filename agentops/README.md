@@ -67,7 +67,7 @@ Once wired, these tools are available in any Claude Code session:
 | `agent_sentry_search_history` | Search the event audit trail |
 | `agent_sentry_scan_security` | Detect secrets in file content |
 | `agent_sentry_check_git` | Git status and hygiene checks |
-| `agentops_recall_context` | Cross-session context recall for current task |
+| `agent_sentry_recall_context` | Cross-session context recall for current task |
 
 ## Progressive Enablement
 

@@ -2,7 +2,7 @@
 # =============================================================================
 # [AgentSentry] Full Security Audit — §6.3
 # =============================================================================
-# Standalone script invoked by /agentops audit.
+# Standalone script invoked by /agent-sentry audit.
 # Runs a comprehensive project security scan across 6 check categories:
 #   1. Secrets in Code
 #   2. API Key Security

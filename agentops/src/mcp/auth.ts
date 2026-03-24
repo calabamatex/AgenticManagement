@@ -5,11 +5,11 @@
 import { IncomingMessage, ServerResponse } from 'http';
 
 /**
- * Validates an access key against the AGENTOPS_ACCESS_KEY environment variable.
+ * Validates an access key against the AGENT_SENTRY_ACCESS_KEY environment variable.
  * Returns true if the key matches or if no key is configured (open access).
  */
 export function validateAccessKey(key: string): boolean {
-  const expected = process.env.AGENTOPS_ACCESS_KEY;
+  const expected = process.env.AGENT_SENTRY_ACCESS_KEY;
   if (!expected) {
     return true;
   }
