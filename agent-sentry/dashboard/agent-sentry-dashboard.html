@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AgentOps Dashboard v4</title>
+<title>AgentSentry Dashboard v4</title>
 <style>
 :root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--orange:#db6d28;--purple:#bc8cff;--radius:8px;--gap:16px}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);display:grid;grid-template-columns:220px 1fr;min-height:100vh}
@@ -41,7 +41,7 @@ h1{font-size:22px;margin-bottom:var(--gap)}
 @media(max-width:768px){body{grid-template-columns:1fr}nav{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border)}.row{grid-template-columns:1fr}}
 </style></head><body>
 <nav>
-<h2>AgentOps v4</h2>
+<h2>AgentSentry v4</h2>
 <a href="#overview">Overview</a>
 <span class="sep">Skills</span>
 <a href="#skill-1">Save Points</a>
@@ -170,7 +170,7 @@ function pgAudit(){
   });
   const arrow=c=>auditSort.col===c?(auditSort.dir===1?' \u25B2':' \u25BC'):'';
   return `<h1>Audit Report ${freshBadge(D.audit)}</h1>
-${!sorted.length?noData('No audit results available -- run /agentops audit to generate'):`<div class="cards">${Object.entries(counts).map(([k,v])=>`<div class="card"><h4 class="sev-${k}">${k}</h4><div class="val">${v}</div></div>`).join('')}</div>
+${!sorted.length?noData('No audit results available -- run /agent-sentry audit to generate'):`<div class="cards">${Object.entries(counts).map(([k,v])=>`<div class="card"><h4 class="sev-${k}">${k}</h4><div class="val">${v}</div></div>`).join('')}</div>
 <div class="panel" style="margin-top:var(--gap)"><table id="audit-tbl"><tr><th onclick="sortAudit('check')">Check${arrow('check')}</th><th onclick="sortAudit('severity')">Severity${arrow('severity')}</th><th onclick="sortAudit('detail')">Detail${arrow('detail')}</th></tr>
 ${sorted.map(a=>`<tr><td>${a.check||a.name||'--'}</td><td class="sev-${a.severity||'low'}">${a.severity||'low'}</td><td>${a.detail||a.msg||'--'}</td></tr>`).join('')}</table></div>`}`}
 
