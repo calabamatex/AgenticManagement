@@ -16,7 +16,7 @@ cd agent-sentry && npm install
 npm run build
 
 # 3. Wire as MCP server in Claude Code
-claude mcp add agentops -- node dist/src/mcp/server.js
+claude mcp add agent-sentry -- node dist/src/mcp/server.js
 
 # 4. Verify
 claude mcp list

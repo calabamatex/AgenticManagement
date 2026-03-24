@@ -1,5 +1,5 @@
 /**
- * server.ts — AgentOps MCP Server: registers all tools and connects transports.
+ * server.ts — AgentSentry MCP Server: registers all tools and connects transports.
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';

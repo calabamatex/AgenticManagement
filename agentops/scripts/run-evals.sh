@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] Testing & Evaluation Framework (S18)
+# [AgentSentry] Testing & Evaluation Framework (S18)
 # =============================================================================
 # Runs all golden datasets found in agentops/evals/*/cases.yaml.
 # For each test case the target script is executed with a synthetic hook

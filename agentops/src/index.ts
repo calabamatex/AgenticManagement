@@ -1,5 +1,5 @@
 /**
- * AgentOps v4.0 — Public API
+ * AgentSentry v4.0 — Public API
  *
  * Re-exports the core modules for programmatic use.
  * This barrel file prepares the codebase for future npm packaging.

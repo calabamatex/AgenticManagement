@@ -30,7 +30,7 @@ describe('initCommand', () => {
 
   beforeEach(() => {
     // Create a temp directory with its own config path
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentops-init-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-sentry-init-test-'));
     tmpConfigPath = path.join(tmpDir, 'agentops.config.json');
 
     // Mock resolveConfigPath to return our temp path
