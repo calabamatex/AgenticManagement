@@ -4,7 +4,7 @@
  * Used by hook scripts to write events to the memory store.
  *
  * Usage:
- *   node agentops/src/memory/cli-capture.js \
+ *   node agent-sentry/src/memory/cli-capture.js \
  *     --type decision \
  *     --severity low \
  *     --skill save_points \
@@ -28,15 +28,15 @@ async function main() {
   // Load config to check if memory is enabled
   // Inline config resolution (mirrors src/config/resolve.ts for .js compatibility)
   let configPath;
-  const envCfg = process.env.AGENTOPS_CONFIG;
+  const envCfg = process.env.AGENT_SENTRY_CONFIG;
   if (envCfg && fs.existsSync(envCfg)) {
     configPath = path.resolve(envCfg);
-  } else if (fs.existsSync(path.resolve('agentops.config.json'))) {
-    configPath = path.resolve('agentops.config.json');
-  } else if (fs.existsSync(path.resolve('agentops/agentops.config.json'))) {
-    configPath = path.resolve('agentops/agentops.config.json');
+  } else if (fs.existsSync(path.resolve('agent-sentry.config.json'))) {
+    configPath = path.resolve('agent-sentry.config.json');
+  } else if (fs.existsSync(path.resolve('agent-sentry/agent-sentry.config.json'))) {
+    configPath = path.resolve('agent-sentry/agent-sentry.config.json');
   } else {
-    const pkgRelative = path.join(__dirname, '..', '..', 'agentops.config.json');
+    const pkgRelative = path.join(__dirname, '..', '..', 'agent-sentry.config.json');
     if (fs.existsSync(pkgRelative)) {
       configPath = path.resolve(pkgRelative);
     }
@@ -67,7 +67,7 @@ async function main() {
       const storeMod = require('./store');
       MemoryStore = storeMod.MemoryStore;
     } catch {
-      console.error('[AgentOps] Memory store not available. Run `npm run build` first.');
+      console.error('[AgentSentry] Memory store not available. Run `npm run build` first.');
       process.exit(1);
     }
   }
@@ -77,7 +77,7 @@ async function main() {
     await store.initialize();
     await store.capture({
       timestamp: new Date().toISOString(),
-      session_id: args.session || process.env.AGENTOPS_SESSION_ID || 'cli',
+      session_id: args.session || process.env.AGENT_SENTRY_SESSION_ID || 'cli',
       agent_id: args.agent || process.env.AGENTOPS_AGENT_ID || 'hook',
       event_type: args.type || 'decision',
       severity: args.severity || 'low',
@@ -107,6 +107,6 @@ function parseArgs(argv) {
 }
 
 main().catch((err) => {
-  console.error('[AgentOps] CLI capture error:', err.message);
+  console.error('[AgentSentry] CLI capture error:', err.message);
   process.exit(1);
 });

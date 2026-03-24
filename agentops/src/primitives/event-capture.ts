@@ -35,7 +35,7 @@ export async function captureEvent(params: CaptureParams): Promise<OpsEvent> {
     const input: OpsEventInput = {
       timestamp: new Date().toISOString(),
       session_id: params.sessionId ?? `session-${Date.now()}`,
-      agent_id: params.agentId ?? 'agentops-primitives',
+      agent_id: params.agentId ?? 'agent-sentry-primitives',
       event_type: params.eventType,
       severity: params.severity,
       skill: params.skill,
