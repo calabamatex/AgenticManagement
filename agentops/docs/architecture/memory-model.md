@@ -2,7 +2,7 @@
 
 ## Overview
 
-The AgentOps memory subsystem provides tamper-evident event storage with semantic search. Events are stored as a hash-linked chain, searchable via vector embeddings or text fallback, and persisted through a pluggable provider layer.
+The AgentSentry memory subsystem provides tamper-evident event storage with semantic search. Events are stored as a hash-linked chain, searchable via vector embeddings or text fallback, and persisted through a pluggable provider layer.
 
 Source files: `src/memory/store.ts`, `src/memory/schema.ts`, `src/memory/providers/`, `src/memory/embeddings.ts`, `src/memory/enrichment.ts`.
 
@@ -106,7 +106,7 @@ Each provider declares `mode: 'local' | 'remote'` to indicate its deployment mod
 
 ### Built-in Providers
 
-**SqliteProvider** (`mode: 'local'`): Default. Uses a local SQLite database at a configurable path (default: `agentops/data/ops.db`). The database path is resolved relative to the config file location via `resolveDatabasePath()`.
+**SqliteProvider** (`mode: 'local'`): Default. Uses a local SQLite database at a configurable path (default: `agent-sentry/data/ops.db`). The database path is resolved relative to the config file location via `resolveDatabasePath()`.
 
 **SupabaseProvider** (`mode: 'remote'`): For team/shared environments. Configured via `supabase_url` and `supabase_service_role_key` in the config file, or via `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` environment variables.
 
@@ -125,7 +125,7 @@ const DEFAULT_CONFIG: MemoryConfig = {
   enabled: true,
   provider: 'sqlite',
   embedding_provider: 'auto',
-  database_path: 'agentops/data/ops.db',
+  database_path: 'agent-sentry/data/ops.db',
   max_events: 100000,
   auto_prune_days: 365,
 };

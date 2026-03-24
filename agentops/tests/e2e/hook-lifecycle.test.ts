@@ -37,13 +37,13 @@ describe('Hook Lifecycle (e2e)', () => {
       expect(exitCode).toBe(0);
     });
 
-    it('produces [AgentOps] prefixed output', () => {
+    it('produces [AgentSentry] prefixed output', () => {
       const { stdout, stderr } = runHook('session-start-checks.sh', '{}');
       const combined = stdout + stderr;
       // Should produce at least one line of output
       expect(combined.length).toBeGreaterThan(0);
-      // At least one line should have the [AgentOps] prefix
-      const prefixedLines = combined.split('\n').filter((l) => l.includes('[AgentOps]'));
+      // At least one line should have the [AgentSentry] prefix
+      const prefixedLines = combined.split('\n').filter((l) => l.includes('[AgentSentry]'));
       expect(prefixedLines.length).toBeGreaterThan(0);
     });
   });

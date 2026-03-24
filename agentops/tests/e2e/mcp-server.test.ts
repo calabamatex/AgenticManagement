@@ -31,14 +31,14 @@ describe('MCP Server (e2e)', () => {
   it('expected tool names are registered', () => {
     const names = tools.map((t) => t.name);
     const expected = [
-      'agentops_check_git',
-      'agentops_check_context',
-      'agentops_check_rules',
-      'agentops_size_task',
-      'agentops_scan_security',
-      'agentops_capture_event',
-      'agentops_search_history',
-      'agentops_health',
+      'agent_sentry_check_git',
+      'agent_sentry_check_context',
+      'agent_sentry_check_rules',
+      'agent_sentry_size_task',
+      'agent_sentry_scan_security',
+      'agent_sentry_capture_event',
+      'agent_sentry_search_history',
+      'agent_sentry_health',
     ];
     for (const name of expected) {
       expect(names).toContain(name);
@@ -54,7 +54,7 @@ describe('MCP Server (e2e)', () => {
 
   describe('tool handler responses', () => {
     it('health tool returns valid response', async () => {
-      const healthTool = tools.find((t) => t.name === 'agentops_health');
+      const healthTool = tools.find((t) => t.name === 'agent_sentry_health');
       expect(healthTool).toBeDefined();
 
       const result = await healthTool!.handler({});
@@ -67,7 +67,7 @@ describe('MCP Server (e2e)', () => {
     });
 
     it('check_git tool returns valid response', async () => {
-      const tool = tools.find((t) => t.name === 'agentops_check_git');
+      const tool = tools.find((t) => t.name === 'agent_sentry_check_git');
       expect(tool).toBeDefined();
 
       const result = await tool!.handler({});
@@ -76,7 +76,7 @@ describe('MCP Server (e2e)', () => {
     });
 
     it('scan_security tool returns valid response with content', async () => {
-      const tool = tools.find((t) => t.name === 'agentops_scan_security');
+      const tool = tools.find((t) => t.name === 'agent_sentry_scan_security');
       expect(tool).toBeDefined();
 
       const result = await tool!.handler({ content: 'const x = 42;' });

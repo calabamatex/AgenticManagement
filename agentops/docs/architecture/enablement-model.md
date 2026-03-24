@@ -2,7 +2,7 @@
 
 ## Overview
 
-The enablement engine controls which AgentOps skills are active. It uses a 5-level progressive system so that teams can adopt capabilities incrementally without being overwhelmed by features they are not ready to use.
+The enablement engine controls which AgentSentry skills are active. It uses a 5-level progressive system so that teams can adopt capabilities incrementally without being overwhelmed by features they are not ready to use.
 
 Source file: `src/enablement/engine.ts`.
 
@@ -34,7 +34,7 @@ The five skills correspond to the `Skill` enum defined in `src/memory/schema.ts`
 - **small_bets**: Task sizing, complexity analysis, and risk-level estimation.
 - **proactive_safety**: Security scanning, vulnerability detection, and safety enforcement.
 
-Each skill maps to one or more MCP tools. For example, `standing_orders` powers the `agentops_check_rules` tool, and `small_bets` powers `agentops_size_task`.
+Each skill maps to one or more MCP tools. For example, `standing_orders` powers the `agent_sentry_check_rules` tool, and `small_bets` powers `agent_sentry_size_task`.
 
 ---
 

@@ -1,7 +1,7 @@
 /**
- * init.ts — CLI command: onboarding wizard for AgentOps.
+ * init.ts — CLI command: onboarding wizard for AgentSentry.
  *
- * `agentops init` scaffolds config, sets enablement level, wires hooks,
+ * `agent-sentry init` scaffolds config, sets enablement level, wires hooks,
  * runs a first health audit, and shows next steps.
  */
 
@@ -17,9 +17,9 @@ import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'cli-init' });
 
-const DEFAULT_CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+const DEFAULT_CONFIG_PATH = path.resolve('agent-sentry/agent-sentry.config.json');
 
-/** Minimal default config scaffolded by `agentops init`. */
+/** Minimal default config scaffolded by `agent-sentry init`. */
 function defaultConfig(level: number): Record<string, unknown> {
   return {
     save_points: {
