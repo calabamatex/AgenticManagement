@@ -141,7 +141,7 @@ describe('initCommand', () => {
     await initCommand.run(makeArgs());
     const allOutput = stdoutSpy.mock.calls.map((c) => c[0]).join('');
     expect(allOutput).toContain('Next Steps');
-    expect(allOutput).toContain('agentops health');
+    expect(allOutput).toContain('agent-sentry health');
     expect(allOutput).toContain('agentops dashboard');
   });
 

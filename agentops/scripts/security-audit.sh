@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] Full Security Audit — §6.3
+# [AgentSentry] Full Security Audit — §6.3
 # =============================================================================
 # Standalone script invoked by /agentops audit.
 # Runs a comprehensive project security scan across 6 check categories:

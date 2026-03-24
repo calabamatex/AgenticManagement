@@ -63,10 +63,10 @@ Once wired, these tools are available in any Claude Code session:
 | `agent_sentry_capture_event` | Log a hash-chained event (decision, error, tool_use, etc.) |
 | `agent_sentry_check_rules` | Validate a file change against CLAUDE.md/AGENTS.md rules |
 | `agent_sentry_check_context` | Estimate context window usage |
-| `agentops_size_task` | Score risk of a proposed change (LOW/MEDIUM/HIGH/CRITICAL) |
-| `agentops_search_history` | Search the event audit trail |
-| `agentops_scan_security` | Detect secrets in file content |
-| `agentops_check_git` | Git status and hygiene checks |
+| `agent_sentry_size_task` | Score risk of a proposed change (LOW/MEDIUM/HIGH/CRITICAL) |
+| `agent_sentry_search_history` | Search the event audit trail |
+| `agent_sentry_scan_security` | Detect secrets in file content |
+| `agent_sentry_check_git` | Git status and hygiene checks |
 | `agentops_recall_context` | Cross-session context recall for current task |
 
 ## Progressive Enablement

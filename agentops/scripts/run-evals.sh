@@ -14,8 +14,8 @@ set -euo pipefail
 
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENTOPS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-EVALS_DIR="$AGENTOPS_DIR/evals"
+AGENT_SENTRY_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+EVALS_DIR="$AGENT_SENTRY_DIR/evals"
 
 # ---------------------------------------------------------------------------
 # Dependency check
@@ -32,7 +32,7 @@ done
 # ---------------------------------------------------------------------------
 resolve_script() {
     local suite_name="$1"
-    local script="$AGENTOPS_DIR/scripts/${suite_name}.sh"
+    local script="$AGENT_SENTRY_DIR/scripts/${suite_name}.sh"
     if [[ -f "$script" ]]; then
         echo "$script"
     else

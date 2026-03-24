@@ -144,7 +144,7 @@ export async function main(): Promise<void> {
   } else {
     const transport = createStdioTransport();
     await server.connect(transport);
-    console.error('AgentOps MCP server running on stdio');
+    console.error('AgentSentry MCP server running on stdio');
   }
 }
 
