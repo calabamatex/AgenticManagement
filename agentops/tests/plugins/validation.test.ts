@@ -160,7 +160,7 @@ describe('Plugin validation logic', () => {
     };
 
     const errors = validatePluginMetadata(metadata);
-    expect(errors.some((e) => e.includes('agentops'))).toBe(true);
+    expect(errors.some((e) => e.includes('agent-sentry'))).toBe(true);
   });
 
   it('should fail for empty tags array', () => {
@@ -181,7 +181,7 @@ describe('Plugin validation logic', () => {
   it('should validate all 11 checks', () => {
     // Validation covers: dir exists, metadata exists, valid json,
     // required fields, name pattern, version pattern, category,
-    // author name, requires agentops, src/index.ts, README.md
+    // author name, requires agent-sentry, src/index.ts, README.md
     // We test the TS-implementable checks (checks 4-9) here;
     // file-existence checks (1-3, 10-11) are covered in template tests
     const checksTestedHere = 8; // 7 field checks + empty tags

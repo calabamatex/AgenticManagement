@@ -1,8 +1,8 @@
-# AgentOps v4 Plugin Tutorial
+# AgentSentry v4 Plugin Tutorial
 
-## What Is an AgentOps Plugin?
+## What Is an AgentSentry Plugin?
 
-AgentOps uses an event-driven architecture built on a central **EventBus**. Every
+AgentSentry uses an event-driven architecture built on a central **EventBus**. Every
 meaningful action -- tool use, session start, audit log, error -- emits an event.
 A plugin subscribes to those events, reacts to them, and optionally enriches them
 with additional metadata. Plugins are plain TypeScript modules; there is no special
@@ -19,7 +19,7 @@ The three primitives you will use:
 ## Prerequisites
 
 - Node.js 18+
-- The `agentops` package (local or installed)
+- The `agent-sentry` package (local or installed)
 - Basic familiarity with TypeScript and async/await
 
 ## Step 1: Scaffold the Plugin

@@ -9,7 +9,7 @@ HOOK_JS="$SCRIPT_DIR/../dist/src/cli/hooks/session-checkpoint.js"
 if [[ -f "$HOOK_JS" ]]; then
     node "$HOOK_JS"
 else
-    echo "[AgentOps] WARN: Compiled hook not found at $HOOK_JS — run 'npm run build' first." >&2
+    echo "[AgentSentry] WARN: Compiled hook not found at $HOOK_JS — run 'npm run build' first." >&2
 fi
 
 exit 0

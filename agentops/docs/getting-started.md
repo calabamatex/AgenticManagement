@@ -1,4 +1,4 @@
-# Getting Started with AgentOps
+# Getting Started with AgentSentry
 
 ## Installation
 
@@ -61,7 +61,7 @@ await store.close();
 
 ## Provider Configuration
 
-AgentOps reads configuration from `agentops/agentops.config.json`:
+AgentSentry reads configuration from `agentops/agentops.config.json`:
 
 ```json
 {
