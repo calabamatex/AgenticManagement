@@ -3,7 +3,7 @@
  * Does NOT modify event-bus.ts — only imports and subscribes.
  */
 
-import { subscribe, EventType as BusEventType, EventPayload } from '../../core/event-bus';
+import { subscribe, EventType as BusEventType, EventPayload } from '../core/event-bus';
 import { MemoryStore } from './store';
 import { EventType, Severity, Skill } from './schema';
 import { Logger } from '../observability/logger';

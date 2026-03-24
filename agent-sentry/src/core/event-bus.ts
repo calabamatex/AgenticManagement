@@ -10,17 +10,17 @@
 // ---------------------------------------------------------------------------
 
 export enum EventType {
-  OnAuditLog = 'on_audit_log',
-  OnError = 'on_error',
-  OnMetric = 'on_metric',
-  PreToolUse = 'pre_tool_use',
-  PostToolUse = 'post_tool_use',
-  PreSession = 'pre_session',
-  PostSession = 'post_session',
-  PrePlan = 'pre_plan',
-  PostPlan = 'post_plan',
-  PluginLoaded = 'plugin_loaded',
-  PluginUnloaded = 'plugin_unloaded',
+  OnAuditLog = 'OnAuditLog',
+  OnError = 'OnError',
+  OnMetric = 'OnMetric',
+  PreToolUse = 'PreToolUse',
+  PostToolUse = 'PostToolUse',
+  PreSession = 'PreSession',
+  PostSession = 'PostSession',
+  PrePlan = 'PrePlan',
+  PostPlan = 'PostPlan',
+  PluginLoaded = 'PluginLoaded',
+  PluginUnloaded = 'PluginUnloaded',
 }
 
 // ---------------------------------------------------------------------------
@@ -65,7 +65,11 @@ class EventBus {
     }
   }
 
-  emit(eventType: string, payload: EventPayload): void {
+  emit(eventType: string, payloadOrData: EventPayload | Record<string, unknown>): void {
+    const payload: EventPayload = 'type' in payloadOrData && 'timestamp' in payloadOrData
+      ? payloadOrData as EventPayload
+      : { type: eventType, timestamp: new Date().toISOString(), data: payloadOrData as Record<string, unknown> };
+
     const handlers = this.listeners.get(eventType);
     if (!handlers) return;
     for (const handler of handlers) {
@@ -77,8 +81,23 @@ class EventBus {
     }
   }
 
+  /** Remove all listeners. */
   clear(): void {
     this.listeners.clear();
+  }
+
+  /** Alias for clear() — used in tests. */
+  reset(): void {
+    this.clear();
+  }
+
+  /** Return subscriber count per event type. */
+  listSubscribers(): Record<string, number> {
+    const result: Record<string, number> = {};
+    for (const [eventType, handlers] of this.listeners) {
+      result[eventType] = handlers.size;
+    }
+    return result;
   }
 }
 

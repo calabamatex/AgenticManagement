@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventStream, StreamClient, StreamEvent, StreamFilter } from '../../src/streaming/event-stream';
-import { getEventBus, EventType as BusEventType } from '../../core/event-bus';
+import { getEventBus, EventType as BusEventType } from '../../src/core/event-bus';
 
 function makeClient(overrides: Partial<StreamClient> = {}): StreamClient {
   return {
