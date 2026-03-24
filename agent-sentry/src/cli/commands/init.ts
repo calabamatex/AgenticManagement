@@ -89,6 +89,7 @@ interface InitResult {
   health: HealthSummary;
   hooks_hint: string;
   hooks_wired: boolean;
+  rules_appended: boolean;
 }
 
 export const initCommand: CommandDefinition = {
@@ -219,6 +220,7 @@ export const initCommand: CommandDefinition = {
       health,
       hooks_hint: hooksHint,
       hooks_wired: hooksWired,
+      rules_appended: rulesAppended,
     };
 
     if (json) {
