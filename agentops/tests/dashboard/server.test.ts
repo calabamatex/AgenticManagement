@@ -43,7 +43,7 @@ describe('DashboardServer', () => {
     const res = await httpGet(`http://127.0.0.1:${info.port}/`);
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('text/html');
-    expect(res.body).toContain('AgentOps Dashboard v5');
+    expect(res.body).toContain('AgentSentry Dashboard v5');
     expect(res.body).toContain('EventSource');
   });
 
@@ -53,7 +53,7 @@ describe('DashboardServer', () => {
 
     const res = await httpGet(`http://127.0.0.1:${info.port}/index.html`);
     expect(res.status).toBe(200);
-    expect(res.body).toContain('AgentOps Dashboard v5');
+    expect(res.body).toContain('AgentSentry Dashboard v5');
   });
 
   it('returns 404 for unknown paths', async () => {

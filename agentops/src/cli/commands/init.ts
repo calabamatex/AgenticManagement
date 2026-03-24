@@ -276,10 +276,10 @@ export const initCommand: CommandDefinition = {
     w('\n  Next Steps\n');
     w('  ' + '─'.repeat(50) + '\n');
     w('  1. Wire session hooks (see below)\n');
-    w('  2. Run: agentops health\n');
-    w('  3. Run: agentops dashboard\n');
+    w('  2. Run: agent-sentry health\n');
+    w('  3. Run: agent-sentry dashboard\n');
     if (level < 5) {
-      w(`  4. Level up: agentops enable --level ${level + 1}\n`);
+      w(`  4. Level up: agent-sentry enable --level ${level + 1}\n`);
     }
 
     // Hook wiring

@@ -10,7 +10,7 @@ describe('Dashboard HTML template', () => {
   });
 
   it('includes the title', () => {
-    expect(html).toContain('AgentOps Dashboard v5');
+    expect(html).toContain('AgentSentry Dashboard v5');
   });
 
   it('includes SSE connection code', () => {

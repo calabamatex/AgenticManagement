@@ -5,7 +5,7 @@
  * Run: npx ts-node docs/examples/cached-provider.ts
  */
 
-import { MemoryStore, createProvider, CachedStorageProvider, LRUCache } from 'agentops';
+import { MemoryStore, createProvider, CachedStorageProvider, LRUCache } from 'agent-sentry';
 
 async function main() {
   // Create the base SQLite provider

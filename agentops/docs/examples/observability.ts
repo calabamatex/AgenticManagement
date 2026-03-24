@@ -14,7 +14,7 @@ import {
   memoryUsageCheck,
   eventLoopCheck,
   MetricsCollector,
-} from 'agentops';
+} from 'agent-sentry';
 
 async function main() {
   // --- Logger ---
