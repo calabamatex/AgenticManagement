@@ -16,7 +16,7 @@ interface PluginMetadata {
   category: string;
   author: { name: string; github?: string; email?: string };
   version: string;
-  requires: { agentops: string; primitives?: string[] };
+  requires: { 'agent-sentry': string; primitives?: string[] };
   hooks?: string[];
   mcp_tools?: string[];
   tags: string[];

@@ -13,7 +13,7 @@ import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'cli-config' });
 
-const DEFAULT_CONFIG_PATH = path.resolve('agentops/agentops.config.json');
+const DEFAULT_CONFIG_PATH = path.resolve('agent-sentry/agent-sentry.config.json');
 
 function getConfigPath(): string {
   return resolveConfigPath() ?? DEFAULT_CONFIG_PATH;
@@ -21,9 +21,9 @@ function getConfigPath(): string {
 
 export const configCommand: CommandDefinition = {
   name: 'config',
-  description: 'View and modify AgentOps configuration',
+  description: 'View and modify AgentSentry configuration',
   usage: [
-    'Usage: agentops config <subcommand> [options]',
+    'Usage: agent-sentry config <subcommand> [options]',
     '',
     'Subcommands:',
     '  show               Show current configuration',
@@ -59,7 +59,7 @@ export const configCommand: CommandDefinition = {
     if (sub === 'get') {
       const key = args.positionals[1];
       if (!key) {
-        process.stderr.write('Usage: agentops config get <key>\n');
+        process.stderr.write('Usage: agent-sentry config get <key>\n');
         process.exitCode = 1;
         return;
       }
@@ -79,7 +79,7 @@ export const configCommand: CommandDefinition = {
       const key = args.positionals[1];
       const value = args.positionals[2];
       if (!key || value === undefined) {
-        process.stderr.write('Usage: agentops config set <key> <value>\n');
+        process.stderr.write('Usage: agent-sentry config set <key> <value>\n');
         process.exitCode = 1;
         return;
       }

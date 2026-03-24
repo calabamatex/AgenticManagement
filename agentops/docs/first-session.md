@@ -1,8 +1,8 @@
-# Your First Session with AgentOps
+# Your First Session with AgentSentry
 
 ## What happens automatically
 
-At Level 3 (the default), AgentOps silently activates three skills:
+At Level 3 (the default), AgentSentry silently activates three skills:
 
 - **save_points** -- session checkpoints captured automatically.
 - **context_health** -- monitors context window usage.
@@ -61,7 +61,7 @@ A large task ("refactor the authentication system to use OAuth2 and migrate the 
 
 ### Catching security issues
 
-If you accidentally include a real API key, `agentops_scan_security` catches it:
+If you accidentally include a real API key, `agent_sentry_scan_security` catches it:
 
 ```json
 {
@@ -89,7 +89,7 @@ The scanner detects API keys (Stripe, Google, GitHub, AWS patterns), hardcoded p
 
 ### Reviewing what happened
 
-Search the event history to see what AgentOps captured:
+Search the event history to see what AgentSentry captured:
 
 ```json
 {
@@ -120,7 +120,7 @@ Results include a `score` (0.0-1.0) for query relevance. You can filter by `even
 
 ### Checking overall health
 
-The `agentops_health` dashboard:
+The `agent_sentry_health` dashboard:
 
 ```json
 {
@@ -157,7 +157,7 @@ The `agentops_health` dashboard:
 
 ## Your next session -- the payoff
 
-Days or weeks later, `agentops_recall_context` pulls in what you did before:
+Days or weeks later, `agent_sentry_recall_context` pulls in what you did before:
 
 ```
 Found 1 relevant session(s) for: "email validation"
@@ -169,6 +169,6 @@ Key events:
   [violation/critical] Hardcoded API key blocked: Detected hardcoded API key in src/config/database.ts line 7 before commit
 ```
 
-This is the core value of AgentOps: **persistent memory across sessions**. Without it, every new session starts from zero -- re-reading the same files, re-discovering the same patterns, risking the same mistakes. With `recall_context`, Claude Code already knows what was built, what went wrong, and what decisions were made before you write a single line of code.
+This is the core value of AgentSentry: **persistent memory across sessions**. Without it, every new session starts from zero -- re-reading the same files, re-discovering the same patterns, risking the same mistakes. With `recall_context`, Claude Code already knows what was built, what went wrong, and what decisions were made before you write a single line of code.
 
 The recall searches session summaries and stored events using semantic similarity. The `relevance_score` (0.0-1.0) indicates match quality. Control the search window with `lookback_days` (default: 90) and limit results with `max_results` (default: 5).

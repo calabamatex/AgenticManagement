@@ -11,7 +11,7 @@ export const dashboardCommand: CommandDefinition = {
   name: 'dashboard',
   description: 'Start the real-time web dashboard',
   usage: [
-    'Usage: agentops dashboard [options]',
+    'Usage: agent-sentry dashboard [options]',
     '',
     'Options:',
     '  --port <n>       Port to listen on (default 9200)',
