@@ -2,7 +2,7 @@
   {
     "name": "budget_config_loaded",
     "description": "Cost tracker reads session_budget and monthly_budget from config",
-    "setup": "ensure agentops.config.json has budget section",
+    "setup": "ensure agent-sentry.config.json has budget section",
     "assert": "cost-tracker.sh exits 0 and creates cost-state file",
     "expected_exit": 0
   },

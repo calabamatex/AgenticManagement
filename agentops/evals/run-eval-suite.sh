@@ -4,7 +4,7 @@
 # =============================================================================
 # Runs eval cases against AgentSentry scripts.
 #
-# Usage: bash agentops/evals/run-eval-suite.sh [suite-name]
+# Usage: bash agent-sentry/evals/run-eval-suite.sh [suite-name]
 #   suite-name: task-sizer | permission-enforcer | delegation-validator |
 #               rules-file-linter | post-write-checks | all
 # =============================================================================

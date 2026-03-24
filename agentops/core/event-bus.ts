@@ -1,5 +1,5 @@
 /**
- * event-bus.ts — AgentOps Event Bus (§21.3)
+ * event-bus.ts — AgentSentry Event Bus (§21.3)
  *
  * Central publish/subscribe system for hook events. Uses a singleton
  * pattern so all consumers share a single bus instance within a process.
