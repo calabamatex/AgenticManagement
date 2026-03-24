@@ -4,64 +4,64 @@ import { parse, output, table, isJson } from '../../src/cli/parser';
 describe('CLI Parser', () => {
   describe('parse()', () => {
     it('parses a bare command', () => {
-      const result = parse(['node', 'agentops', 'health']);
+      const result = parse(['node', 'agent-sentry', 'health']);
       expect(result.command).toBe('health');
       expect(result.positionals).toEqual([]);
       expect(result.flags).toEqual({});
     });
 
     it('parses command with positional args', () => {
-      const result = parse(['node', 'agentops', 'memory', 'search', 'auth patterns']);
+      const result = parse(['node', 'agent-sentry', 'memory', 'search', 'auth patterns']);
       expect(result.command).toBe('memory');
       expect(result.positionals).toEqual(['search', 'auth patterns']);
     });
 
     it('parses --flag as boolean true', () => {
-      const result = parse(['node', 'agentops', 'health', '--json']);
+      const result = parse(['node', 'agent-sentry', 'health', '--json']);
       expect(result.command).toBe('health');
       expect(result.flags['json']).toBe(true);
     });
 
     it('parses --key value pairs', () => {
-      const result = parse(['node', 'agentops', 'memory', 'list', '--limit', '50']);
+      const result = parse(['node', 'agent-sentry', 'memory', 'list', '--limit', '50']);
       expect(result.command).toBe('memory');
       expect(result.flags['limit']).toBe('50');
     });
 
     it('parses --key=value syntax', () => {
-      const result = parse(['node', 'agentops', 'config', '--format=json']);
+      const result = parse(['node', 'agent-sentry', 'config', '--format=json']);
       expect(result.flags['format']).toBe('json');
     });
 
     it('parses --no-flag as boolean false', () => {
-      const result = parse(['node', 'agentops', 'stream', '--no-heartbeat']);
+      const result = parse(['node', 'agent-sentry', 'stream', '--no-heartbeat']);
       expect(result.flags['heartbeat']).toBe(false);
     });
 
     it('parses short flags', () => {
-      const result = parse(['node', 'agentops', 'health', '-j']);
+      const result = parse(['node', 'agent-sentry', 'health', '-j']);
       expect(result.flags['j']).toBe(true);
     });
 
     it('parses short flag with value', () => {
-      const result = parse(['node', 'agentops', 'memory', 'list', '-n', '5']);
+      const result = parse(['node', 'agent-sentry', 'memory', 'list', '-n', '5']);
       expect(result.flags['n']).toBe('5');
     });
 
     it('treats everything after -- as positional', () => {
-      const result = parse(['node', 'agentops', 'config', '--', '--not-a-flag', 'val']);
+      const result = parse(['node', 'agent-sentry', 'config', '--', '--not-a-flag', 'val']);
       expect(result.positionals).toContain('--not-a-flag');
       expect(result.positionals).toContain('val');
       expect(result.flags).toEqual({});
     });
 
     it('returns undefined command when none given', () => {
-      const result = parse(['node', 'agentops']);
+      const result = parse(['node', 'agent-sentry']);
       expect(result.command).toBeUndefined();
     });
 
     it('handles mixed flags and positionals', () => {
-      const result = parse(['node', 'agentops', 'plugin', 'search', '--category', 'monitor', 'auth', '--json']);
+      const result = parse(['node', 'agent-sentry', 'plugin', 'search', '--category', 'monitor', 'auth', '--json']);
       expect(result.command).toBe('plugin');
       expect(result.positionals).toEqual(['search', 'auth']);
       expect(result.flags['category']).toBe('monitor');

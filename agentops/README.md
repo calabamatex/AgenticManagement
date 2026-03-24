@@ -10,7 +10,7 @@ No external services required. Install in 60 seconds. Works out of the box.
 
 ```bash
 # 1. Install dependencies
-cd agentops && npm install
+cd agent-sentry && npm install
 
 # 2. Build
 npm run build
