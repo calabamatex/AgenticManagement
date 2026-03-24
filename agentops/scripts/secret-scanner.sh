@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] Secret Scanner - PreToolUse Hook for Write|Edit
+# [AgentSentry] Secret Scanner - PreToolUse Hook for Write|Edit
 # =============================================================================
 # Scans file content for hardcoded secrets, API keys, tokens, connection
 # strings, and credentials before allowing file writes or edits.
@@ -18,11 +18,11 @@ set -euo pipefail
 # Dependency checks — fail loudly, not silently
 # ---------------------------------------------------------------------------
 if ! command -v jq &>/dev/null; then
-    echo "[AgentOps] CRITICAL: 'jq' is required but not found. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
+    echo "[AgentSentry] CRITICAL: 'jq' is required but not found. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
     exit 0
 fi
 
-PREFIX="[AgentOps]"
+PREFIX="[AgentSentry]"
 
 # ---------------------------------------------------------------------------
 # 1. Read hook input from stdin (Claude Code hook protocol)
@@ -42,7 +42,7 @@ CONTENT="$(echo "$INPUT" | jq -r '.tool_input.content // .tool_input.new_string 
 # 2b. Load suppressions and exclude paths from config
 # ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
+CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
 
 SUPPRESSIONS=""
 EXCLUDE_PATHS=""

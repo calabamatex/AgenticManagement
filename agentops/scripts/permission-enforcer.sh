@@ -37,20 +37,20 @@ set -euo pipefail
 # Dependency checks — fail loudly, not silently
 # ---------------------------------------------------------------------------
 if ! command -v jq &>/dev/null; then
-    echo "[AgentOps] CRITICAL: 'jq' is required but not found. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
+    echo "[AgentSentry] CRITICAL: 'jq' is required but not found. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
     exit 0
 fi
 if ! command -v node &>/dev/null; then
-    echo "[AgentOps] CRITICAL: 'node' is required but not found. AgentOps is a Node.js package." >&2
+    echo "[AgentSentry] CRITICAL: 'node' is required but not found. AgentOps is a Node.js package." >&2
     exit 0
 fi
 
-PREFIX="[AgentOps]"
+PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENTS_DIR="$REPO_ROOT/.claude/agents"
-LOG_FILE="$REPO_ROOT/agentops/dashboard/data/permission-log.json"
-CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
+LOG_FILE="$REPO_ROOT/agent-sentry/dashboard/data/permission-log.json"
+CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
 PERMISSION_FAIL_MODE=$(jq -r '.security.permission_fail_mode // "block"' "$CONFIG_FILE" 2>/dev/null || echo "block")
 
 # ---------------------------------------------------------------------------

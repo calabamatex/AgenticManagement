@@ -8,7 +8,7 @@ import { EVENT_TYPES, SEVERITIES, type EventType, type Severity } from '../../me
 
 export const name = 'agent_sentry_search_history';
 export const description =
-  'Search the AgentOps event history using text queries with optional filters.';
+  'Search the AgentSentry event history using text queries with optional filters.';
 
 export const inputSchema = {
   type: 'object' as const,

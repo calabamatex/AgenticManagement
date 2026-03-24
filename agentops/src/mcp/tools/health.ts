@@ -1,5 +1,5 @@
 /**
- * health.ts — agentops_health tool: comprehensive system health check.
+ * health.ts — agent_sentry_health tool: comprehensive system health check.
  */
 
 import { MemoryStore } from '../../memory/store';
@@ -12,7 +12,7 @@ import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'mcp-health' });
 
-export const name = 'agentops_health';
+export const name = 'agent_sentry_health';
 export const description =
   'Returns comprehensive system health: event stats, provider status, chain integrity, embedding state, enablement level.';
 
@@ -154,7 +154,7 @@ export async function handler(
             drifted_skills: drift.drifted,
           };
           if (!drift.valid) {
-            issues.push(`Enablement config drift: skills ${drift.drifted.join(', ')} do not match level ${enablementLevel}. Run 'agentops enable --level ${enablementLevel}' to repair.`);
+            issues.push(`Enablement config drift: skills ${drift.drifted.join(', ')} do not match level ${enablementLevel}. Run 'agent-sentry enable --level ${enablementLevel}' to repair.`);
             if (overallStatus === 'healthy') overallStatus = 'degraded';
           }
         }
