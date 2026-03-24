@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test: verifies AgentOps builds, key files exist, and MCP server can start.
+# Smoke test: verifies AgentSentry builds, key files exist, and MCP server can start.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

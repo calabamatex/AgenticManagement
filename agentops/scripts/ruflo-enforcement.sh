@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# [AgentOps] RuFlo Enforcement Hook
+# [AgentSentry] RuFlo Enforcement Hook
 # =============================================================================
 # Pre-task hook that warns when multi-agent work is detected without
 # RuFlo swarm initialization. Runs on every UserPromptSubmit.

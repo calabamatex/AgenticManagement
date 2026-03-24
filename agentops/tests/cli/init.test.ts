@@ -220,13 +220,13 @@ describe('initCommand', () => {
 
   // --- Wire hooks tests ---
 
-  it('--wire-hooks adds agentops hooks to settings.json', async () => {
+  it('--wire-hooks adds agent-sentry hooks to settings.json', async () => {
     // Use a temp .claude/settings.json to avoid touching real one
     const settingsDir = path.join(tmpDir, '.claude');
     const settingsPath = path.join(settingsDir, 'settings.json');
     fs.mkdirSync(settingsDir, { recursive: true });
 
-    // Overwrite with minimal settings (no agentops hooks)
+    // Overwrite with minimal settings (no agent-sentry hooks)
     const minimal = { hooks: { SessionStart: [] } };
     fs.writeFileSync(settingsPath, JSON.stringify(minimal), 'utf8');
 
@@ -252,12 +252,12 @@ describe('initCommand', () => {
     }
   });
 
-  it('--wire-hooks does not duplicate existing agentops hooks', async () => {
+  it('--wire-hooks does not duplicate existing agent-sentry hooks', async () => {
     const settingsDir = path.join(tmpDir, '.claude');
     const settingsPath = path.join(settingsDir, 'settings.json');
     fs.mkdirSync(settingsDir, { recursive: true });
 
-    // Settings that already have agentops hooks
+    // Settings that already have agent-sentry hooks
     const withHooks = {
       hooks: {
         SessionStart: [

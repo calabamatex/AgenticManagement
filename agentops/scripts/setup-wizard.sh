@@ -3,7 +3,7 @@
 # AgentSentry Setup Wizard — Progressive Enablement
 #
 # Interactive setup to choose an enablement level and write the
-# configuration into agentops.config.json.
+# configuration into agent-sentry.config.json.
 #
 # Usage:
 #   ./setup-wizard.sh                  # Interactive mode
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="${SCRIPT_DIR}/../agentops.config.json"
+CONFIG_FILE="${SCRIPT_DIR}/../agent-sentry.config.json"
 
 # Defaults
 LEVEL=""
@@ -54,7 +54,7 @@ done
 show_banner() {
   echo ""
   echo "============================================="
-  echo "  AgentOps v4.0 — Progressive Enablement"
+  echo "  AgentSentry v4.0 — Progressive Enablement"
   echo "  Setup Wizard"
   echo "============================================="
   echo ""

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * index.ts — AgentOps CLI entry point.
+ * index.ts — AgentSentry CLI entry point.
  *
  * Dispatches subcommands to their handlers. Zero external dependencies.
- * Usage: agentops <command> [options]
+ * Usage: agent-sentry <command> [options]
  */
 
 import { parse, output, CommandDefinition } from './parser';
