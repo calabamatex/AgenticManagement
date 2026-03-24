@@ -7,43 +7,43 @@ import { validateAccessKey, createRateLimiter } from '../../src/mcp/auth';
 import { IncomingMessage, ServerResponse } from 'http';
 
 describe('validateAccessKey', () => {
-  const originalEnv = process.env.AGENTOPS_ACCESS_KEY;
+  const originalEnv = process.env.AGENT_SENTRY_ACCESS_KEY;
 
   afterEach(() => {
     if (originalEnv === undefined) {
-      delete process.env.AGENTOPS_ACCESS_KEY;
+      delete process.env.AGENT_SENTRY_ACCESS_KEY;
     } else {
-      process.env.AGENTOPS_ACCESS_KEY = originalEnv;
+      process.env.AGENT_SENTRY_ACCESS_KEY = originalEnv;
     }
   });
 
   it('should return true when no key is configured (open access)', () => {
-    delete process.env.AGENTOPS_ACCESS_KEY;
+    delete process.env.AGENT_SENTRY_ACCESS_KEY;
     expect(validateAccessKey('anything')).toBe(true);
   });
 
   it('should return true for matching key', () => {
-    process.env.AGENTOPS_ACCESS_KEY = 'my-secret-key';
+    process.env.AGENT_SENTRY_ACCESS_KEY = 'my-secret-key';
     expect(validateAccessKey('my-secret-key')).toBe(true);
   });
 
   it('should return false for non-matching key', () => {
-    process.env.AGENTOPS_ACCESS_KEY = 'my-secret-key';
+    process.env.AGENT_SENTRY_ACCESS_KEY = 'my-secret-key';
     expect(validateAccessKey('wrong-key')).toBe(false);
   });
 
   it('should return false for empty key when key is required', () => {
-    process.env.AGENTOPS_ACCESS_KEY = 'my-secret-key';
+    process.env.AGENT_SENTRY_ACCESS_KEY = 'my-secret-key';
     expect(validateAccessKey('')).toBe(false);
   });
 
   it('should return false for key of different length', () => {
-    process.env.AGENTOPS_ACCESS_KEY = 'short';
+    process.env.AGENT_SENTRY_ACCESS_KEY = 'short';
     expect(validateAccessKey('much-longer-key')).toBe(false);
   });
 
   it('should handle special characters', () => {
-    process.env.AGENTOPS_ACCESS_KEY = 'key-with-$pecial!chars@123';
+    process.env.AGENT_SENTRY_ACCESS_KEY = 'key-with-$pecial!chars@123';
     expect(validateAccessKey('key-with-$pecial!chars@123')).toBe(true);
     expect(validateAccessKey('key-with-$pecial!chars@124')).toBe(false);
   });

@@ -150,7 +150,7 @@ AgentSentry is additive — it does not modify your source code or project files
 **Remove completely:**
 
 ```bash
-claude mcp remove agentops        # Unwire the MCP server
+claude mcp remove agent-sentry        # Unwire the MCP server
 rm -rf agent-sentry/data/             # Delete the SQLite database (optional)
 ```
 

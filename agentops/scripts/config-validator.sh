@@ -2,22 +2,22 @@
 # =============================================================================
 # [AgentSentry] Config Validator — Schema Validation for agent-sentry.config.json
 # =============================================================================
-# Validates the AgentOps configuration file against the expected schema.
+# Validates the AgentSentry configuration file against the expected schema.
 # Checks for:
 #   1. Valid JSON
 #   2. Required top-level keys
 #   3. Type validation on critical fields
 #   4. Value range validation on numeric thresholds
 #
-# Usage: bash agentops/scripts/config-validator.sh [path-to-config]
+# Usage: bash agent-sentry/scripts/config-validator.sh [path-to-config]
 # Exit 0: Valid. Exit 1: Validation errors found.
 # =============================================================================
 
 set -euo pipefail
 
-PREFIX="[AgentOps]"
+PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="${1:-$SCRIPT_DIR/../agentops.config.json}"
+CONFIG_FILE="${1:-$SCRIPT_DIR/../agent-sentry.config.json}"
 
 ERRORS=()
 WARNINGS=()

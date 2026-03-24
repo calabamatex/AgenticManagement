@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [AgentOps] Git Hygiene Check — PreToolUse hook for Write|Edit|Bash
+# [AgentSentry] Git Hygiene Check — PreToolUse hook for Write|Edit|Bash
 # Ensures git is initialized, checks for uncommitted work, enforces
 # checkpoint discipline, and tracks modified file counts for mid-session
 # checkpoint logic.
@@ -8,8 +8,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/../agentops.config.json"
-PREFIX="[AgentOps]"
+CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
+PREFIX="[AgentSentry]"
 
 # State file for tracking files modified in this session
 STATE_DIR="${TMPDIR:-/tmp}/agentops"
