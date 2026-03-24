@@ -66,7 +66,7 @@ function defaultConfig(level: number): Record<string, unknown> {
       enabled: true,
       provider: 'sqlite',
       embedding_provider: 'auto',
-      database_path: 'agentops/data/ops.db',
+      database_path: 'agent-sentry/data/ops.db',
       max_events: 100000,
       auto_prune_days: 365,
     },
@@ -99,20 +99,20 @@ interface HealthSummary {
 
 export const initCommand: CommandDefinition = {
   name: 'init',
-  description: 'Initialize AgentOps in this project',
+  description: 'Initialize AgentSentry in this project',
   usage: [
-    'Usage: agentops init [options]',
+    'Usage: agent-sentry init [options]',
     '',
     'Options:',
     '  --level <1-5>      Starting enablement level (default: 1)',
     '  --interactive, -i  Prompt for level choice interactively',
     '  --dry-run          Preview what would be created without writing',
-    '  --wire-hooks       Auto-wire AgentOps hooks into .claude/settings.json',
+    '  --wire-hooks       Auto-wire AgentSentry hooks into .claude/settings.json',
     '  --force            Overwrite existing config file',
     '  --json             Output in JSON format',
     '',
     'What it does:',
-    '  1. Creates agentops.config.json with sensible defaults',
+    '  1. Creates agent-sentry.config.json with sensible defaults',
     '  2. Sets your enablement level (progressive skill adoption)',
     '  3. Runs a quick health audit of your project',
     '  4. Optionally wires session hooks into .claude/settings.json',
@@ -223,9 +223,9 @@ export const initCommand: CommandDefinition = {
     const w = (s: string) => process.stdout.write(s);
     w('\n');
     if (dryRun) {
-      w(`  AgentOps v${VERSION} — Dry Run Preview\n`);
+      w(`  AgentSentry v${VERSION} — Dry Run Preview\n`);
     } else {
-      w(`  AgentOps v${VERSION} — Project Initialized\n`);
+      w(`  AgentSentry v${VERSION} — Project Initialized\n`);
     }
     w('  ' + '═'.repeat(50) + '\n\n');
 

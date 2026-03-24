@@ -14,15 +14,15 @@ Each MCP tool is a thin adapter that validates input (via Zod schemas), delegate
 
 | Tool | Underlying Primitive | What It Does |
 |------|---------------------|--------------|
-| `agentops_check_git` | `execFileSync('git', ...)` | Reports uncommitted files, branch, last commit age, and a computed risk score |
-| `agentops_check_context` | Arithmetic estimation | Estimates context window usage from message count (4000 tokens/message against a 200K ceiling) |
-| `agentops_check_rules` | `primitives/rules-validation.validateRules()` | Checks a proposed file change against CLAUDE.md/AGENTS.md rules, returns violations |
-| `agentops_size_task` | Keyword + heuristic scoring | Analyzes task description for risk keywords (migration, security, destructive ops) and file count to produce a risk level |
-| `agentops_scan_security` | Regex pattern matching | Scans code content for API keys, hardcoded passwords, SQL injection patterns, eval usage, and private keys |
-| `agentops_capture_event` | `MemoryStore.capture()` | Writes an event into the hash-chained memory store |
-| `agentops_search_history` | `MemoryStore.search()` | Searches event history using the vector/text/JS fallback chain |
-| `agentops_recall_context` | `ContextRecaller.recall()` | Searches across session summaries and events for relevant prior context |
-| `agentops_health` | Multiple subsystems | Aggregates store stats, chain verification, embedding status, and enablement level into a single health report |
+| `agent_sentry_check_git` | `execFileSync('git', ...)` | Reports uncommitted files, branch, last commit age, and a computed risk score |
+| `agent_sentry_check_context` | Arithmetic estimation | Estimates context window usage from message count (4000 tokens/message against a 200K ceiling) |
+| `agent_sentry_check_rules` | `primitives/rules-validation.validateRules()` | Checks a proposed file change against CLAUDE.md/AGENTS.md rules, returns violations |
+| `agent_sentry_size_task` | Keyword + heuristic scoring | Analyzes task description for risk keywords (migration, security, destructive ops) and file count to produce a risk level |
+| `agent_sentry_scan_security` | Regex pattern matching | Scans code content for API keys, hardcoded passwords, SQL injection patterns, eval usage, and private keys |
+| `agent_sentry_capture_event` | `MemoryStore.capture()` | Writes an event into the hash-chained memory store |
+| `agent_sentry_search_history` | `MemoryStore.search()` | Searches event history using the vector/text/JS fallback chain |
+| `agent_sentry_recall_context` | `ContextRecaller.recall()` | Searches across session summaries and events for relevant prior context |
+| `agent_sentry_health` | Multiple subsystems | Aggregates store stats, chain verification, embedding status, and enablement level into a single health report |
 
 Tools that access the `MemoryStore` (`capture_event`, `search_history`, `recall_context`, `health`) create a fresh store instance, initialize it, perform the operation, and close it in a `finally` block.
 
@@ -50,7 +50,7 @@ Uses `StreamableHTTPServerTransport` from the MCP SDK, wrapped in a Node.js HTTP
 
 The HTTP server handles:
 
-- **CORS**: Configurable origin. If an access key is set, uses `AGENTOPS_CORS_ORIGIN` env var (defaults to `http://localhost`). Without an access key, allows `*`.
+- **CORS**: Configurable origin. If an access key is set, uses `AGENT_SENTRY_CORS_ORIGIN` env var (defaults to `http://localhost`). Without an access key, allows `*`.
 - **OPTIONS preflight**: Returns 204 with appropriate headers.
 - **Health endpoint**: `GET /health` returns `{"status": "ok", "transport": "http"}` (bypasses MCP transport).
 - **All other requests**: Delegated to `mcpTransport.handleRequest()`.
@@ -61,7 +61,7 @@ Use HTTP when: team/shared deployments, remote agents, or when multiple clients 
 
 ## Authentication (HTTP mode only)
 
-Access key authentication is controlled by the `AGENTOPS_ACCESS_KEY` environment variable. If the variable is not set, all requests are accepted (open access).
+Access key authentication is controlled by the `AGENT_SENTRY_ACCESS_KEY` environment variable. If the variable is not set, all requests are accepted (open access).
 
 When set, every request must provide the key via either:
 
