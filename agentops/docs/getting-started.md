@@ -69,7 +69,7 @@ AgentSentry reads configuration from `agent-sentry/agent-sentry.config.json`:
     "enabled": true,
     "provider": "sqlite",
     "embedding_provider": "auto",
-    "database_path": "agentops/data/ops.db",
+    "database_path": "agent-sentry/data/ops.db",
     "max_events": 100000,
     "auto_prune_days": 365
   }

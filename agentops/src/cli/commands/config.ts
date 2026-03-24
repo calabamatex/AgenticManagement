@@ -1,7 +1,7 @@
 /**
  * config.ts — CLI command: configuration management.
  *
- * Reads/writes agentops.config.json via the provider-factory loader.
+ * Reads/writes agent-sentry.config.json via the provider-factory loader.
  */
 
 import * as fs from 'fs';

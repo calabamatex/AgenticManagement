@@ -11,7 +11,7 @@ export const pluginCommand: CommandDefinition = {
   name: 'plugin',
   description: 'List, search, and install plugins',
   usage: [
-    'Usage: agentops plugin <subcommand> [options]',
+    'Usage: agent-sentry plugin <subcommand> [options]',
     '',
     'Subcommands:',
     '  list              List installed plugins',
@@ -32,7 +32,7 @@ export const pluginCommand: CommandDefinition = {
     const json = isJson(args.flags);
 
     if (!sub) {
-      process.stderr.write('Usage: agentops plugin <list|search|install|enable|disable|info>\n');
+      process.stderr.write('Usage: agent-sentry plugin <list|search|install|enable|disable|info>\n');
       process.exitCode = 1;
       return;
     }
@@ -81,7 +81,7 @@ export const pluginCommand: CommandDefinition = {
     if (sub === 'install') {
       const sourcePath = args.positionals[1];
       if (!sourcePath) {
-        process.stderr.write('Usage: agentops plugin install <path>\n');
+        process.stderr.write('Usage: agent-sentry plugin install <path>\n');
         process.exitCode = 1;
         return;
       }
@@ -92,7 +92,7 @@ export const pluginCommand: CommandDefinition = {
 
     if (sub === 'enable') {
       const name = args.positionals[1];
-      if (!name) { process.stderr.write('Usage: agentops plugin enable <name>\n'); process.exitCode = 1; return; }
+      if (!name) { process.stderr.write('Usage: agent-sentry plugin enable <name>\n'); process.exitCode = 1; return; }
       const ok = await registry.enable(name);
       if (!ok) { process.stderr.write(`Plugin not found: ${name}\n`); process.exitCode = 1; return; }
       output(json ? { enabled: name } : `Enabled: ${name}`, json);
@@ -101,7 +101,7 @@ export const pluginCommand: CommandDefinition = {
 
     if (sub === 'disable') {
       const name = args.positionals[1];
-      if (!name) { process.stderr.write('Usage: agentops plugin disable <name>\n'); process.exitCode = 1; return; }
+      if (!name) { process.stderr.write('Usage: agent-sentry plugin disable <name>\n'); process.exitCode = 1; return; }
       const ok = await registry.disable(name);
       if (!ok) { process.stderr.write(`Plugin not found: ${name}\n`); process.exitCode = 1; return; }
       output(json ? { disabled: name } : `Disabled: ${name}`, json);
@@ -110,7 +110,7 @@ export const pluginCommand: CommandDefinition = {
 
     if (sub === 'info') {
       const name = args.positionals[1];
-      if (!name) { process.stderr.write('Usage: agentops plugin info <name>\n'); process.exitCode = 1; return; }
+      if (!name) { process.stderr.write('Usage: agent-sentry plugin info <name>\n'); process.exitCode = 1; return; }
       const info = await registry.get(name);
       if (!info) {
         process.stderr.write(`Plugin not found: ${name}\n`);

@@ -18,7 +18,7 @@ export const memoryCommand: CommandDefinition = {
   name: 'memory',
   description: 'Search, list, and inspect stored events',
   usage: [
-    'Usage: agentops memory <subcommand> [options]',
+    'Usage: agent-sentry memory <subcommand> [options]',
     '',
     'Subcommands:',
     '  search <query>   Semantic search across events',
@@ -38,7 +38,7 @@ export const memoryCommand: CommandDefinition = {
     const json = isJson(args.flags);
 
     if (!sub) {
-      process.stderr.write('Usage: agentops memory <search|list|stats|verify>\n');
+      process.stderr.write('Usage: agent-sentry memory <search|list|stats|verify>\n');
       process.exitCode = 1;
       return;
     }
@@ -48,7 +48,7 @@ export const memoryCommand: CommandDefinition = {
     if (sub === 'search') {
       const query = args.positionals.slice(1).join(' ');
       if (!query) {
-        process.stderr.write('Usage: agentops memory search <query>\n');
+        process.stderr.write('Usage: agent-sentry memory search <query>\n');
         process.exitCode = 1;
         return;
       }

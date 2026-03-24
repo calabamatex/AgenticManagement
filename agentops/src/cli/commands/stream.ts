@@ -12,7 +12,7 @@ export const streamCommand: CommandDefinition = {
   name: 'stream',
   description: 'Tail live event stream to stdout',
   usage: [
-    'Usage: agentops stream [options]',
+    'Usage: agent-sentry stream [options]',
     '',
     'Options:',
     '  --filter <key=value>   Filter events (type, severity, skill, agent, session)',
