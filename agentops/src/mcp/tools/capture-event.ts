@@ -1,5 +1,5 @@
 /**
- * capture-event.ts — agentops_capture_event tool: Capture an event into MemoryStore.
+ * capture-event.ts — agent_sentry_capture_event tool: Capture an event into MemoryStore.
  */
 
 import { z } from 'zod';
@@ -14,9 +14,9 @@ import {
   type OpsEventInput,
 } from '../../memory/schema';
 
-export const name = 'agentops_capture_event';
+export const name = 'agent_sentry_capture_event';
 export const description =
-  'Capture an operational event (decision, violation, incident, etc.) into the AgentOps memory store.';
+  'Capture an operational event (decision, violation, incident, etc.) into the AgentSentry memory store.';
 
 export const inputSchema = {
   type: 'object' as const,

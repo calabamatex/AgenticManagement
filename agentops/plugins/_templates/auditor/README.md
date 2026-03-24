@@ -6,7 +6,7 @@ This template provides a starting point for building auditor plugins that valida
 
 ## Prerequisites
 
-- AgentOps v4.0 or higher
+- AgentSentry v4.0 or higher
 - Node.js 18+
 - Access to the `rules-validation`, `secret-detection`, and `risk-scoring` primitives
 
@@ -25,7 +25,7 @@ Edit `metadata.json` to configure:
 
 ## How It Works
 
-The auditor plugin hooks into the AgentOps lifecycle:
+The auditor plugin hooks into the AgentSentry lifecycle:
 1. `PreToolUse` — Validates proposed actions before execution
 2. `PostToolUse` — Reviews results after execution for compliance
 3. Violations are reported via the `event-capture` primitive

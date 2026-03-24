@@ -6,7 +6,7 @@ This template provides a starting point for building dashboard plugins that aggr
 
 ## Prerequisites
 
-- AgentOps v4.0 or higher
+- AgentSentry v4.0 or higher
 - Node.js 18+
 - Access to the `event-capture`, `context-estimation`, and `scaffold-update` primitives
 
@@ -25,7 +25,7 @@ Edit `metadata.json` to configure:
 
 ## How It Works
 
-The dashboard plugin hooks into the AgentOps lifecycle:
+The dashboard plugin hooks into the AgentSentry lifecycle:
 1. `SessionStart` — Initializes dashboard state and baseline metrics
 2. `Stop` — Generates final summary report
 3. Periodically queries the MemoryStore for event aggregation

@@ -5,7 +5,7 @@
 # Implements Agent-to-Agent Trust and Delegation (section 20).
 #
 # When an agent delegates a task to another agent, it issues a delegation
-# token (JSON) via the AGENTOPS_DELEGATION_TOKEN environment variable.
+# token (JSON) via the AGENT_SENTRY_DELEGATION_TOKEN environment variable.
 # This hook validates the token before every tool use, enforcing:
 #   1. Token not expired (expires_at > now)
 #   2. Current tool is within scope.tools
@@ -45,7 +45,7 @@ if ! command -v jq &>/dev/null; then
     exit 0
 fi
 if ! command -v node &>/dev/null; then
-    echo "[AgentSentry] CRITICAL: 'node' is required but not found. AgentOps is a Node.js package." >&2
+    echo "[AgentSentry] CRITICAL: 'node' is required but not found. AgentSentry is a Node.js package." >&2
     exit 0
 fi
 

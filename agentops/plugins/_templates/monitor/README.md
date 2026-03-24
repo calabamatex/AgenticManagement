@@ -6,7 +6,7 @@ This template provides a starting point for building monitor plugins that observ
 
 ## Prerequisites
 
-- AgentOps v4.0 or higher
+- AgentSentry v4.0 or higher
 - Node.js 18+
 - Access to the `event-capture` and `context-estimation` primitives
 
@@ -25,7 +25,7 @@ Edit `metadata.json` to configure:
 
 ## How It Works
 
-The monitor plugin hooks into the AgentOps lifecycle:
+The monitor plugin hooks into the AgentSentry lifecycle:
 1. `SessionStart` — Initializes monitoring state
 2. `PostToolUse` — Captures events after each tool invocation
 3. Events are stored via the `event-capture` primitive
