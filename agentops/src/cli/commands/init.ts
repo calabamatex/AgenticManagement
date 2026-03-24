@@ -423,9 +423,9 @@ function wireHooksIntoSettings(): boolean {
   for (const [event, hookDef] of Object.entries(agentSentryHooks)) {
     const existing = hooks[event] as Array<{ hooks?: Array<{ command?: string }> }> | undefined;
 
-    // Check if the agentops hook is already present
+    // Check if the agent-sentry hook is already present
     const alreadyWired = existing?.some((group) =>
-      group.hooks?.some((h) => h.command?.includes('agentops/'))
+      group.hooks?.some((h) => h.command?.includes('agent-sentry/'))
     );
 
     if (!alreadyWired) {

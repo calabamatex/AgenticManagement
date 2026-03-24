@@ -65,7 +65,7 @@ Access key authentication is controlled by the `AGENT_SENTRY_ACCESS_KEY` environ
 
 When set, every request must provide the key via either:
 
-- `x-agentops-key` HTTP header, or
+- `x-agent-sentry-key` HTTP header, or
 - `?key=` query parameter.
 
 Key validation in `auth.ts` uses constant-time comparison to prevent timing attacks: it XORs each character pair and accumulates mismatches, returning `false` if any bit differs or if lengths do not match.

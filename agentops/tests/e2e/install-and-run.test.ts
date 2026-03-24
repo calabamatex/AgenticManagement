@@ -69,8 +69,8 @@ describe('Install and Run (e2e)', () => {
     expect(existsSync(resolvePath)).toBe(true);
   });
 
-  it('installed package contains agentops.config.json', () => {
-    const configPath = join(tempDir, 'node_modules/agent-sentry/agentops.config.json');
+  it('installed package contains agent-sentry.config.json', () => {
+    const configPath = join(tempDir, 'node_modules/agent-sentry/agent-sentry.config.json');
     expect(existsSync(configPath)).toBe(true);
   });
 

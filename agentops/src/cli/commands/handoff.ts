@@ -1,7 +1,7 @@
 /**
  * handoff.ts — CLI command: generate a structured handoff prompt.
  *
- * `agentops handoff` produces a markdown handoff document that includes:
+ * `agent-sentry handoff` produces a markdown handoff document that includes:
  * - Summary of session events
  * - Uncommitted changes (git status / diff --stat)
  * - Recent commits (git log)
@@ -446,7 +446,7 @@ export const handoffCommand: CommandDefinition = {
   name: 'handoff',
   description: 'Generate a structured handoff for session continuity',
   usage: [
-    'Usage: agentops handoff [options]',
+    'Usage: agent-sentry handoff [options]',
     '',
     'Options:',
     '  --save          Save handoff to memory directory',

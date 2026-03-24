@@ -1,5 +1,5 @@
 /**
- * CLI hooks module — TypeScript implementations of AgentOps shell hooks.
+ * CLI hooks module — TypeScript implementations of AgentSentry shell hooks.
  *
  * Each hook is a standalone script that can be invoked via:
  *   node dist/src/cli/hooks/<name>.js
