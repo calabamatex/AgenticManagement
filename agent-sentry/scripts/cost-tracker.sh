@@ -209,5 +209,15 @@ printf '{"timestamp":"%s","type":"cost","model_tier":"%s","call_cost":"%s","sess
     "$new_monthly" \
     >> "$COST_LOG"
 
+# --- Log rotation: cap at 5000 lines, keep most recent entries ---
+MAX_LOG_LINES=5000
+if [[ -f "$COST_LOG" ]]; then
+    LOG_LINES=$(wc -l < "$COST_LOG" | tr -d ' ')
+    if [[ "$LOG_LINES" -gt "$MAX_LOG_LINES" ]]; then
+        KEEP_LINES=$((MAX_LOG_LINES / 2))
+        tail -n "$KEEP_LINES" "$COST_LOG" > "$COST_LOG.tmp" && mv "$COST_LOG.tmp" "$COST_LOG"
+    fi
+fi
+
 # Never block
 exit 0

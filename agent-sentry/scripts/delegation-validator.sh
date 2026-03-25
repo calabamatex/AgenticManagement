@@ -132,6 +132,15 @@ log_delegation() {
         "${SCOPE_MAX_TOKENS:-0}" \
         "${SCOPE_MAX_DURATION:-0}" \
         >> "$LOG_FILE" 2>/dev/null || true
+
+    # Log rotation: cap at 5000 lines, keep most recent entries
+    if [[ -f "$LOG_FILE" ]]; then
+        local log_lines
+        log_lines=$(wc -l < "$LOG_FILE" | tr -d ' ')
+        if [[ "$log_lines" -gt 5000 ]]; then
+            tail -n 2500 "$LOG_FILE" > "$LOG_FILE.tmp" && mv "$LOG_FILE.tmp" "$LOG_FILE"
+        fi
+    fi
 }
 
 # ---------------------------------------------------------------------------
