@@ -7,7 +7,7 @@
  */
 
 import { randomBytes } from "crypto";
-import { appendFileSync, mkdirSync, existsSync } from "fs";
+import { appendFileSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
 import { dirname, resolve } from "path";
 
 // ---------------------------------------------------------------------------
@@ -176,6 +176,18 @@ export function appendSpan(
     mkdirSync(dir, { recursive: true });
   }
   appendFileSync(path, JSON.stringify(span) + "\n", "utf-8");
+
+  // Log rotation: cap at 10000 lines, keep most recent entries
+  try {
+    const content = readFileSync(path, "utf-8");
+    const lines = content.trimEnd().split("\n");
+    if (lines.length > 10000) {
+      const kept = lines.slice(-5000);
+      writeFileSync(path, kept.join("\n") + "\n", "utf-8");
+    }
+  } catch {
+    // Non-fatal
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -208,6 +208,18 @@ export function appendAuditRecord(record: AuditRecord): void {
 
   // Update in-memory chain head
   lastHash = record.hash;
+
+  // Log rotation: cap at 10000 lines, keep most recent entries
+  try {
+    const content = fs.readFileSync(AUDIT_FILE, "utf-8");
+    const lines = content.trimEnd().split("\n");
+    if (lines.length > 10000) {
+      const kept = lines.slice(-5000);
+      fs.writeFileSync(AUDIT_FILE, kept.join("\n") + "\n", "utf-8");
+    }
+  } catch {
+    // Non-fatal — rotation failure should not break audit logging
+  }
 }
 
 /**

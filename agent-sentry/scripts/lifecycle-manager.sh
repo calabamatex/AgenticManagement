@@ -70,6 +70,15 @@ emit_event() {
   json=$(printf '{"agent_id":"%s","from":"%s","to":"%s","timestamp":"%s"}' \
     "${agent_id}" "${from_state}" "${to_state}" "${ts}")
   echo "${json}" >> "${EVENT_LOG}"
+
+  # Log rotation: cap at 5000 lines
+  if [[ -f "${EVENT_LOG}" ]]; then
+    local log_lines
+    log_lines=$(wc -l < "${EVENT_LOG}" | tr -d ' ')
+    if [[ "$log_lines" -gt 5000 ]]; then
+      tail -n 2500 "${EVENT_LOG}" > "${EVENT_LOG}.tmp" && mv "${EVENT_LOG}.tmp" "${EVENT_LOG}"
+    fi
+  fi
 }
 
 validate_agent_id() {
