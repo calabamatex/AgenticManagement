@@ -4,9 +4,9 @@
 
 [![npm version](https://img.shields.io/npm/v/agent-sentry.svg)](https://www.npmjs.com/package/agent-sentry)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/calabamatex/AgenticManagement/actions/workflows/ci.yml/badge.svg)](https://github.com/calabamatex/AgenticManagement/actions/workflows/ci.yml)
+[![CI](https://github.com/calabamatex/AgentSentry/actions/workflows/ci.yml/badge.svg)](https://github.com/calabamatex/AgentSentry/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
-[![Tests](https://img.shields.io/badge/tests-1042%20passing-brightgreen.svg)](#)
+[![Tests](https://img.shields.io/badge/tests-1101%20passing-brightgreen.svg)](#)
 
 **Memory-aware management and safety framework for AI agents.**
 
@@ -23,8 +23,8 @@ npm install agent-sentry
 Or clone and use directly:
 
 ```bash
-git clone https://github.com/calabamatex/AgenticManagement.git
-cd AgenticManagement/agent-sentry && npm install && npm run build
+git clone https://github.com/calabamatex/AgentSentry.git
+cd AgentSentry/agent-sentry && npm install && npm run build
 ```
 
 **Requirements:** Node.js >= 18
@@ -261,7 +261,7 @@ npm run benchmark
 ```bash
 npm install        # Install dependencies
 npm run build      # Compile TypeScript
-npm test           # Run tests (1042 passing)
+npm test           # Run tests (1101 passing)
 npm run benchmark  # Run performance benchmarks
 ```
 
