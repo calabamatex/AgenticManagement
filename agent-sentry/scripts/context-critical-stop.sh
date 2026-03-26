@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# [AgentSentry] Context-Critical Stop Hook — blocks agent when context is critically full.
+# [AgentSentry] Context-Critical Stop Hook -- blocks agent when context is critically full.
 #
 # This runs as a Stop hook. When context usage exceeds the critical threshold,
 # the script exits non-zero (exit 2) which blocks the agent from continuing
 # until the user runs /agent-sentry:handoff to generate a handoff prompt.
 #
 # Claude Code Stop hooks:
-#   exit 0 → allow (agent continues)
-#   exit 2 → block with message (agent cannot continue until resolved)
+#   exit 0 -> allow (agent continues)
+#   exit 2 -> block with message (agent cannot continue until resolved)
 
 set -euo pipefail
 
@@ -15,23 +15,42 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
 PREFIX="[AgentSentry]"
 
-# ── Config ────────────────────────────────────────────────────────────
+# -- Config ------------------------------------------------------------------
 CTX_CRIT=$(jq -r '.context_health.context_percent_critical // 80' "$CONFIG_FILE" 2>/dev/null || echo 80)
 MSG_CRIT=$(jq -r '.context_health.message_count_critical // 30' "$CONFIG_FILE" 2>/dev/null || echo 30)
 MAX_TOKENS=${AGENT_SENTRY_MAX_TOKENS:-200000}
 
-# ── Session State ─────────────────────────────────────────────────────
+# -- Session State ------------------------------------------------------------
 STATE_DIR="${TMPDIR:-/tmp}/agent-sentry"
 STATE_FILE="$STATE_DIR/context-state"
 
-# If no state file yet, context is fresh — allow
+mkdir -p "$STATE_DIR"
+
+# If no state file yet, initialise it and allow (context is fresh)
 if [[ ! -f "$STATE_FILE" ]]; then
+    echo "message_count=1" > "$STATE_FILE"
+    echo "session_id=$(date +%s)" >> "$STATE_FILE"
     exit 0
 fi
 
+# Read current message count and increment it.
+# The Stop hook fires on every assistant response, so this tracks total
+# exchanges even when UserPromptSubmit doesn't fire (e.g. stop-hook feedback loops).
 MSG_COUNT=$(grep -oP '(?<=message_count=)\d+' "$STATE_FILE" 2>/dev/null || echo 0)
+MSG_COUNT=$((MSG_COUNT + 1))
 
-# ── Token Estimation (same logic as context-estimator.sh) ─────────────
+# Write updated count back (portable sed in-place)
+if grep -q "message_count=" "$STATE_FILE" 2>/dev/null; then
+    if sed --version 2>/dev/null | grep -q GNU; then
+        sed -i "s/message_count=.*/message_count=$MSG_COUNT/" "$STATE_FILE"
+    else
+        sed -i '' "s/message_count=.*/message_count=$MSG_COUNT/" "$STATE_FILE"
+    fi
+else
+    echo "message_count=$MSG_COUNT" >> "$STATE_FILE"
+fi
+
+# -- Token Estimation (same logic as context-estimator.sh) --------------------
 TOTAL_CHARS=0
 
 if git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -59,14 +78,14 @@ if [[ "$CTX_PERCENT" -gt 100 ]]; then
     CTX_PERCENT=100
 fi
 
-# ── Decision ──────────────────────────────────────────────────────────
+# -- Decision -----------------------------------------------------------------
 # Block if context is critically full OR message count exceeds critical threshold
 if [[ "$CTX_PERCENT" -ge "$CTX_CRIT" ]] || [[ "$MSG_COUNT" -ge "$MSG_CRIT" ]]; then
     echo "$PREFIX BLOCKED: Context critically full (~${CTX_PERCENT}%, ${MSG_COUNT} messages)."
     echo "$PREFIX ACTION REQUIRED: Run \`/agent-sentry:handoff\` to generate a handoff prompt before continuing."
-    echo "$PREFIX This is a blocking directive — the session cannot proceed until a handoff is created."
+    echo "$PREFIX This is a blocking directive -- the session cannot proceed until a handoff is created."
     exit 2
 fi
 
-# Context is healthy — allow
+# Context is healthy -- allow
 exit 0
