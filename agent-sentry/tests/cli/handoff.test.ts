@@ -30,13 +30,15 @@ vi.mock('fs', async () => {
 
 // Mock the memory store import
 vi.mock('../../src/memory/store', () => ({
-  MemoryStore: vi.fn().mockImplementation(() => ({
-    initialize: vi.fn().mockResolvedValue(undefined),
-    close: vi.fn().mockResolvedValue(undefined),
-    capture: vi.fn().mockResolvedValue(undefined),
-    list: vi.fn().mockResolvedValue([]),
-    search: vi.fn().mockResolvedValue([]),
-  })),
+  MemoryStore: vi.fn().mockImplementation(function () {
+    return {
+      initialize: vi.fn().mockResolvedValue(undefined),
+      close: vi.fn().mockResolvedValue(undefined),
+      capture: vi.fn().mockResolvedValue(undefined),
+      list: vi.fn().mockResolvedValue([]),
+      search: vi.fn().mockResolvedValue([]),
+    };
+  }),
 }));
 
 import { handoffCommand, generateHandoffResult, saveHandoffToMemory } from '../../src/cli/commands/handoff';

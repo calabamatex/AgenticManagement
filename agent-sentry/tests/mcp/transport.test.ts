@@ -7,19 +7,23 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 // Mock MCP SDK
 vi.mock('@modelcontextprotocol/sdk/server/stdio.js', () => {
   return {
-    StdioServerTransport: vi.fn().mockImplementation(() => ({
-      type: 'stdio',
-    })),
+    StdioServerTransport: vi.fn().mockImplementation(function () {
+      return {
+        type: 'stdio',
+      };
+    }),
   };
 });
 
 vi.mock('@modelcontextprotocol/sdk/server/streamableHttp.js', () => {
   return {
-    StreamableHTTPServerTransport: vi.fn().mockImplementation(() => ({
-      type: 'streamableHttp',
-      handleRequest: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined),
-    })),
+    StreamableHTTPServerTransport: vi.fn().mockImplementation(function () {
+      return {
+        type: 'streamableHttp',
+        handleRequest: vi.fn().mockResolvedValue(undefined),
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    }),
   };
 });
 

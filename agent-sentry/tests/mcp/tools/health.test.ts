@@ -39,12 +39,14 @@ const mockClose = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('../../../src/memory/store', () => {
   return {
-    MemoryStore: vi.fn().mockImplementation(() => ({
-      initialize: mockInitialize,
-      stats: mockStatsFn,
-      verifyChain: mockVerifyChain,
-      close: mockClose,
-    })),
+    MemoryStore: vi.fn().mockImplementation(function () {
+      return {
+        initialize: mockInitialize,
+        stats: mockStatsFn,
+        verifyChain: mockVerifyChain,
+        close: mockClose,
+      };
+    }),
   };
 });
 

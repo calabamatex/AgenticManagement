@@ -140,10 +140,12 @@ describe('agent_sentry_capture_event', () => {
 
   it('should handle store errors gracefully', async () => {
     const storeModule = await import('../../../src/memory/store');
-    (storeModule.MemoryStore as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      initialize: vi.fn().mockRejectedValue(new Error('DB connection failed')),
-      close: vi.fn().mockResolvedValue(undefined),
-    }));
+    (storeModule.MemoryStore as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function () {
+      return {
+        initialize: vi.fn().mockRejectedValue(new Error('DB connection failed')),
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    });
 
     const result = await handler({
       event_type: 'decision',

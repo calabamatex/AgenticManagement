@@ -42,7 +42,7 @@ vi.mock('../../src/memory/store', () => {
   };
 
   return {
-    MemoryStore: vi.fn(() => mockStore),
+    MemoryStore: vi.fn(function () { return mockStore; }),
     __mockStore: mockStore,
   };
 });

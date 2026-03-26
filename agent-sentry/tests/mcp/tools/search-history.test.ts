@@ -138,10 +138,12 @@ describe('agent_sentry_search_history', () => {
 
   it('should handle store errors gracefully', async () => {
     const storeModule = await import('../../../src/memory/store');
-    (storeModule.MemoryStore as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      initialize: vi.fn().mockRejectedValue(new Error('Search failed')),
-      close: vi.fn().mockResolvedValue(undefined),
-    }));
+    (storeModule.MemoryStore as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function () {
+      return {
+        initialize: vi.fn().mockRejectedValue(new Error('Search failed')),
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    });
 
     const result = await handler({ query: 'test' });
     const parsed = JSON.parse(result.content[0].text);

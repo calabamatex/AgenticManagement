@@ -11,11 +11,13 @@ const mockInitialize = vi.fn();
 const mockClose = vi.fn();
 
 vi.mock('../../src/memory/store', () => ({
-  MemoryStore: vi.fn().mockImplementation(() => ({
-    initialize: mockInitialize,
-    capture: mockCapture,
-    close: mockClose,
-  })),
+  MemoryStore: vi.fn().mockImplementation(function () {
+    return {
+      initialize: mockInitialize,
+      capture: mockCapture,
+      close: mockClose,
+    };
+  }),
 }));
 
 beforeEach(() => {
