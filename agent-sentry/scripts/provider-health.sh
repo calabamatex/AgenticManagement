@@ -8,9 +8,9 @@ set -euo pipefail
 
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
+# Runtime data persists in ~/.agent-sentry/data (not the repo, not /tmp)
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
-RUNTIME_DATA="$TMPBASE/data"
+RUNTIME_DATA="${HOME}/.agent-sentry/data"
 COST_LOG="$RUNTIME_DATA/cost-log.json"
 HEALTH_LOG="$RUNTIME_DATA/provider-health.json"
 PROVIDER_STATE="$TMPBASE/provider-state"

@@ -49,8 +49,8 @@ PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENTS_DIR="$REPO_ROOT/.claude/agents"
-# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
-_RUNTIME_DATA="${TMPDIR:-/tmp}/agent-sentry/data"
+# Runtime data persists in ~/.agent-sentry/data (not the repo, not /tmp)
+_RUNTIME_DATA="${HOME}/.agent-sentry/data"
 mkdir -p "$_RUNTIME_DATA"
 LOG_FILE="$_RUNTIME_DATA/permission-log.json"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"

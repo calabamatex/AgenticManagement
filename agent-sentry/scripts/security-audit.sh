@@ -27,8 +27,8 @@ PREFIX="[AgentSentry]"
 # ---------------------------------------------------------------------------
 PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 SCAN_GIT_HISTORY="${AGENT_SENTRY_AUDIT_SCAN_HISTORY:-false}"
-# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
-RESULTS_DIR="${TMPDIR:-/tmp}/agent-sentry/data"
+# Runtime data persists in ~/.agent-sentry/data (not the repo, not /tmp)
+RESULTS_DIR="${HOME}/.agent-sentry/data"
 mkdir -p "$RESULTS_DIR"
 RESULTS_FILE="${RESULTS_DIR}/audit-results.json"
 SOURCE_EXTENSIONS="ts,js,py,go,java,rb,sh"

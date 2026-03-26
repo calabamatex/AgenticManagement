@@ -18,8 +18,8 @@ set -euo pipefail
 PREFIX="[AgentSentry]"
 LIFECYCLE_DIR="${TMPDIR:-/tmp}/agent-sentry/lifecycle"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
-RUNTIME_DATA="${TMPDIR:-/tmp}/agent-sentry/data"
+# Runtime data persists in ~/.agent-sentry/data (not the repo, not /tmp)
+RUNTIME_DATA="${HOME}/.agent-sentry/data"
 mkdir -p "$RUNTIME_DATA"
 EVENT_LOG="$RUNTIME_DATA/lifecycle.json"
 
