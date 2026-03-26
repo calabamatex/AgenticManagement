@@ -15,68 +15,28 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
 PREFIX="[AgentSentry]"
 
-# -- Config ------------------------------------------------------------------
+# Source shared state manager
+source "$SCRIPT_DIR/lib/state-manager.sh"
+
+# -- Feedback loop guard ------------------------------------------------------
+# If this stop hook fired very recently (< 2s), we're in a feedback loop
+# where our own output triggered another assistant response. Exit silently.
+if as_is_feedback_loop; then
+    exit 0
+fi
+as_mark_stop_hook
+
+# -- Config -------------------------------------------------------------------
 CTX_CRIT=$(jq -r '.context_health.context_percent_critical // 80' "$CONFIG_FILE" 2>/dev/null || echo 80)
 MSG_CRIT=$(jq -r '.context_health.message_count_critical // 30' "$CONFIG_FILE" 2>/dev/null || echo 30)
 MAX_TOKENS=${AGENT_SENTRY_MAX_TOKENS:-200000}
 
-# -- Session State ------------------------------------------------------------
-STATE_DIR="${TMPDIR:-/tmp}/agent-sentry"
-STATE_FILE="$STATE_DIR/context-state"
+# -- State (single source of truth via state-manager) -------------------------
+as_init_state
+MSG_COUNT=$(as_increment_messages)
 
-mkdir -p "$STATE_DIR"
-
-# If no state file yet, initialise it and allow (context is fresh)
-if [[ ! -f "$STATE_FILE" ]]; then
-    echo "message_count=1" > "$STATE_FILE"
-    echo "session_id=$(date +%s)" >> "$STATE_FILE"
-    exit 0
-fi
-
-# Read current message count and increment it.
-# The Stop hook fires on every assistant response, so this tracks total
-# exchanges even when UserPromptSubmit doesn't fire (e.g. stop-hook feedback loops).
-MSG_COUNT=$(grep -oP '(?<=message_count=)\d+' "$STATE_FILE" 2>/dev/null || echo 0)
-MSG_COUNT=$((MSG_COUNT + 1))
-
-# Write updated count back (portable sed in-place)
-if grep -q "message_count=" "$STATE_FILE" 2>/dev/null; then
-    if sed --version 2>/dev/null | grep -q GNU; then
-        sed -i "s/message_count=.*/message_count=$MSG_COUNT/" "$STATE_FILE"
-    else
-        sed -i '' "s/message_count=.*/message_count=$MSG_COUNT/" "$STATE_FILE"
-    fi
-else
-    echo "message_count=$MSG_COUNT" >> "$STATE_FILE"
-fi
-
-# -- Token Estimation (same logic as context-estimator.sh) --------------------
-TOTAL_CHARS=0
-
-if git rev-parse --is-inside-work-tree &>/dev/null; then
-    while IFS= read -r file; do
-        if [[ -f "$file" ]]; then
-            CHARS=$(wc -c < "$file" 2>/dev/null | tr -d ' ')
-            TOTAL_CHARS=$((TOTAL_CHARS + CHARS))
-        fi
-    done < <(git ls-files -z 2>/dev/null \
-        | xargs -0 ls -1t 2>/dev/null \
-        | head -50)
-fi
-
-CONVERSATION_TOKENS=$((MSG_COUNT * 500))
-FILE_TOKENS=$((TOTAL_CHARS / 4))
-ESTIMATED_TOKENS=$((FILE_TOKENS + CONVERSATION_TOKENS))
-
-if [[ "$MAX_TOKENS" -gt 0 ]]; then
-    CTX_PERCENT=$((ESTIMATED_TOKENS * 100 / MAX_TOKENS))
-else
-    CTX_PERCENT=0
-fi
-
-if [[ "$CTX_PERCENT" -gt 100 ]]; then
-    CTX_PERCENT=100
-fi
+# -- Token estimation (delegated to state manager) ----------------------------
+CTX_PERCENT=$(as_estimate_context_percent "$MAX_TOKENS")
 
 # -- Decision -----------------------------------------------------------------
 # Block if context is critically full OR message count exceeds critical threshold
