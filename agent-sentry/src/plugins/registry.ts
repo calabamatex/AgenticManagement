@@ -6,7 +6,7 @@
  * remote discovery or download. Uses only fs/path — no external dependencies.
  */
 
-import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, cpSync, rmSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync, renameSync, mkdirSync, cpSync, rmSync } from 'fs';
 import { join, resolve } from 'path';
 import { Logger } from '../observability/logger';
 
@@ -439,7 +439,9 @@ export class PluginRegistry {
     }
 
     const statePath = join(this.pluginsDir, STATE_FILE);
-    writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf-8');
+    const tmpPath = statePath + '.tmp';
+    writeFileSync(tmpPath, JSON.stringify(state, null, 2), 'utf-8');
+    renameSync(tmpPath, statePath);
   }
 
   /** Load persisted state from registry.json. */
