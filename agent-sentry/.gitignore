@@ -9,3 +9,9 @@ agentops/
 # Runtime telemetry data (append-only, not source code)
 dashboard/data/cost-log.json
 dashboard/data/lifecycle.json
+dashboard/data/permission-log.json
+dashboard/data/delegation-log.json
+dashboard/data/provider-health.json
+
+# Benchmark results (regenerated each run)
+benchmarks/ci-latest.json

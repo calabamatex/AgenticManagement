@@ -243,6 +243,14 @@ cmd_log_failover() {
     local event
     event="{\"agentId\":\"$agent_id\",\"provider\":\"$fallback\",\"fallback_used\":\"$fallback\",\"original_provider\":\"$original\",\"failover_reason\":\"$reason\",\"latency_increase_ms\":$latency_increase,\"cost_difference_usd\":$cost_diff,\"timestamp\":\"$ts\"}"
 
+    # Rotate if log exceeds 500 entries
+    if [[ -f "$HEALTH_LOG" ]]; then
+        local hcount
+        hcount=$(wc -l < "$HEALTH_LOG")
+        if [[ "$hcount" -ge 500 ]]; then
+            tail -n 250 "$HEALTH_LOG" > "$HEALTH_LOG.tmp" && mv "$HEALTH_LOG.tmp" "$HEALTH_LOG"
+        fi
+    fi
     echo "$event" >> "$HEALTH_LOG"
     echo "$PREFIX Failover logged: $original -> $fallback (reason: $reason)"
     echo "$PREFIX   Estimated latency delta: ${latency_increase}ms, cost delta: \$${cost_diff}"

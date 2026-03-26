@@ -196,6 +196,15 @@ log_decision() {
     # Ensure log directory exists
     mkdir -p "$(dirname "$LOG_FILE")"
 
+    # Rotate if log exceeds 500 entries
+    if [[ -f "$LOG_FILE" ]]; then
+        local count
+        count=$(wc -l < "$LOG_FILE")
+        if [[ "$count" -ge 500 ]]; then
+            tail -n 250 "$LOG_FILE" > "$LOG_FILE.tmp" && mv "$LOG_FILE.tmp" "$LOG_FILE"
+        fi
+    fi
+
     # Append NDJSON line
     jq -n -c \
         --arg ts "$timestamp" \

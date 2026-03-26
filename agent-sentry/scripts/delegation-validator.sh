@@ -120,6 +120,15 @@ log_delegation() {
     local timestamp
     timestamp="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
+    # Rotate if log exceeds 500 entries
+    if [[ -f "$LOG_FILE" ]]; then
+        local count
+        count=$(wc -l < "$LOG_FILE")
+        if [[ "$count" -ge 500 ]]; then
+            tail -n 250 "$LOG_FILE" > "$LOG_FILE.tmp" && mv "$LOG_FILE.tmp" "$LOG_FILE"
+        fi
+    fi
+
     printf '{"timestamp":"%s","decision":"%s","reason":"%s","tool":"%s","file":"%s","issuer":"%s","delegate":"%s","task":"%s","scope_max_tokens":%s,"scope_max_duration":%s}\n' \
         "$timestamp" \
         "$decision" \
