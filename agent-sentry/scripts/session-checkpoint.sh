@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOOK_JS="$SCRIPT_DIR/../dist/src/cli/hooks/session-checkpoint.js"
 
 if [[ -f "$HOOK_JS" ]]; then
-    node "$HOOK_JS"
+    node "$HOOK_JS" || true
 else
     echo "[AgentSentry] WARN: Compiled hook not found at $HOOK_JS — run 'npm run build' first." >&2
 fi

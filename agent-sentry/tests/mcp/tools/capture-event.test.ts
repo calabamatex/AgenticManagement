@@ -24,11 +24,13 @@ vi.mock('../../../src/memory/store', () => {
   });
 
   return {
-    MemoryStore: vi.fn().mockImplementation(() => ({
-      initialize: vi.fn().mockResolvedValue(undefined),
-      capture: mockCapture,
-      close: vi.fn().mockResolvedValue(undefined),
-    })),
+    MemoryStore: vi.fn().mockImplementation(function () {
+      return {
+        initialize: vi.fn().mockResolvedValue(undefined),
+        capture: mockCapture,
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    }),
   };
 });
 
