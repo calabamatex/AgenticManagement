@@ -3,8 +3,17 @@
 # Runs after every tool use: estimates cost, tracks cumulative session spend,
 # warns at budget thresholds, and logs cost events as NDJSON.
 # Exit 0 always (advisory only, never blocks).
+#
+# Delegates to TypeScript implementation when available; falls back to bash.
 
 set -euo pipefail
+
+SCRIPT_DIR_CT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HOOK_JS="$SCRIPT_DIR_CT/../dist/src/cli/hooks/cost-tracker.js"
+if [[ -f "$HOOK_JS" ]]; then
+    node "$HOOK_JS"
+    exit 0
+fi
 
 PREFIX="[AgentSentry]"
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
