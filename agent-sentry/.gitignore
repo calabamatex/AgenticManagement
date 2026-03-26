@@ -5,3 +5,7 @@ agentops/tests/performance/.benchmark-regression-temp.db*
 .ruflo-state/
 :memory:
 agentops/
+
+# Runtime telemetry data (append-only, not source code)
+dashboard/data/cost-log.json
+dashboard/data/lifecycle.json
