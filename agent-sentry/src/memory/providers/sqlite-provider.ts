@@ -155,8 +155,8 @@ export class SqliteProvider implements StorageProvider {
       embQuery += ' WHERE ' + embConditions.join(' AND ');
     }
 
-    // Cap scan window: when no 'since' filter, limit to most recent embeddings
-    if (!options.since) {
+    // Cap scan window: only apply the 10k limit when no filters narrow the result set
+    if (embConditions.length === 0) {
       embQuery = `SELECT * FROM (${embQuery} ORDER BY e.timestamp DESC LIMIT ${MAX_VECTOR_SCAN})`;
     }
 
