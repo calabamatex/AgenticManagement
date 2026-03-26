@@ -52,9 +52,9 @@ fi
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
+# Runtime data persists in ~/.agent-sentry/data (not the repo, not /tmp)
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
-RUNTIME_DATA="$TMPBASE/data"
+RUNTIME_DATA="${HOME}/.agent-sentry/data"
 LOG_FILE="$RUNTIME_DATA/delegation-log.json"
 COST_STATE="$TMPBASE/cost-state"
 

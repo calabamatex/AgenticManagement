@@ -11,12 +11,12 @@ TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
 COST_STATE="$TMPBASE/cost-state"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
-# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
-RUNTIME_DATA="$TMPBASE/data"
+# Runtime data persists in ~/.agent-sentry/data (not the repo, not /tmp)
+RUNTIME_DATA="${HOME}/.agent-sentry/data"
 COST_LOG="$RUNTIME_DATA/cost-log.json"
 
 # Ensure directories exist
-mkdir -p "$TMPBASE" "$RUNTIME_DATA"
+mkdir -p "$TMPBASE" "$RUNTIME_DATA" 2>/dev/null
 
 # --- Read hook input from stdin (non-blocking) ---
 hook_input=""

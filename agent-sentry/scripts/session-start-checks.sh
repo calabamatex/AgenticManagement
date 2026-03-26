@@ -6,10 +6,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOOK_JS="$SCRIPT_DIR/../dist/src/cli/hooks/session-start.js"
 DASHBOARD_DATA="$SCRIPT_DIR/../dashboard/data"
-RUNTIME_DATA="${TMPDIR:-/tmp}/agent-sentry/data"
+RUNTIME_DATA="${HOME}/.agent-sentry/data"
 
 # Ensure runtime data directory exists and dashboard symlink points to it.
-# Hooks write to /tmp; the dashboard reads via this symlink.
+# Hooks write to ~/.agent-sentry/data; the dashboard reads via this symlink.
 mkdir -p "$RUNTIME_DATA"
 if [[ ! -L "$DASHBOARD_DATA" ]]; then
     rm -rf "$DASHBOARD_DATA"

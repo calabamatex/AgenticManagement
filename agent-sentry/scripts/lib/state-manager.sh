@@ -177,9 +177,11 @@ as_estimate_context_percent() {
 }
 
 # -- Runtime data directory ---------------------------------------------------
-# Returns the path for runtime data logs (always /tmp, never in repo).
+# Returns the persistent path for runtime data logs (~/.agent-sentry/data).
+# Survives across sessions (unlike /tmp) and stays out of the repo.
+readonly AS_RUNTIME_DATA_DIR="${HOME}/.agent-sentry/data"
+
 as_runtime_data_dir() {
-    local dir="$AS_STATE_DIR/data"
-    mkdir -p "$dir"
-    echo "$dir"
+    mkdir -p "$AS_RUNTIME_DATA_DIR"
+    echo "$AS_RUNTIME_DATA_DIR"
 }
