@@ -47,11 +47,13 @@ const mockSearchResults = [
 
 vi.mock('../../../src/memory/store', () => {
   return {
-    MemoryStore: vi.fn().mockImplementation(() => ({
-      initialize: vi.fn().mockResolvedValue(undefined),
-      search: vi.fn().mockResolvedValue(mockSearchResults),
-      close: vi.fn().mockResolvedValue(undefined),
-    })),
+    MemoryStore: vi.fn().mockImplementation(function () {
+      return {
+        initialize: vi.fn().mockResolvedValue(undefined),
+        search: vi.fn().mockResolvedValue(mockSearchResults),
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    }),
   };
 });
 

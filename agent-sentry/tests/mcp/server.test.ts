@@ -9,14 +9,16 @@ import { createMcpServer, tools } from '../../src/mcp/server';
 vi.mock('@modelcontextprotocol/sdk/server/index.js', () => {
   const handlers = new Map<string, Function>();
   return {
-    Server: vi.fn().mockImplementation(() => ({
-      setRequestHandler: vi.fn((schema: { method: string }, handler: Function) => {
-        handlers.set(schema.method, handler);
-      }),
-      connect: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined),
-      _handlers: handlers,
-    })),
+    Server: vi.fn().mockImplementation(function () {
+      return {
+        setRequestHandler: vi.fn(function (schema: { method: string }, handler: Function) {
+          handlers.set(schema.method, handler);
+        }),
+        connect: vi.fn().mockResolvedValue(undefined),
+        close: vi.fn().mockResolvedValue(undefined),
+        _handlers: handlers,
+      };
+    }),
   };
 });
 
