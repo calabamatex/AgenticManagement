@@ -223,7 +223,7 @@ export class AgentCoordinator {
     const timeout = ttlMs ?? this.lockTimeoutMs;
     const expiresAt = new Date(Date.now() + timeout).toISOString();
 
-    // Prefer atomic lock when provider supports it
+    // Use atomic lock when provider supports it (SQLite, Supabase)
     if (this.provider?.atomicLockAcquire) {
       const acquired = await this.provider.atomicLockAcquire(resource, this.agentId, Date.now(), expiresAt);
       if (acquired) {
@@ -232,7 +232,15 @@ export class AgentCoordinator {
       return acquired;
     }
 
-    // Fallback: event-sourced (non-atomic, race conditions possible)
+    // Fallback: event-sourced — WARNING: not safe under concurrency.
+    // This path is only reached when no StorageProvider is configured.
+    // Callers requiring mutual exclusion MUST provide a StorageProvider.
+    logger.warn(
+      'Using non-atomic event-sourced lock — race conditions possible. ' +
+      'Provide a StorageProvider with atomicLockAcquire for safe locking.',
+      { resource, holder: this.agentId },
+    );
+
     await this.cleanExpiredLocks();
 
     const existing = await this.isLocked(resource);
