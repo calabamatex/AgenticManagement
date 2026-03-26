@@ -39,12 +39,26 @@ export interface EventPayload {
 
 export type EventHandler = (payload: EventPayload) => void | Promise<void>;
 
+export type EventBusErrorHandler = (eventType: string, error: unknown) => void;
+
 // ---------------------------------------------------------------------------
 // EventBus
 // ---------------------------------------------------------------------------
 
 class EventBus {
   private listeners: Map<string, Set<EventHandler>> = new Map();
+  private _errorCount = 0;
+  private _onError: EventBusErrorHandler | null = null;
+
+  /** Set a callback invoked when a subscriber throws. */
+  set onError(handler: EventBusErrorHandler | null) {
+    this._onError = handler;
+  }
+
+  /** Total number of subscriber errors caught since creation/reset. */
+  get errorCount(): number {
+    return this._errorCount;
+  }
 
   subscribe(eventType: string, handler: EventHandler): void {
     let handlers = this.listeners.get(eventType);
@@ -75,15 +89,20 @@ class EventBus {
     for (const handler of handlers) {
       try {
         handler(payload);
-      } catch {
-        // Swallow handler errors to avoid breaking the bus
+      } catch (err) {
+        this._errorCount++;
+        if (this._onError) {
+          try { this._onError(eventType, err); } catch { /* prevent infinite loop */ }
+        }
       }
     }
   }
 
-  /** Remove all listeners. */
+  /** Remove all listeners and reset error count. */
   clear(): void {
     this.listeners.clear();
+    this._errorCount = 0;
+    this._onError = null;
   }
 
   /** Alias for clear() — used in tests. */
