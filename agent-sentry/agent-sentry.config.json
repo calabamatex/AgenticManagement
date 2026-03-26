@@ -85,5 +85,10 @@
       }
     },
     "updated_at": "2026-03-22T22:14:31.983Z"
+  },
+  "log_sync": {
+    "enabled": false,
+    "on_session_end": true,
+    "sources": ["cost-log", "permission-log", "delegation-log", "lifecycle"]
   }
 }

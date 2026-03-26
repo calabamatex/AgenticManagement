@@ -108,6 +108,7 @@ describe('No orphaned config keys', () => {
       'notifications',
       'memory',
       'enablement',
+      'log_sync',
     ]);
 
     for (const key of topLevelKeys) {
