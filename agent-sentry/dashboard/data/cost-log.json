@@ -3800,3 +3800,4 @@
 {"timestamp":"2026-03-26T19:28:34Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.237000","session_calls":79,"budget_status":"ok","budget_pct":"2.4","input_tokens":0,"output_tokens":0,"monthly_total":"0.240000"}
 {"timestamp":"2026-03-26T19:29:05Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.240000","session_calls":80,"budget_status":"ok","budget_pct":"2.4","input_tokens":0,"output_tokens":0,"monthly_total":"0.243000"}
 {"timestamp":"2026-03-26T19:29:10Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.243000","session_calls":81,"budget_status":"ok","budget_pct":"2.4","input_tokens":0,"output_tokens":0,"monthly_total":"0.246000"}
+{"timestamp":"2026-03-26T19:30:07Z","type":"cost","model_tier":"sonnet","call_cost":"0.003","session_total":"0.246000","session_calls":82,"budget_status":"ok","budget_pct":"2.5","input_tokens":0,"output_tokens":0,"monthly_total":"0.249000"}
