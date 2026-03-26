@@ -42,6 +42,16 @@ create table if not exists chain_checkpoints (
   events_verified integer not null
 );
 
+-- Coordination locks (atomic CAS for multi-agent locking)
+create table if not exists coordination_locks (
+  resource text primary key,
+  holder text not null,
+  fencing_token integer not null,
+  acquired_at timestamptz not null default now(),
+  expires_at timestamptz not null
+);
+create index if not exists idx_locks_expires on coordination_locks(expires_at);
+
 -- RPC for vector search
 create or replace function match_ops_events(
   query_embedding vector(384),
