@@ -3,6 +3,9 @@
 # Estimates context window usage and message count, warns when thresholds
 # are approached or exceeded. See AgentSentry-Product-Spec.md §3.2.1.
 # Exit 0 always (advisory only, never blocks prompt submission).
+#
+# This hook is the SOLE owner of message_count increments.
+# The stop hook (context-critical-stop.sh) reads the count but never writes it.
 
 set -euo pipefail
 
@@ -12,6 +15,9 @@ cat > /dev/null 2>&1 || true
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
 PREFIX="[AgentSentry]"
+
+# Source shared state manager
+source "$SCRIPT_DIR/lib/state-manager.sh"
 
 # ── Config ────────────────────────────────────────────────────────────
 # Read thresholds from agent-sentry.config.json with sane defaults
@@ -24,34 +30,10 @@ MSG_CRIT=$(jq -r '.context_health.message_count_critical // 30' "$CONFIG_FILE" 2
 MAX_TOKENS=${AGENT_SENTRY_MAX_TOKENS:-200000}
 
 # ── Session State ─────────────────────────────────────────────────────
-STATE_DIR="${TMPDIR:-/tmp}/agent-sentry"
-STATE_FILE="$STATE_DIR/context-state"
+state_init
 
-mkdir -p "$STATE_DIR"
-
-# Initialise state file if missing
-if [[ ! -f "$STATE_FILE" ]]; then
-    echo "message_count=0" > "$STATE_FILE"
-    echo "session_id=$(date +%s)" >> "$STATE_FILE"
-fi
-
-# Read current message count
-MSG_COUNT=$(grep -oP '(?<=message_count=)\d+' "$STATE_FILE" 2>/dev/null || echo 0)
-
-# Increment message count
-MSG_COUNT=$((MSG_COUNT + 1))
-
-# Write updated count back (portable sed in-place)
-if grep -q "message_count=" "$STATE_FILE" 2>/dev/null; then
-    # macOS and GNU sed compatible in-place edit
-    if sed --version 2>/dev/null | grep -q GNU; then
-        sed -i "s/message_count=.*/message_count=$MSG_COUNT/" "$STATE_FILE"
-    else
-        sed -i '' "s/message_count=.*/message_count=$MSG_COUNT/" "$STATE_FILE"
-    fi
-else
-    echo "message_count=$MSG_COUNT" >> "$STATE_FILE"
-fi
+# Increment message count atomically (this hook is the sole writer)
+MSG_COUNT="$(state_increment "message_count")"
 
 # ── Token Estimation ──────────────────────────────────────────────────
 # Estimate tokens consumed by counting characters in recently-read

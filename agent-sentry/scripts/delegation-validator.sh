@@ -52,13 +52,13 @@ fi
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-DASHBOARD_DATA="$REPO_ROOT/agent-sentry/dashboard/data"
-LOG_FILE="$DASHBOARD_DATA/delegation-log.json"
+RUNTIME_DATA="$HOME/.agent-sentry/data"
+LOG_FILE="$RUNTIME_DATA/delegation-log.json"
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
 COST_STATE="$TMPBASE/cost-state"
 
 # Ensure directories exist
-mkdir -p "$DASHBOARD_DATA" "$TMPBASE"
+mkdir -p "$RUNTIME_DATA" "$TMPBASE"
 
 # ---------------------------------------------------------------------------
 # 1. Read hook input from stdin (Claude Code hook protocol)

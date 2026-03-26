@@ -11,11 +11,11 @@ TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
 COST_STATE="$TMPBASE/cost-state"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
-DASHBOARD_DATA="$SCRIPT_DIR/../dashboard/data"
-COST_LOG="$DASHBOARD_DATA/cost-log.json"
+RUNTIME_DATA="$HOME/.agent-sentry/data"
+COST_LOG="$RUNTIME_DATA/cost-log.json"
 
 # Ensure directories exist
-mkdir -p "$TMPBASE" "$DASHBOARD_DATA"
+mkdir -p "$TMPBASE" "$RUNTIME_DATA"
 
 # --- Read hook input from stdin (non-blocking) ---
 hook_input=""
