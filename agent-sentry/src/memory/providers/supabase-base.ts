@@ -359,6 +359,42 @@ export abstract class SupabaseBaseProvider implements StorageProvider {
    * Build the event insertion body from an OpsEvent.
    * Shared by both provider implementations.
    */
+  // ── Text search (shared by both direct and pooled providers) ────────
+
+  async textSearch(query: string, options: QueryOptions): Promise<OpsEvent[]> {
+    const encodedQuery = encodeURIComponent(`%${query}%`);
+    const params: string[] = [
+      `or=(title.ilike.${encodedQuery},detail.ilike.${encodedQuery})`,
+    ];
+
+    const filterParams = this.buildQueryParams(options);
+    params.push(...filterParams);
+
+    const limit = options.limit ?? 10;
+    const offset = options.offset ?? 0;
+    params.push(`order=timestamp.desc`);
+    params.push(`limit=${limit}`);
+    params.push(`offset=${offset}`);
+
+    const qs = params.join('&');
+    const rows = await this.request<Record<string, unknown>[]>(`/rest/v1/ops_events?${qs}`, { method: 'GET' });
+    return (rows || []).map((r) => this.rowToEvent(r));
+  }
+
+  // ── Latest hash (for thread-safe chain linking) ────────────────────
+
+  async getLatestHash(): Promise<string | null> {
+    try {
+      const rows = await this.request<Array<{ hash: string }>>(
+        '/rest/v1/ops_events?select=hash&order=timestamp.desc&limit=1',
+        { method: 'GET' },
+      );
+      return rows?.[0]?.hash ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   // ── Atomic lock support (database-level CAS via PostgREST) ─────────
 
   async atomicLockAcquire(resource: string, holder: string, fencingToken: number, expiresAt: string): Promise<boolean> {

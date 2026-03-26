@@ -10,7 +10,7 @@ import * as http from 'http';
 import { SupabaseBaseProvider, SupabaseRequestOptions } from './supabase-base';
 import { Logger } from '../../observability/logger';
 import { retry } from '../../observability/circuit-breaker';
-import { OpsEvent, QueryOptions } from '../schema';
+import { OpsEvent } from '../schema';
 
 const logger = new Logger({ module: 'supabase-provider' });
 
@@ -71,30 +71,7 @@ export class SupabaseProvider extends SupabaseBaseProvider {
     return this.rowToEvent(rows[0]);
   }
 
-  async textSearch(query: string, options: QueryOptions): Promise<OpsEvent[]> {
-    const encodedQuery = encodeURIComponent(`%${query}%`);
-    const params: string[] = [
-      `or=(title.ilike.${encodedQuery},detail.ilike.${encodedQuery})`,
-    ];
-
-    if (options.event_type) params.push(`event_type=eq.${options.event_type}`);
-    if (options.severity) params.push(`severity=eq.${options.severity}`);
-    if (options.skill) params.push(`skill=eq.${options.skill}`);
-    if (options.since) params.push(`timestamp=gte.${encodeURIComponent(options.since)}`);
-    if (options.until) params.push(`timestamp=lte.${encodeURIComponent(options.until)}`);
-    if (options.session_id) params.push(`session_id=eq.${encodeURIComponent(options.session_id)}`);
-    if (options.agent_id) params.push(`agent_id=eq.${encodeURIComponent(options.agent_id)}`);
-
-    const limit = options.limit ?? 10;
-    const offset = options.offset ?? 0;
-    params.push(`order=timestamp.desc`);
-    params.push(`limit=${limit}`);
-    params.push(`offset=${offset}`);
-
-    const qs = params.join('&');
-    const rows = await this.request<Record<string, unknown>[]>(`/rest/v1/ops_events?${qs}`, { method: 'GET' });
-    return (rows || []).map((r) => this.rowToEvent(r));
-  }
+  // textSearch and getLatestHash inherited from SupabaseBaseProvider
 
   // ── UUID validation for prune ───────────────────────────────────────────
 

@@ -7,13 +7,14 @@ import * as path from 'path';
 import { StorageProvider } from './storage-provider';
 import { SqliteProvider } from './sqlite-provider';
 import { SupabaseProvider } from './supabase-provider';
+import { PooledSupabaseProvider } from './pooled-supabase-provider';
 import { resolveConfigPath, resolveDatabasePath } from '../../config/resolve';
 import { Logger } from '../../observability/logger';
 
 const logger = new Logger({ module: 'provider-factory' });
 export interface MemoryConfig {
   enabled: boolean;
-  provider: 'sqlite' | 'supabase';
+  provider: 'sqlite' | 'supabase' | 'pooled-supabase';
   embedding_provider: 'auto' | 'onnx' | 'ollama' | 'openai' | 'voyage' | 'noop';
   database_path: string;
   max_events: number;
@@ -56,6 +57,13 @@ export function createProvider(config?: MemoryConfig): StorageProvider {
 
   if (cfg.provider === 'supabase') {
     return new SupabaseProvider({
+      url: cfg.supabase_url,
+      serviceRoleKey: cfg.supabase_service_role_key,
+    });
+  }
+
+  if (cfg.provider === 'pooled-supabase') {
+    return new PooledSupabaseProvider({
       url: cfg.supabase_url,
       serviceRoleKey: cfg.supabase_service_role_key,
     });

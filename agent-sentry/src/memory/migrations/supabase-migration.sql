@@ -108,7 +108,9 @@ returns void
 language plpgsql
 as $$
 begin
-  -- Tables already created above, this is a no-op health check
+  -- Health check: verify all required tables exist
   perform 1 from ops_events limit 1;
+  perform 1 from chain_checkpoints limit 1;
+  perform 1 from coordination_locks limit 1;
 end;
 $$;

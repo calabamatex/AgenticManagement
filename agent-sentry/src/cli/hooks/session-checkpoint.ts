@@ -168,6 +168,34 @@ async function main(): Promise<void> {
   // Step 3: Auto-save handoff for next session
   await autoSaveHandoff();
 
+  // Step 3b: Sync hook logs to MemoryStore if log_sync is enabled
+  const logSync = config?.log_sync as Record<string, unknown> | undefined;
+  if (logSync?.enabled && logSync?.on_session_end) {
+    try {
+      const { LogForwarder } = await import('../../observability/log-forwarder');
+      const { createProvider } = await import('../../memory/providers/provider-factory');
+      const { MemoryStore } = await import('../../memory/store');
+      const { NoopEmbeddingProvider } = await import('../../memory/embeddings');
+
+      const provider = createProvider();
+      const logStore = new MemoryStore({ provider, embeddingProvider: new NoopEmbeddingProvider() });
+      await logStore.initialize();
+
+      const forwarder = new LogForwarder(logStore, dashboardData);
+      const results = await forwarder.forward();
+      const totalForwarded = results.reduce((sum, r) => sum + r.forwarded, 0);
+
+      if (totalForwarded > 0) {
+        console.log(`${PREFIX} Synced ${totalForwarded} log entries to MemoryStore.`);
+      }
+
+      await logStore.close();
+    } catch (e) {
+      logger.debug('Log sync failed', { error: e instanceof Error ? e.message : String(e) });
+      console.log(`${PREFIX} Log sync skipped (not critical).`);
+    }
+  }
+
   // Step 4: Log session-end event with snapshot SHA
   if (snapshotSha) {
     logEvent(sessionLog, `Session ended with stash snapshot: ${snapshotSha}`, 'info');
