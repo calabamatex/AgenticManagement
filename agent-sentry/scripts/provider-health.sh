@@ -8,13 +8,13 @@ set -euo pipefail
 
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DASHBOARD_DATA="$SCRIPT_DIR/../dashboard/data"
-COST_LOG="$DASHBOARD_DATA/cost-log.json"
-HEALTH_LOG="$DASHBOARD_DATA/provider-health.json"
+RUNTIME_DATA="$HOME/.agent-sentry/data"
+COST_LOG="$RUNTIME_DATA/cost-log.json"
+HEALTH_LOG="$RUNTIME_DATA/provider-health.json"
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
 PROVIDER_STATE="$TMPBASE/provider-state"
 
-mkdir -p "$TMPBASE" "$DASHBOARD_DATA" "$PROVIDER_STATE"
+mkdir -p "$TMPBASE" "$RUNTIME_DATA" "$PROVIDER_STATE"
 
 # --- Helper: extract JSON value (jq with grep/sed fallback) ---
 json_val() {
