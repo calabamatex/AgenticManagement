@@ -52,13 +52,14 @@ fi
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-DASHBOARD_DATA="$REPO_ROOT/agent-sentry/dashboard/data"
-LOG_FILE="$DASHBOARD_DATA/delegation-log.json"
+# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
+RUNTIME_DATA="$TMPBASE/data"
+LOG_FILE="$RUNTIME_DATA/delegation-log.json"
 COST_STATE="$TMPBASE/cost-state"
 
 # Ensure directories exist
-mkdir -p "$DASHBOARD_DATA" "$TMPBASE"
+mkdir -p "$RUNTIME_DATA" "$TMPBASE"
 
 # ---------------------------------------------------------------------------
 # 1. Read hook input from stdin (Claude Code hook protocol)
@@ -271,7 +272,7 @@ if [[ -n "$SCOPE_MAX_TOKENS" && "$SCOPE_MAX_TOKENS" != "null" && "$SCOPE_MAX_TOK
         # Simpler approach: read session_calls * estimated tokens, or parse cost-log.
         # Best approach: sum input_tokens + output_tokens from cost-log entries
         # since the delegation was issued.
-        if [[ -f "$DASHBOARD_DATA/cost-log.json" && -n "$TOKEN_ISSUED" ]]; then
+        if [[ -f "$RUNTIME_DATA/cost-log.json" && -n "$TOKEN_ISSUED" ]]; then
             CURRENT_TOKENS="$(node -e "
 const fs = require('fs');
 const issued = process.argv[1];
@@ -293,7 +294,7 @@ try {
   }
   process.stdout.write(String(total));
 } catch { process.stdout.write('0'); }
-" "$TOKEN_ISSUED" "$DASHBOARD_DATA/cost-log.json" 2>/dev/null)" || true
+" "$TOKEN_ISSUED" "$RUNTIME_DATA/cost-log.json" 2>/dev/null)" || true
         fi
     fi
 

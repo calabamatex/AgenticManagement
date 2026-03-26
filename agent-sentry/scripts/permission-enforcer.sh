@@ -49,7 +49,10 @@ PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENTS_DIR="$REPO_ROOT/.claude/agents"
-LOG_FILE="$REPO_ROOT/agent-sentry/dashboard/data/permission-log.json"
+# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
+_RUNTIME_DATA="${TMPDIR:-/tmp}/agent-sentry/data"
+mkdir -p "$_RUNTIME_DATA"
+LOG_FILE="$_RUNTIME_DATA/permission-log.json"
 CONFIG_FILE="$SCRIPT_DIR/../agent-sentry.config.json"
 PERMISSION_FAIL_MODE=$(jq -r '.security.permission_fail_mode // "block"' "$CONFIG_FILE" 2>/dev/null || echo "block")
 

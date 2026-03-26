@@ -8,13 +8,14 @@ set -euo pipefail
 
 PREFIX="[AgentSentry]"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DASHBOARD_DATA="$SCRIPT_DIR/../dashboard/data"
-COST_LOG="$DASHBOARD_DATA/cost-log.json"
-HEALTH_LOG="$DASHBOARD_DATA/provider-health.json"
+# Runtime data goes to /tmp, not the repo (avoids git-check feedback loops)
 TMPBASE="${TMPDIR:-/tmp}/agent-sentry"
+RUNTIME_DATA="$TMPBASE/data"
+COST_LOG="$RUNTIME_DATA/cost-log.json"
+HEALTH_LOG="$RUNTIME_DATA/provider-health.json"
 PROVIDER_STATE="$TMPBASE/provider-state"
 
-mkdir -p "$TMPBASE" "$DASHBOARD_DATA" "$PROVIDER_STATE"
+mkdir -p "$TMPBASE" "$RUNTIME_DATA" "$PROVIDER_STATE"
 
 # --- Helper: extract JSON value (jq with grep/sed fallback) ---
 json_val() {
