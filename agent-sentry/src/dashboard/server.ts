@@ -8,6 +8,9 @@
  *   /api/metrics → Prometheus text metrics
  *   /api/plugins → Plugin list
  *   /api/stats  → Memory store stats
+ *   /api/enablement → Enablement config header & panels
+ *   /api/streaming  → Event stream stats
+ *   /api/coordination → Agent coordination list
  *
  * Zero external dependencies — uses only Node built-in http.
  */
@@ -24,6 +27,9 @@ import { PluginRegistry } from '../plugins/registry';
 import { getDashboardHtml } from './html';
 import { VERSION } from '../version';
 import { MemoryStore } from '../memory/store';
+import { getDashboardHeader, getDashboardPanels, DashboardHeader, DashboardPanel } from '../enablement/dashboard-adapter';
+import { EnablementConfig } from '../enablement/engine';
+import { AgentCoordinator } from '../coordination/coordinator';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,6 +50,10 @@ export interface DashboardServerOptions {
   pluginRegistry?: PluginRegistry;
   /** Optional MemoryStore for enriched /api/stats responses. */
   memoryStore?: MemoryStore;
+  /** Optional EnablementConfig for /api/enablement endpoint. */
+  enablementConfig?: EnablementConfig;
+  /** Optional AgentCoordinator for /api/coordination endpoint. */
+  coordinator?: AgentCoordinator;
 }
 
 export interface DashboardServerInfo {
@@ -62,7 +72,9 @@ export class DashboardServer {
   private healthChecker: HealthChecker;
   private pluginRegistry: PluginRegistry;
   private memoryStore?: MemoryStore;
-  private options: Required<Omit<DashboardServerOptions, 'eventStream' | 'healthChecker' | 'pluginRegistry' | 'memoryStore'>>;
+  private enablementConfig?: EnablementConfig;
+  private coordinator?: AgentCoordinator;
+  private options: Required<Omit<DashboardServerOptions, 'eventStream' | 'healthChecker' | 'pluginRegistry' | 'memoryStore' | 'enablementConfig' | 'coordinator'>>;
   private startTime = 0;
 
   constructor(options?: DashboardServerOptions) {
@@ -76,6 +88,8 @@ export class DashboardServer {
     this.healthChecker = options?.healthChecker ?? new HealthChecker({ version: VERSION });
     this.pluginRegistry = options?.pluginRegistry ?? new PluginRegistry();
     this.memoryStore = options?.memoryStore;
+    this.enablementConfig = options?.enablementConfig;
+    this.coordinator = options?.coordinator;
 
     // Register default health checks
     this.healthChecker.registerCheck('memory', memoryUsageCheck());
@@ -175,6 +189,21 @@ export class DashboardServer {
 
     if (path === '/api/stats') {
       this.handleStats(res);
+      return;
+    }
+
+    if (path === '/api/enablement') {
+      this.handleEnablement(res);
+      return;
+    }
+
+    if (path === '/api/streaming') {
+      this.handleStreaming(res);
+      return;
+    }
+
+    if (path === '/api/coordination') {
+      this.handleCoordination(res);
       return;
     }
 
@@ -291,6 +320,49 @@ export class DashboardServer {
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(streamStats));
+  }
+
+  private handleEnablement(res: http.ServerResponse): void {
+    if (!this.enablementConfig) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Enablement not configured' }));
+      return;
+    }
+
+    const header = getDashboardHeader(this.enablementConfig);
+    const panels = getDashboardPanels(this.enablementConfig);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ header, panels }));
+  }
+
+  private handleStreaming(res: http.ServerResponse): void {
+    if (!this.eventStream) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Event stream not configured' }));
+      return;
+    }
+
+    const stats = this.eventStream.getStats();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(stats));
+  }
+
+  private async handleCoordination(res: http.ServerResponse): Promise<void> {
+    if (!this.coordinator) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Coordination not configured' }));
+      return;
+    }
+
+    try {
+      const agents = await this.coordinator.listAgents();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ agents }));
+    } catch (e) {
+      logger.warn('Failed to list agents for dashboard', { error: e instanceof Error ? e.message : String(e) });
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to retrieve agent list' }));
+    }
   }
 
   private parseFilter(url: URL): StreamFilter {
