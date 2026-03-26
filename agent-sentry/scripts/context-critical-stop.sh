@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-# [AgentSentry] Context-Critical Stop Hook — blocks agent when context is critically full.
+# [AgentSentry] Context-Critical Stop Hook (DEPRECATED)
 #
-# This runs as a Stop hook. When context usage exceeds the critical threshold,
-# the script exits non-zero (exit 2) which blocks the agent from continuing
-# until the user runs /agent-sentry:handoff to generate a handoff prompt.
+# This logic has been merged into session-checkpoint.sh to avoid the Stop hook
+# feedback loop: when a Stop hook exits 0 with no output, the harness still
+# reports "No stderr output" as feedback, which becomes a new conversation turn,
+# triggering another response and another Stop hook invocation — infinite cycle.
+#
+# By consolidating into session-checkpoint.sh, we reduce the number of hooks
+# and ensure the healthy path produces zero output.
+#
+# This file is kept for backwards compatibility if called directly.
 #
 # Claude Code Stop hooks:
 #   exit 0 → allow (agent continues)

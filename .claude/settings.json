@@ -152,18 +152,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'exec node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/auto-memory-hook.mjs\" sync'",
+            "command": "sh -c 'exec node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/auto-memory-hook.mjs\" sync >/dev/null 2>&1'",
             "timeout": 10000
           },
           {
             "type": "command",
             "command": "bash agent-sentry/scripts/session-checkpoint.sh",
             "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "bash agent-sentry/scripts/context-critical-stop.sh",
-            "timeout": 5000
           }
         ]
       }
