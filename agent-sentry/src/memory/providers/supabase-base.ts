@@ -359,6 +359,94 @@ export abstract class SupabaseBaseProvider implements StorageProvider {
    * Build the event insertion body from an OpsEvent.
    * Shared by both provider implementations.
    */
+  // ── Atomic lock support (database-level CAS via PostgREST) ─────────
+
+  async atomicLockAcquire(resource: string, holder: string, fencingToken: number, expiresAt: string): Promise<boolean> {
+    const now = new Date().toISOString();
+
+    // Clean expired locks
+    try {
+      await this.request(`/rest/v1/coordination_locks?expires_at=lt.${encodeURIComponent(now)}`, {
+        method: 'DELETE',
+      });
+    } catch {
+      // Table may not exist yet — non-fatal
+    }
+
+    // Attempt insert — PostgREST returns 409 on conflict
+    try {
+      await this.request('/rest/v1/coordination_locks', {
+        method: 'POST',
+        body: {
+          resource,
+          holder,
+          fencing_token: fencingToken,
+          acquired_at: now,
+          expires_at: expiresAt,
+        },
+        headers: { 'Prefer': 'return=minimal' },
+      });
+      return true;
+    } catch {
+      // Conflict (already locked) — check if we hold it (re-entrant)
+      try {
+        const rows = await this.request<Array<{ holder: string }>>(
+          `/rest/v1/coordination_locks?resource=eq.${encodeURIComponent(resource)}&select=holder`,
+          { method: 'GET' },
+        );
+        return rows?.[0]?.holder === holder;
+      } catch {
+        return false;
+      }
+    }
+  }
+
+  async atomicLockRelease(resource: string, holder: string): Promise<boolean> {
+    try {
+      const result = await this.request<unknown[]>(
+        `/rest/v1/coordination_locks?resource=eq.${encodeURIComponent(resource)}&holder=eq.${encodeURIComponent(holder)}`,
+        {
+          method: 'DELETE',
+          headers: { 'Prefer': 'return=representation' },
+        },
+      );
+      return Array.isArray(result) && result.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  async atomicLockGet(resource: string): Promise<{ resource: string; holder: string; fencingToken: number; acquiredAt: string; expiresAt: string } | null> {
+    const now = new Date().toISOString();
+
+    // Clean expired
+    try {
+      await this.request(`/rest/v1/coordination_locks?expires_at=lt.${encodeURIComponent(now)}`, {
+        method: 'DELETE',
+      });
+    } catch {
+      // Non-fatal
+    }
+
+    try {
+      const rows = await this.request<Array<{ resource: string; holder: string; fencing_token: number; acquired_at: string; expires_at: string }>>(
+        `/rest/v1/coordination_locks?resource=eq.${encodeURIComponent(resource)}`,
+        { method: 'GET' },
+      );
+      if (!rows || rows.length === 0) return null;
+      const row = rows[0];
+      return {
+        resource: row.resource,
+        holder: row.holder,
+        fencingToken: row.fencing_token,
+        acquiredAt: row.acquired_at,
+        expiresAt: row.expires_at,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   protected buildInsertBody(event: OpsEvent): Record<string, unknown> {
     const body: Record<string, unknown> = {
       id: event.id,
