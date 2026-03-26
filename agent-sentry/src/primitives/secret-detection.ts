@@ -129,14 +129,19 @@ export function scanForSecrets(
   }
 
   for (const secretPattern of SECRET_PATTERNS) {
-    // Reset regex state for global patterns
-    const regex = new RegExp(secretPattern.pattern.source, secretPattern.pattern.flags);
-
     for (let lineNum = 0; lineNum < lines.length; lineNum++) {
       const line = lines[lineNum];
       let match: RegExpExecArray | null;
 
+      // Create a fresh regex per line to avoid lastIndex carrying over between lines
+      const regex = new RegExp(secretPattern.pattern.source, secretPattern.pattern.flags);
+
       while ((match = regex.exec(line)) !== null) {
+        // Guard against zero-length matches causing infinite loops
+        if (match[0].length === 0) {
+          regex.lastIndex++;
+          continue;
+        }
         const secretValue = extractSecret(match[0]);
         findings.push({
           type: secretPattern.type,
