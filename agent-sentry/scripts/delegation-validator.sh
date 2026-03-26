@@ -32,7 +32,7 @@
 # Exit 0:    Delegation valid (or no delegation token — direct user session).
 # Exit 2:    Delegation check failed — BLOCK the tool use.
 #
-# Logs every check to agent-sentry/dashboard/data/delegation-log.json (NDJSON).
+# Logs every check to /tmp/agent-sentry/data/delegation-log.json (NDJSON).
 # =============================================================================
 
 set -euo pipefail
