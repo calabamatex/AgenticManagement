@@ -69,6 +69,16 @@ emit_event() {
   local json
   json=$(printf '{"agent_id":"%s","from":"%s","to":"%s","timestamp":"%s"}' \
     "${agent_id}" "${from_state}" "${to_state}" "${ts}")
+  # Rotate if log exceeds limit (same policy as cost-log)
+  local max_entries=500
+  if [[ -f "${EVENT_LOG}" ]]; then
+    local count
+    count=$(wc -l < "${EVENT_LOG}")
+    if [[ "$count" -ge "$max_entries" ]]; then
+      local keep=$(( max_entries / 2 ))
+      tail -n "$keep" "${EVENT_LOG}" > "${EVENT_LOG}.tmp" && mv "${EVENT_LOG}.tmp" "${EVENT_LOG}"
+    fi
+  fi
   echo "${json}" >> "${EVENT_LOG}"
 }
 

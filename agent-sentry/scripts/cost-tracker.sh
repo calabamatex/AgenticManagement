@@ -195,6 +195,17 @@ elif [[ "$monthly_at_warn" == "1" ]]; then
     echo "$PREFIX WARN: Approaching monthly budget — \$$new_monthly / \$$MONTHLY_BUDGET (${monthly_pct}% used)."
 fi
 
+# --- Rotate cost log if it exceeds MAX_COST_LOG_ENTRIES ---
+MAX_COST_LOG_ENTRIES=500
+if [[ -f "$COST_LOG" ]]; then
+    line_count="$(wc -l < "$COST_LOG")"
+    if [[ "$line_count" -ge "$MAX_COST_LOG_ENTRIES" ]]; then
+        # Keep the most recent half of entries
+        keep=$(( MAX_COST_LOG_ENTRIES / 2 ))
+        tail -n "$keep" "$COST_LOG" > "$COST_LOG.tmp" && mv "$COST_LOG.tmp" "$COST_LOG"
+    fi
+fi
+
 # --- Append cost event as NDJSON ---
 printf '{"timestamp":"%s","type":"cost","model_tier":"%s","call_cost":"%s","session_total":"%s","session_calls":%d,"budget_status":"%s","budget_pct":"%s","input_tokens":%s,"output_tokens":%s,"monthly_total":"%s"}\n' \
     "$timestamp" \
