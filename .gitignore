@@ -32,6 +32,9 @@ Thumbs.db
 .idea/
 .vscode/settings.json
 
+# AgentSentry runtime data (symlinked to ~/.agent-sentry/data/)
+agent-sentry/dashboard/data/
+
 # SQLite databases (runtime data, not source)
 *.db
 *.db-journal
