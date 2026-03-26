@@ -6,7 +6,7 @@
  * Panel HTML is split into html-panels.ts to keep each file under 500 lines.
  */
 
-import { overviewTab, eventsTab, systemTab, agentsTab, pluginsTab } from './html-panels';
+import { dashboardCss, overviewTab, eventsTab, systemTab, agentsTab, pluginsTab } from './html-panels';
 
 export function getDashboardHtml(): string {
   return `<!DOCTYPE html>
