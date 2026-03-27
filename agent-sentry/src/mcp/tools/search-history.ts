@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { MemoryStore } from '../../memory/store';
+import { getSharedStore } from '../shared-store';
 import { EVENT_TYPES, SEVERITIES, type EventType, type Severity } from '../../memory/schema';
 
 export const name = 'agent_sentry_search_history';

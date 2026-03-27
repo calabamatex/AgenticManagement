@@ -4,6 +4,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import * as https from 'https';
 import * as http from 'http';
 import { Logger } from '../observability/logger';
@@ -21,6 +22,106 @@ const ONNX_MODEL_FILE = 'all-MiniLM-L6-v2.onnx';
 const ONNX_TOKENIZER_FILE = 'tokenizer.json';
 const ONNX_MODEL_URL = 'https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx';
 const ONNX_TOKENIZER_URL = 'https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer.json';
+
+/**
+ * SHA256 checksums for model files to prevent supply-chain attacks.
+ * Update these when upgrading to a new model version.
+ * To regenerate: sha256sum models/all-MiniLM-L6-v2.onnx models/tokenizer.json
+ */
+const ONNX_MODEL_CHECKSUMS: Record<string, string> = {
+  [ONNX_MODEL_FILE]: 'sha256:VERIFY_ON_FIRST_DOWNLOAD',
+  [ONNX_TOKENIZER_FILE]: 'sha256:VERIFY_ON_FIRST_DOWNLOAD',
+};
+
+/**
+ * Path to a local checksums file that persists verified hashes after first download.
+ * On first download, the checksum is recorded. On subsequent downloads, it is verified.
+ */
+const CHECKSUMS_FILE = path.join(ONNX_MODEL_DIR, 'checksums.sha256');
+
+/**
+ * Compute SHA256 hash of a file.
+ */
+function computeSha256(filePath: string): string {
+  const hash = crypto.createHash('sha256');
+  const data = fs.readFileSync(filePath);
+  hash.update(data);
+  return hash.digest('hex');
+}
+
+/**
+ * Load persisted checksums from disk.
+ */
+function loadChecksums(): Record<string, string> {
+  try {
+    if (fs.existsSync(CHECKSUMS_FILE)) {
+      return JSON.parse(fs.readFileSync(CHECKSUMS_FILE, 'utf8'));
+    }
+  } catch {
+    // Corrupted checksums file — treat as empty
+  }
+  return {};
+}
+
+/**
+ * Save checksums to disk.
+ */
+function saveChecksums(checksums: Record<string, string>): void {
+  const dir = path.dirname(CHECKSUMS_FILE);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(CHECKSUMS_FILE, JSON.stringify(checksums, null, 2));
+}
+
+/**
+ * Verify a downloaded file's SHA256 checksum.
+ *
+ * Strategy:
+ * 1. If a hardcoded checksum exists (not VERIFY_ON_FIRST_DOWNLOAD), verify against it.
+ * 2. If a persisted checksum exists in checksums.sha256, verify against it.
+ * 3. On first download (no prior checksum), record the hash (trust-on-first-use / TOFU).
+ *
+ * Throws on mismatch — the caller should clean up the file.
+ */
+async function verifyChecksum(filePath: string, filename: string): Promise<void> {
+  const actualHash = computeSha256(filePath);
+  const hardcoded = ONNX_MODEL_CHECKSUMS[filename];
+  const persisted = loadChecksums();
+
+  // Check hardcoded checksum first (if a real hash is set)
+  if (hardcoded && !hardcoded.endsWith('VERIFY_ON_FIRST_DOWNLOAD')) {
+    const expected = hardcoded.replace('sha256:', '');
+    if (actualHash !== expected) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      throw new Error(
+        `Checksum mismatch for ${filename}: expected ${expected}, got ${actualHash}. ` +
+        'The downloaded model may have been tampered with. Aborting.',
+      );
+    }
+    logger.info('Checksum verified (hardcoded)', { filename, hash: actualHash });
+    return;
+  }
+
+  // Check persisted checksum
+  if (persisted[filename]) {
+    if (actualHash !== persisted[filename]) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      throw new Error(
+        `Checksum mismatch for ${filename}: expected ${persisted[filename]}, got ${actualHash}. ` +
+        'The model file has changed since first download. If this is intentional, ' +
+        `delete ${CHECKSUMS_FILE} and re-download.`,
+      );
+    }
+    logger.info('Checksum verified (persisted)', { filename, hash: actualHash });
+    return;
+  }
+
+  // Trust-on-first-use: record the checksum
+  persisted[filename] = actualHash;
+  saveChecksums(persisted);
+  logger.warn('First download — recording checksum (TOFU)', { filename, hash: actualHash });
+}
 
 export class NoopEmbeddingProvider implements EmbeddingProvider {
   readonly name = 'noop';
@@ -55,7 +156,7 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
       await this.downloadModel(modelPath);
     }
     if (!fs.existsSync(tokenizerPath)) {
-      await this.downloadFile(ONNX_TOKENIZER_URL, tokenizerPath);
+      await this.downloadFile(ONNX_TOKENIZER_URL, tokenizerPath, ONNX_TOKENIZER_FILE);
     }
 
     try {
@@ -139,16 +240,18 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
   }
 
   private async downloadModel(destPath: string): Promise<void> {
-    await this.downloadFile(ONNX_MODEL_URL, destPath);
+    await this.downloadFile(ONNX_MODEL_URL, destPath, ONNX_MODEL_FILE);
   }
 
-  private async downloadFile(url: string, destPath: string): Promise<void> {
+  private async downloadFile(url: string, destPath: string, filename?: string): Promise<void> {
     const dir = path.dirname(destPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    return new Promise((resolve, reject) => {
+    const tmpPath = destPath + '.tmp';
+
+    await new Promise<void>((resolve, reject) => {
       const follow = (url: string, redirects: number) => {
         if (redirects > 5) {
           reject(new Error('Too many redirects'));
@@ -158,7 +261,6 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
         client.get(url, (res) => {
           if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
             let redirectUrl = res.headers.location;
-            // Handle relative redirects
             if (redirectUrl.startsWith('/')) {
               const parsed = new URL(url);
               redirectUrl = `${parsed.protocol}//${parsed.host}${redirectUrl}`;
@@ -170,14 +272,25 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
             reject(new Error(`Download failed: HTTP ${res.statusCode}`));
             return;
           }
-          const file = fs.createWriteStream(destPath);
+          const file = fs.createWriteStream(tmpPath);
           res.pipe(file);
           file.on('finish', () => { file.close(); resolve(); });
-          file.on('error', (err) => { fs.unlinkSync(destPath); reject(err); });
+          file.on('error', (err) => {
+            if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+            reject(err);
+          });
         }).on('error', reject);
       };
       follow(url, 0);
     });
+
+    // Verify checksum after download
+    if (filename) {
+      await verifyChecksum(tmpPath, filename);
+    }
+
+    // Atomic rename from tmp to final path
+    fs.renameSync(tmpPath, destPath);
   }
 }
 
