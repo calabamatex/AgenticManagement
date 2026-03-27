@@ -17,7 +17,7 @@ PREFIX="[AgentSentry]"
 MEDIUM_THRESHOLD=$(jq -r '.task_sizing.medium_risk_threshold // 4' "$CONFIG_FILE" 2>/dev/null || echo 4)
 HIGH_THRESHOLD=$(jq -r '.task_sizing.high_risk_threshold // 8' "$CONFIG_FILE" 2>/dev/null || echo 8)
 CRITICAL_THRESHOLD=$(jq -r '.task_sizing.critical_risk_threshold // 13' "$CONFIG_FILE" 2>/dev/null || echo 13)
-AUTO_COMMIT_ENABLED=$(jq -r '.save_points.auto_commit_enabled // true' "$CONFIG_FILE" 2>/dev/null || echo "true")
+AUTO_COMMIT_ENABLED=$(jq -r '.save_points.auto_commit_enabled // false' "$CONFIG_FILE" 2>/dev/null || echo "false")
 
 # ---------------------------------------------------------------------------
 # Read the user prompt from stdin (JSON or plain text)

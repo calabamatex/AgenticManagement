@@ -32,19 +32,14 @@ const mockStats = {
   last_event: '2026-03-20T12:00:00.000Z',
 };
 
-const mockVerifyChain = vi.fn().mockResolvedValue({ valid: true, total_checked: 42 });
-const mockInitialize = vi.fn().mockResolvedValue(undefined);
-const mockStatsFn = vi.fn().mockResolvedValue(mockStats);
-const mockClose = vi.fn().mockResolvedValue(undefined);
+const mockVerifyChain = vi.fn();
+const mockInitialize = vi.fn();
+const mockStatsFn = vi.fn();
+const mockClose = vi.fn();
 
-vi.mock('../../../src/memory/store', () => {
+vi.mock('../../../src/mcp/shared-store', () => {
   return {
-    MemoryStore: vi.fn().mockImplementation(() => ({
-      initialize: mockInitialize,
-      stats: mockStatsFn,
-      verifyChain: mockVerifyChain,
-      close: mockClose,
-    })),
+    getSharedStore: vi.fn(),
   };
 });
 
@@ -82,17 +77,24 @@ vi.mock('../../../src/enablement/engine', () => ({
 }));
 
 import { handler } from '../../../src/mcp/tools/health';
-import { MemoryStore } from '../../../src/memory/store';
+import { getSharedStore } from '../../../src/mcp/shared-store';
 import { detectEmbeddingProvider } from '../../../src/memory/embeddings';
+
+const mockGetSharedStore = getSharedStore as unknown as ReturnType<typeof vi.fn>;
 
 describe('agent_sentry_health', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Re-apply defaults after clearAllMocks
     mockInitialize.mockResolvedValue(undefined);
     mockStatsFn.mockResolvedValue(mockStats);
     mockVerifyChain.mockResolvedValue({ valid: true, total_checked: 42 });
     mockClose.mockResolvedValue(undefined);
+    mockGetSharedStore.mockResolvedValue({
+      initialize: mockInitialize,
+      stats: mockStatsFn,
+      verifyChain: mockVerifyChain,
+      close: mockClose,
+    });
   });
 
   it('should return healthy status with store stats', async () => {
@@ -163,7 +165,6 @@ describe('agent_sentry_health', () => {
     expect(parsed.enablement.level).toBeGreaterThanOrEqual(1);
     expect(parsed.enablement.level).toBeLessThanOrEqual(5);
     expect(Array.isArray(parsed.enablement.active_skills)).toBe(true);
-    // Level 1+ always has save_points active
     if (parsed.enablement.level >= 1) {
       expect(parsed.enablement.active_skills).toContain('save_points');
     }
@@ -195,7 +196,7 @@ describe('agent_sentry_health', () => {
   });
 
   it('should return error status on store failure', async () => {
-    mockInitialize.mockRejectedValueOnce(new Error('DB unavailable'));
+    mockGetSharedStore.mockRejectedValueOnce(new Error('DB unavailable'));
 
     const result = await handler({});
     const parsed = JSON.parse(result.content[0].text);
@@ -207,11 +208,10 @@ describe('agent_sentry_health', () => {
     expect(parsed.embedding.available).toBe(false);
   });
 
-  it('should close store after stats retrieval', async () => {
+  it('should use the shared store singleton', async () => {
     await handler({});
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.close).toHaveBeenCalled();
+    expect(mockGetSharedStore).toHaveBeenCalled();
   });
 
   it('should include all top-level fields', async () => {

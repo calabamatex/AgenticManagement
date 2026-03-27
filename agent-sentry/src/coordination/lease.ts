@@ -75,16 +75,50 @@ export class LeaseManager {
 
   /**
    * Monotonic fencing token counter.
-   * Starts at Date.now() to ensure tokens are globally ordered even across
-   * process restarts (assuming no backward clock jumps).
+   * Initialized to max(Date.now(), highest persisted token + 1) to guarantee
+   * monotonicity across process restarts even with clock skew.
    */
   private nextFencingToken: number;
+  private initialized = false;
 
   constructor(options: LeaseManagerOptions) {
     this.store = options.store;
     this.defaultTtlMs = options.defaultTtlMs ?? 60_000;
     this.maxRenewals = options.maxRenewals ?? 10;
     this.nextFencingToken = Date.now();
+  }
+
+  /**
+   * Ensure the fencing token counter is initialized above any persisted token.
+   * Must be called before issuing new tokens. Idempotent after first call.
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    try {
+      const events = await this.store.list({
+        tag: TAG_LEASE,
+        event_type: 'decision',
+        skill: 'system',
+        limit: 1000,
+      });
+
+      let maxToken = 0;
+      for (const evt of events) {
+        const meta = evt.metadata as Record<string, unknown>;
+        const lease = meta.lease as Lease | undefined;
+        if (lease && typeof lease.fencingToken === 'number' && lease.fencingToken > maxToken) {
+          maxToken = lease.fencingToken;
+        }
+      }
+
+      // Ensure we start above both the current time and the highest persisted token
+      this.nextFencingToken = Math.max(Date.now(), maxToken + 1);
+    } catch {
+      // If we can't read persisted tokens, fall back to Date.now()
+      // which is safe in the common case (no backward clock jumps)
+    }
   }
 
   /**
@@ -101,6 +135,7 @@ export class LeaseManager {
     holder: string,
     ttlMs?: number,
   ): Promise<Lease | null> {
+    await this.ensureInitialized();
     const existing = await this.get(resource);
 
     // Resource is held by someone else and not expired

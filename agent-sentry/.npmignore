@@ -6,15 +6,9 @@ tracing/
 dashboard/data/
 evals/
 models/
-templates/
 proposals/
-plugins/
-scripts/
 docs/
-config/
 bin/
 .swarm/
-*.config.json
 *.config.ts
 tsconfig.json
-README.md

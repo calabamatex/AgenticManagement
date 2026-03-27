@@ -86,7 +86,7 @@ function checkBlastRadius(filePath: string): void {
 
   const config = readConfig();
   const savePoints = config?.save_points as Record<string, unknown> | undefined;
-  const autoEnabled = savePoints?.auto_commit_enabled ?? true;
+  const autoEnabled = savePoints?.auto_commit_enabled ?? false;
 
   if (!autoEnabled) {
     console.log(`${PREFIX} ADVISORY: Auto-checkpoint would fire (blast radius ${uniqueCount} files) but auto_commit_enabled=false.`);

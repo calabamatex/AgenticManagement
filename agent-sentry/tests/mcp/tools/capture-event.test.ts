@@ -4,40 +4,48 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock MemoryStore before importing the handler
-vi.mock('../../../src/memory/store', () => {
-  const mockCapture = vi.fn().mockResolvedValue({
-    id: 'test-id-123',
-    timestamp: '2026-03-20T00:00:00.000Z',
-    session_id: 'test-session',
-    agent_id: 'mcp-server',
-    event_type: 'decision',
-    severity: 'low',
-    skill: 'system',
-    title: 'Test event',
-    detail: 'Test detail',
-    affected_files: [],
-    tags: [],
-    metadata: {},
-    hash: 'abc123',
-    prev_hash: '0'.repeat(64),
-  });
+const mockCapture = vi.fn();
+const mockClose = vi.fn();
+const mockInitialize = vi.fn();
 
+// vi.mock is hoisted — use vi.fn() directly in factory (no top-level object refs)
+vi.mock('../../../src/mcp/shared-store', () => {
   return {
-    MemoryStore: vi.fn().mockImplementation(() => ({
-      initialize: vi.fn().mockResolvedValue(undefined),
-      capture: mockCapture,
-      close: vi.fn().mockResolvedValue(undefined),
-    })),
+    getSharedStore: vi.fn(),
   };
 });
 
 import { handler } from '../../../src/mcp/tools/capture-event';
-import { MemoryStore } from '../../../src/memory/store';
+import { getSharedStore } from '../../../src/mcp/shared-store';
+
+const mockGetSharedStore = getSharedStore as unknown as ReturnType<typeof vi.fn>;
 
 describe('agent_sentry_capture_event', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCapture.mockResolvedValue({
+      id: 'test-id-123',
+      timestamp: '2026-03-20T00:00:00.000Z',
+      session_id: 'test-session',
+      agent_id: 'mcp-server',
+      event_type: 'decision',
+      severity: 'low',
+      skill: 'system',
+      title: 'Test event',
+      detail: 'Test detail',
+      affected_files: [],
+      tags: [],
+      metadata: {},
+      hash: 'abc123',
+      prev_hash: '0'.repeat(64),
+    });
+    mockClose.mockResolvedValue(undefined);
+    mockInitialize.mockResolvedValue(undefined);
+    mockGetSharedStore.mockResolvedValue({
+      initialize: mockInitialize,
+      capture: mockCapture,
+      close: mockClose,
+    });
   });
 
   it('should capture a valid event', async () => {
@@ -55,7 +63,7 @@ describe('agent_sentry_capture_event', () => {
     expect(parsed.severity).toBe('low');
   });
 
-  it('should initialize and close the store', async () => {
+  it('should use the shared store singleton', async () => {
     await handler({
       event_type: 'decision',
       severity: 'low',
@@ -64,9 +72,8 @@ describe('agent_sentry_capture_event', () => {
       detail: 'Test',
     });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.initialize).toHaveBeenCalled();
-    expect(storeInstance.close).toHaveBeenCalled();
+    expect(mockGetSharedStore).toHaveBeenCalled();
+    expect(mockCapture).toHaveBeenCalled();
   });
 
   it('should pass affected_files and tags', async () => {
@@ -80,8 +87,7 @@ describe('agent_sentry_capture_event', () => {
       tags: ['safety', 'violation'],
     });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    const captureCall = storeInstance.capture.mock.calls[0][0];
+    const captureCall = mockCapture.mock.calls[0][0];
     expect(captureCall.affected_files).toEqual(['src/test.ts']);
     expect(captureCall.tags).toEqual(['safety', 'violation']);
   });
@@ -95,8 +101,7 @@ describe('agent_sentry_capture_event', () => {
       detail: 'Test',
     });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    const captureCall = storeInstance.capture.mock.calls[0][0];
+    const captureCall = mockCapture.mock.calls[0][0];
     expect(captureCall.affected_files).toEqual([]);
     expect(captureCall.tags).toEqual([]);
   });
@@ -137,11 +142,7 @@ describe('agent_sentry_capture_event', () => {
   });
 
   it('should handle store errors gracefully', async () => {
-    const storeModule = await import('../../../src/memory/store');
-    (storeModule.MemoryStore as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      initialize: vi.fn().mockRejectedValue(new Error('DB connection failed')),
-      close: vi.fn().mockResolvedValue(undefined),
-    }));
+    mockGetSharedStore.mockRejectedValueOnce(new Error('DB connection failed'));
 
     const result = await handler({
       event_type: 'decision',

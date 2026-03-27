@@ -39,7 +39,7 @@ else
     AUTO_COMMIT_MINUTES=30
 fi
 
-AUTO_COMMIT_ENABLED=$(jq -r '.save_points.auto_commit_enabled // true' "$CONFIG_FILE" 2>/dev/null || echo "true")
+AUTO_COMMIT_ENABLED=$(jq -r '.save_points.auto_commit_enabled // false' "$CONFIG_FILE" 2>/dev/null || echo "false")
 
 # Auto-checkpoint mode: auto | dry-run | confirm
 CHECKPOINT_MODE="auto"

@@ -69,7 +69,7 @@ function stashSnapshot(config: Record<string, unknown>): string {
 
   const summary = `${changedFiles} file(s) changed`;
   const savePoints = config?.save_points as Record<string, unknown> | undefined;
-  const autoEnabled = savePoints?.auto_commit_enabled ?? true;
+  const autoEnabled = savePoints?.auto_commit_enabled ?? false;
 
   if (!autoEnabled) {
     console.log(`${PREFIX} Uncommitted changes detected (${summary}). Auto-snapshot disabled — skipping.`);

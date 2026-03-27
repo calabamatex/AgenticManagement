@@ -45,22 +45,27 @@ const mockSearchResults = [
   },
 ];
 
-vi.mock('../../../src/memory/store', () => {
+const mockSearch = vi.fn();
+
+vi.mock('../../../src/mcp/shared-store', () => {
   return {
-    MemoryStore: vi.fn().mockImplementation(() => ({
-      initialize: vi.fn().mockResolvedValue(undefined),
-      search: vi.fn().mockResolvedValue(mockSearchResults),
-      close: vi.fn().mockResolvedValue(undefined),
-    })),
+    getSharedStore: vi.fn(),
   };
 });
 
 import { handler } from '../../../src/mcp/tools/search-history';
-import { MemoryStore } from '../../../src/memory/store';
+import { getSharedStore } from '../../../src/mcp/shared-store';
+
+const mockGetSharedStore = getSharedStore as unknown as ReturnType<typeof vi.fn>;
 
 describe('agent_sentry_search_history', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSearch.mockResolvedValue(mockSearchResults);
+    mockGetSharedStore.mockResolvedValue({
+      search: mockSearch,
+      close: vi.fn(),
+    });
   });
 
   it('should search with query and return results', async () => {
@@ -76,15 +81,13 @@ describe('agent_sentry_search_history', () => {
   it('should pass limit option to store', async () => {
     await handler({ query: 'test', limit: 5 });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.search).toHaveBeenCalledWith('test', expect.objectContaining({ limit: 5 }));
+    expect(mockSearch).toHaveBeenCalledWith('test', expect.objectContaining({ limit: 5 }));
   });
 
   it('should pass event_type filter', async () => {
     await handler({ query: 'test', event_type: 'violation' });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.search).toHaveBeenCalledWith(
+    expect(mockSearch).toHaveBeenCalledWith(
       'test',
       expect.objectContaining({ event_type: 'violation' }),
     );
@@ -93,8 +96,7 @@ describe('agent_sentry_search_history', () => {
   it('should pass severity filter', async () => {
     await handler({ query: 'test', severity: 'high' });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.search).toHaveBeenCalledWith(
+    expect(mockSearch).toHaveBeenCalledWith(
       'test',
       expect.objectContaining({ severity: 'high' }),
     );
@@ -103,8 +105,7 @@ describe('agent_sentry_search_history', () => {
   it('should pass since filter', async () => {
     await handler({ query: 'test', since: '2026-03-19T00:00:00.000Z' });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.search).toHaveBeenCalledWith(
+    expect(mockSearch).toHaveBeenCalledWith(
       'test',
       expect.objectContaining({ since: '2026-03-19T00:00:00.000Z' }),
     );
@@ -113,8 +114,7 @@ describe('agent_sentry_search_history', () => {
   it('should default limit to 10', async () => {
     await handler({ query: 'test' });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.search).toHaveBeenCalledWith(
+    expect(mockSearch).toHaveBeenCalledWith(
       'test',
       expect.objectContaining({ limit: 10 }),
     );
@@ -127,19 +127,14 @@ describe('agent_sentry_search_history', () => {
     expect(parsed.error).toBeDefined();
   });
 
-  it('should close store after search', async () => {
+  it('should use the shared store singleton', async () => {
     await handler({ query: 'test' });
 
-    const storeInstance = (MemoryStore as unknown as ReturnType<typeof vi.fn>).mock.results[0].value;
-    expect(storeInstance.close).toHaveBeenCalled();
+    expect(mockGetSharedStore).toHaveBeenCalled();
   });
 
   it('should handle store errors gracefully', async () => {
-    const storeModule = await import('../../../src/memory/store');
-    (storeModule.MemoryStore as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      initialize: vi.fn().mockRejectedValue(new Error('Search failed')),
-      close: vi.fn().mockResolvedValue(undefined),
-    }));
+    mockGetSharedStore.mockRejectedValueOnce(new Error('Search failed'));
 
     const result = await handler({ query: 'test' });
     const parsed = JSON.parse(result.content[0].text);
