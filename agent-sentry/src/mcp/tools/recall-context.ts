@@ -6,7 +6,7 @@
  */
 
 import { ContextRecaller } from '../../memory/intelligence';
-import { MemoryStore } from '../../memory/store';
+import { getSharedStore } from '../shared-store';
 
 export const name = 'agent_sentry_recall_context';
 
@@ -47,12 +47,10 @@ export async function handler(
   const lookbackDays = typeof args.lookback_days === 'number' ? args.lookback_days : 90;
 
   try {
-    const store = new MemoryStore();
+    const store = await getSharedStore();
     const recaller = new ContextRecaller(store);
 
     const result = await recaller.recall(query, { maxResults, lookbackDays });
-
-    await store.close();
 
     if (result.results.length === 0) {
       return {

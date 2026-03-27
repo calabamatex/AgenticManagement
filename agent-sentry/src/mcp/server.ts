@@ -8,8 +8,12 @@ import {
   CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { createStdioTransport, createHttpTransport } from './transport';
+import { shutdownSharedStore } from './shared-store';
 import { VERSION } from '../version';
 import { Logger } from '../observability/logger';
+
+/** Default timeout for tool execution in milliseconds (30 seconds). */
+const TOOL_TIMEOUT_MS = 30_000;
 
 const logger = new Logger({ module: 'mcp-server' });
 
@@ -108,7 +112,12 @@ export function createMcpServer(): Server {
 
     try {
       const args = (request.params.arguments ?? {}) as Record<string, unknown>;
-      const result = await tool.handler(args);
+      const result = await Promise.race([
+        tool.handler(args),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`Tool '${toolName}' timed out after ${TOOL_TIMEOUT_MS}ms`)), TOOL_TIMEOUT_MS),
+        ),
+      ]);
       return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
