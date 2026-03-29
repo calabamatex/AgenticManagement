@@ -117,7 +117,12 @@ export class EventStream extends EventEmitter {
       this.emit('heartbeat');
       for (const client of this.clients.values()) {
         try {
-          client.send({ id: '', type: 'heartbeat', timestamp: new Date().toISOString(), data: {} });
+          const result = client.send({ id: '', type: 'heartbeat', timestamp: new Date().toISOString(), data: {} });
+          if (result && typeof (result as Promise<void>).catch === 'function') {
+            void (result as Promise<void>).catch((e) => {
+              logger.debug('Heartbeat send failed for client', { error: errorMessage(e) });
+            });
+          }
         } catch (e) {
           logger.debug('Heartbeat send failed for client', { error: errorMessage(e) });
         }
@@ -296,7 +301,12 @@ export class EventStream extends EventEmitter {
 
     for (const event of events) {
       try {
-        client.send(event);
+        const result = client.send(event);
+        if (result && typeof (result as Promise<void>).catch === 'function') {
+          void (result as Promise<void>).catch((e) => {
+            logger.debug('Replay send failed for client', { error: errorMessage(e), clientId });
+          });
+        }
       } catch (e) {
         logger.debug('Replay send failed for client', { error: errorMessage(e), clientId });
         break;
