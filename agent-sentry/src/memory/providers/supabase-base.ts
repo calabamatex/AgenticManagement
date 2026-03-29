@@ -288,6 +288,42 @@ export abstract class SupabaseBaseProvider implements StorageProvider {
     };
   }
 
+  // ── Optional interface methods ──────────────────────────────────────────
+
+  async textSearch(query: string, options: QueryOptions): Promise<OpsEvent[]> {
+    const encodedQuery = encodeURIComponent(`%${query}%`);
+    const params: string[] = [
+      `or=(title.ilike.${encodedQuery},detail.ilike.${encodedQuery})`,
+    ];
+
+    if (options.event_type) params.push(`event_type=eq.${options.event_type}`);
+    if (options.severity) params.push(`severity=eq.${options.severity}`);
+    if (options.skill) params.push(`skill=eq.${options.skill}`);
+    if (options.since) params.push(`timestamp=gte.${encodeURIComponent(options.since)}`);
+    if (options.until) params.push(`timestamp=lte.${encodeURIComponent(options.until)}`);
+    if (options.session_id) params.push(`session_id=eq.${encodeURIComponent(options.session_id)}`);
+    if (options.agent_id) params.push(`agent_id=eq.${encodeURIComponent(options.agent_id)}`);
+
+    const limit = options.limit ?? 10;
+    const offset = options.offset ?? 0;
+    params.push('order=timestamp.desc');
+    params.push(`limit=${limit}`);
+    params.push(`offset=${offset}`);
+
+    const qs = params.join('&');
+    const rows = await this.request<Record<string, unknown>[]>(`/rest/v1/ops_events?${qs}`, { method: 'GET' });
+    return (rows || []).map((r) => this.rowToEvent(r));
+  }
+
+  async getLatestHash(): Promise<string | null> {
+    const rows = await this.request<Array<{ hash: string }>>(
+      '/rest/v1/ops_events?select=hash&order=timestamp.desc&limit=1',
+      { method: 'GET' },
+    );
+    if (!rows || rows.length === 0) return null;
+    return rows[0].hash;
+  }
+
   // ── Protected helpers ───────────────────────────────────────────────────
 
   protected buildQueryParams(options: QueryOptions): string[] {
