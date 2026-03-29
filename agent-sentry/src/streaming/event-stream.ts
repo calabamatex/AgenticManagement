@@ -12,6 +12,7 @@
 import { EventEmitter } from 'events';
 import { getEventBus, EventType as BusEventType, EventPayload } from '../core/event-bus';
 import { Logger } from '../observability/logger';
+import { errorMessage } from '../utils/error-message';
 
 const logger = new Logger({ module: 'event-stream' });
 
@@ -118,7 +119,7 @@ export class EventStream extends EventEmitter {
         try {
           client.send({ id: '', type: 'heartbeat', timestamp: new Date().toISOString(), data: {} });
         } catch (e) {
-          logger.debug('Heartbeat send failed for client', { error: e instanceof Error ? e.message : String(e) });
+          logger.debug('Heartbeat send failed for client', { error: errorMessage(e) });
         }
       }
     }, this.heartbeatIntervalMs);
@@ -151,7 +152,7 @@ export class EventStream extends EventEmitter {
       try {
         client.close();
       } catch (e) {
-        logger.debug('Client close failed during stream stop', { error: e instanceof Error ? e.message : String(e) });
+        logger.debug('Client close failed during stream stop', { error: errorMessage(e) });
       }
     }
     this.clients.clear();
@@ -234,7 +235,7 @@ export class EventStream extends EventEmitter {
           }
         } catch (e) {
           this.clientBacklog.set(client.id, Math.max((this.clientBacklog.get(client.id) ?? 1) - 1, 0));
-          logger.debug('Failed to send event to client', { error: e instanceof Error ? e.message : String(e), clientId: client.id });
+          logger.debug('Failed to send event to client', { error: errorMessage(e), clientId: client.id });
         }
       }
     }
@@ -297,7 +298,7 @@ export class EventStream extends EventEmitter {
       try {
         client.send(event);
       } catch (e) {
-        logger.debug('Replay send failed for client', { error: e instanceof Error ? e.message : String(e), clientId });
+        logger.debug('Replay send failed for client', { error: errorMessage(e), clientId });
         break;
       }
     }
