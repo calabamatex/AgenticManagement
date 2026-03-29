@@ -171,7 +171,7 @@ export class DashboardServer {
 
     // API endpoints
     if (path === '/api/health') {
-      this.handleHealth(res);
+      void this.handleHealth(res);
       return;
     }
 
@@ -181,12 +181,12 @@ export class DashboardServer {
     }
 
     if (path === '/api/plugins') {
-      this.handlePlugins(res);
+      void this.handlePlugins(res);
       return;
     }
 
     if (path === '/api/stats') {
-      this.handleStats(res);
+      void this.handleStats(res);
       return;
     }
 
@@ -201,7 +201,7 @@ export class DashboardServer {
     }
 
     if (path === '/api/coordination') {
-      this.handleCoordination(res);
+      void this.handleCoordination(res);
       return;
     }
 
