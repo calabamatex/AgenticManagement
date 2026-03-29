@@ -15,6 +15,30 @@ const logger = new Logger({ module: 'embeddings' });
 /** Maximum HTTP response body size for embedding API responses (10MB). */
 const MAX_RESPONSE_SIZE = 10 * 1024 * 1024;
 
+/** Simple LRU cache for embeddings keyed by text hash. */
+const embeddingCache = new Map<string, { embedding: number[]; timestamp: number }>();
+const EMBEDDING_CACHE_MAX = 500;
+const EMBEDDING_CACHE_TTL = 300_000; // 5 minutes
+
+function getCachedEmbedding(text: string): number[] | undefined {
+  const entry = embeddingCache.get(text);
+  if (!entry) return undefined;
+  if (Date.now() - entry.timestamp > EMBEDDING_CACHE_TTL) {
+    embeddingCache.delete(text);
+    return undefined;
+  }
+  return entry.embedding;
+}
+
+function setCachedEmbedding(text: string, embedding: number[]): void {
+  if (embeddingCache.size >= EMBEDDING_CACHE_MAX) {
+    // Evict oldest entry
+    const oldestKey = embeddingCache.keys().next().value as string;
+    embeddingCache.delete(oldestKey);
+  }
+  embeddingCache.set(text, { embedding, timestamp: Date.now() });
+}
+
 export interface EmbeddingProvider {
   embed(text: string): Promise<number[]>;
   readonly dimension: number;
@@ -47,11 +71,15 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
   private tokenizer: { model?: { vocab?: Record<string, number> } } | null = null;
 
   async embed(text: string): Promise<number[]> {
+    const cached = getCachedEmbedding(text);
+    if (cached) return cached;
     await this.ensureLoaded();
     if (!this.session) {
       throw new Error('ONNX model not loaded');
     }
-    return this.runInference(text);
+    const result = await this.runInference(text);
+    setCachedEmbedding(text, result);
+    return result;
   }
 
   private async ensureLoaded(): Promise<void> {
