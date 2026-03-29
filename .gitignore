@@ -52,3 +52,6 @@ vendor/
 
 # SQLite memory files (runtime)
 :memory:
+
+# AgentSentry hook-written runtime data (NEVER track these)
+agent-sentry/dashboard/data/*.json
