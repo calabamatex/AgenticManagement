@@ -57,7 +57,7 @@ What makes it different: AgentSentry *remembers*. Every decision, violation, inc
 ### Memory & Intelligence (v4.1.0-beta)
 
 - **Persistent Memory Store** -- Vector-indexed database with semantic search. SQLite with JS cosine similarity locally, Supabase [beta] for teams.
-- **MCP Server Interface** -- All 5 core skills plus memory read/write exposed as 9 MCP tools. Works with any MCP-compatible client.
+- **MCP Server Interface** -- All 5 core skills plus memory read/write exposed as 10 MCP tools. Works with any MCP-compatible client.
 - **Primitives Library** -- 7 reusable management patterns (checkpoint-and-branch, risk-scoring, secret-detection, rules-validation, context-estimation, scaffold-update, event-capture).
 - **Auto-Classification** -- Events enriched with tags, root cause hints, related event links, and severity context. Local pattern matching at <10ms.
 - **Progressive Enablement** -- 5 levels from beginner to advanced. Start simple, add capabilities when ready.
