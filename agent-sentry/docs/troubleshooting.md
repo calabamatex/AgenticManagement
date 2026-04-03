@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Common issues and solutions for AgentSentry v4.1.0-beta.
+Common issues and solutions for AgentSentry.
 
 ## SQLite Errors
 

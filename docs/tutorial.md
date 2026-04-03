@@ -240,7 +240,7 @@ Its `metadata.json` declares:
   "category": "monitor",
   "version": "1.0.0",
   "requires": {
-    "agentops": ">=4.0.0",
+    "agentsentry": ">=0.5.0",
     "primitives": ["checkpoint-and-branch", "event-capture"]
   },
   "hooks": ["PostToolUse", "SessionStart"],

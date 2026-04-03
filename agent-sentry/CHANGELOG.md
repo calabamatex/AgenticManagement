@@ -5,7 +5,15 @@ All notable changes to AgentSentry are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.1.0-beta.1] - 2026-03-29
+## [0.5.0-beta.1] - 2026-04-03
+
+### Changed
+
+- **Version reset from 4.1.0-beta.1 to 0.5.0-beta.1.** The v4.x version numbers were inherited from an earlier prototype (AgentOps) and did not represent years of iteration. This project is new and pre-1.0; the version number now honestly reflects that.
+- All documentation, plugin metadata, and test fixtures updated to reference v0.5.0
+- Removed version strings from documentation headers to reduce maintenance burden
+
+## [4.1.0-beta.1] - 2026-03-29 (Historical)
 
 First beta release. Includes 28 fixes from a comprehensive SDLC analysis covering security, performance, code quality, CI/CD, and documentation.
 

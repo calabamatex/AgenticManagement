@@ -1,4 +1,4 @@
-# AgentSentry v4.1.0-beta
+# AgentSentry v0.5.0-beta
 
 ![AgentSentry Banner](agent-sentry/dashboard/assets/agent-sentry-banner.png)
 
@@ -54,7 +54,7 @@ What makes it different: AgentSentry *remembers*. Every decision, violation, inc
 | **Small Bets** | Scores tasks by file count and complexity, flags oversized changes, enforces incremental delivery |
 | **Safety Checks** | Scans for leaked secrets, validates permissions, blocks commits containing sensitive data |
 
-### Memory & Intelligence (v4.1.0-beta)
+### Memory & Intelligence
 
 - **Persistent Memory Store** -- Vector-indexed database with semantic search. SQLite with JS cosine similarity locally, Supabase [beta] for teams.
 - **MCP Server Interface** -- All 5 core skills plus memory read/write exposed as 10 MCP tools. Works with any MCP-compatible client.
@@ -328,7 +328,7 @@ MIT -- see [LICENSE](LICENSE) for details.
 - [Getting Started Guide](agent-sentry/docs/getting-started.md)
 - [First Session Walkthrough](agent-sentry/docs/first-session.md)
 - [API Reference](agent-sentry/docs/api-reference.md)
-- [Product Specification](docs/planning/AgentSentry-Product-Spec.md) -- Full v4.1.0-beta spec covering architecture, skills, memory, MCP, and integrations
+- [Product Specification](docs/planning/AgentSentry-Product-Spec.md) -- Full spec covering architecture, skills, memory, MCP, and integrations
 - [Architecture Evolution](docs/planning/AgentSentry-Architecture-Evolution.md) -- Design decisions and architectural history
 - [Implementation Guide](docs/planning/Agent-Management-Implementation-Guide.md) -- Practical guide for managing AI agents
 - [Synopsis](docs/planning/AgentSentry-Synopsis.md) -- Non-technical project overview

@@ -22,8 +22,8 @@ describe('Version consistency', () => {
     // (we test via the source module rather than compiled output)
     const versionSource = readFile('src/version.ts');
     // Verify no hardcoded version string remains in version.ts
-    expect(versionSource).not.toContain("'4.0.0'");
-    expect(versionSource).not.toContain('"4.0.0"');
+    expect(versionSource).not.toContain("'0.5.0'");
+    expect(versionSource).not.toContain('"0.5.0"');
 
     // Verify no hardcoded version strings remain in source files that previously had them
     const filesToCheck = [
@@ -37,8 +37,8 @@ describe('Version consistency', () => {
       const content = readFile(file);
       // Should import VERSION, not hardcode it
       expect(content).toContain('VERSION');
-      expect(content).not.toMatch(/version:\s*['"]4\.0\.0['"]/);
-      expect(content).not.toMatch(/const VERSION\s*=\s*['"]4\.0\.0['"]/);
+      expect(content).not.toMatch(/version:\s*['"]0\.5\.0['"]/);
+      expect(content).not.toMatch(/const VERSION\s*=\s*['"]0\.5\.0['"]/);
     }
   });
 });

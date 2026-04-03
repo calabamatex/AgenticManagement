@@ -1,4 +1,4 @@
-# AgentSentry v4.1.0-beta
+# AgentSentry v0.5.0-beta
 
 Your AI agents forget everything between sessions. AgentSentry fixes that.
 

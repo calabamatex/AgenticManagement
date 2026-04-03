@@ -18,7 +18,7 @@ export const demoScenarios: DemoScenario[] = [
     description: 'Initialize AgentSentry in 60 seconds',
     lines: [
       { type: 'command', text: '$ npx @calabamatex/agentsentry init --level 2' },
-      { type: 'output', text: 'AgentSentry v4.1.0-beta.1 — Initializing...' },
+      { type: 'output', text: 'AgentSentry v0.5.0-beta.1 — Initializing...' },
       { type: 'output', text: '' },
       { type: 'output', text: '  Enablement Level: 2 (Clear Head)' },
       { type: 'output', text: '  Storage: SQLite (local)' },

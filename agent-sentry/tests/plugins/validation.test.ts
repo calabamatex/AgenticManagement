@@ -70,7 +70,7 @@ describe('Plugin validation logic', () => {
       category: 'monitor',
       author: { name: 'Test Author' },
       version: '1.0.0',
-      requires: { 'agentsentry': '>=4.0.0' },
+      requires: { 'agentsentry': '>=0.5.0' },
       tags: ['test'],
     };
 
@@ -95,7 +95,7 @@ describe('Plugin validation logic', () => {
       category: 'monitor',
       author: { name: 'Test' },
       version: '1.0.0',
-      requires: { 'agentsentry': '>=4.0.0' },
+      requires: { 'agentsentry': '>=0.5.0' },
       tags: ['test'],
     };
 
@@ -110,7 +110,7 @@ describe('Plugin validation logic', () => {
       category: 'monitor',
       author: { name: 'Test' },
       version: 'v1.0',
-      requires: { 'agentsentry': '>=4.0.0' },
+      requires: { 'agentsentry': '>=0.5.0' },
       tags: ['test'],
     };
 
@@ -125,7 +125,7 @@ describe('Plugin validation logic', () => {
       category: 'invalid',
       author: { name: 'Test' },
       version: '1.0.0',
-      requires: { 'agentsentry': '>=4.0.0' },
+      requires: { 'agentsentry': '>=0.5.0' },
       tags: ['test'],
     };
 
@@ -140,7 +140,7 @@ describe('Plugin validation logic', () => {
       category: 'monitor',
       author: { github: 'test' },
       version: '1.0.0',
-      requires: { 'agentsentry': '>=4.0.0' },
+      requires: { 'agentsentry': '>=0.5.0' },
       tags: ['test'],
     };
 
@@ -170,7 +170,7 @@ describe('Plugin validation logic', () => {
       category: 'monitor',
       author: { name: 'Test' },
       version: '1.0.0',
-      requires: { 'agentsentry': '>=4.0.0' },
+      requires: { 'agentsentry': '>=0.5.0' },
       tags: [],
     };
 
@@ -207,7 +207,7 @@ describe('validate-plugin.sh exists and is structured', () => {
     expect(content).toContain('Version follows semver');
     expect(content).toContain('Category is valid');
     expect(content).toContain('Author has name');
-    expect(content).toContain('agent-sentry field');
+    expect(content).toContain('agentsentry field');
     expect(content).toContain('src/index.ts');
     expect(content).toContain('README.md');
   });
