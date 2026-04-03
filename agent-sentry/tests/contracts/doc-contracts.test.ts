@@ -64,6 +64,7 @@ describe('Enablement config consistency', () => {
     expect(l2.skills.save_points.enabled).toBe(true);
     expect(l2.skills.context_health.enabled).toBe(true);
     expect(l2.skills.standing_orders.enabled).toBe(false);
+    expect(l2.skills.directive_compliance.enabled).toBe(false);
     expect(l2.skills.small_bets.enabled).toBe(false);
     expect(l2.skills.proactive_safety.enabled).toBe(false);
   });

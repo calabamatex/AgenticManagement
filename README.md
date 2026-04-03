@@ -53,13 +53,14 @@ What makes it different: AgentSentry *remembers*. Every decision, violation, inc
 | **Standing Orders** | Lints and enforces rules files (CLAUDE.md, .cursorrules, etc.) for project convention compliance |
 | **Small Bets** | Scores tasks by file count and complexity, flags oversized changes, enforces incremental delivery |
 | **Safety Checks** | Scans for leaked secrets, validates permissions, blocks commits containing sensitive data |
+| **Directive Compliance** | Ensures agent executes ACTION/RECOMMEND directives from hooks immediately (active at Level 3+) |
 
 ### Memory & Intelligence
 
-- **Persistent Memory Store** -- Vector-indexed database with semantic search. SQLite with JS cosine similarity locally, Supabase [beta] for teams.
+- **Persistent Memory Store** -- Vector-indexed database with semantic search. SQLite with JS cosine similarity locally, Supabase [experimental] for teams.
 - **MCP Server Interface** -- All 5 core skills plus memory read/write exposed as 10 MCP tools. Works with any MCP-compatible client.
 - **Primitives Library** -- 7 reusable management patterns (checkpoint-and-branch, risk-scoring, secret-detection, rules-validation, context-estimation, scaffold-update, event-capture).
-- **Auto-Classification** -- Events enriched with tags, root cause hints, related event links, and severity context. Local pattern matching at <10ms.
+- **Auto-Classification** -- Events enriched with tags, root cause hints, related event links, and severity context.
 - **Progressive Enablement** -- 5 levels from beginner to advanced. Start simple, add capabilities when ready.
 
 ### Advanced Capabilities
@@ -186,7 +187,7 @@ When running as an MCP server, AgentSentry exposes 10 tools:
 |-------|------|--------------|------------|
 | 1 | Safe Ground | save_points (full) | 5 min |
 | 2 | Clear Head | + context_health (full) | 10 min |
-| 3 | House Rules | + standing_orders (basic) | 15 min |
+| 3 | House Rules | + standing_orders (basic), + directive_compliance (full) | 15 min |
 | 4 | Right Size | standing_orders → full, + small_bets (basic) | 15 min |
 | 5 | Full Guard | small_bets → full, + proactive_safety (full) | 15 min |
 
@@ -217,7 +218,7 @@ All settings in `agent-sentry/agent-sentry.config.json`:
 // Solo developer (default -- zero config):
 { "memory": { "provider": "sqlite", "database_path": "agent-sentry/data/ops.db" } }
 
-// Team setup (shared memory) [beta]:
+// Team setup (shared memory) [experimental — not recommended for production]:
 // Supabase provider reads credentials from environment variables:
 //   SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
 { "memory": { "provider": "supabase" } }
@@ -256,6 +257,14 @@ Run benchmarks locally:
 ```bash
 npm run benchmark
 ```
+
+---
+
+## Known Limitations
+
+- **Vector search** uses linear cosine similarity (O(n)), suitable for up to ~10,000 events per store. An ANN/HNSW index is planned for a future release. Text-based fallback search is available when vector search is not configured.
+- **Supabase provider** is experimental and not recommended for production use.
+- **Dashboard** authentication uses a shared token; no user-level access control.
 
 ---
 

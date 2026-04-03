@@ -47,7 +47,7 @@ That's it. SQLite storage and noop embeddings work out of the box — no API key
 | Progressive enablement | **Stable** | 5 levels |
 | CLI (13 commands) | **Stable** | init, config, enable, health, memory, metrics, dashboard, stream, plugin, handoff, prune, export, import |
 | Enrichment & observability | **Stable** | Auto-classification, circuit breaker, structured logging |
-| Supabase provider | **Beta** | Requires external Supabase instance |
+| Supabase provider | **Experimental** | Requires external Supabase instance; not recommended for production |
 | Dashboard / streaming | **Beta** | Local SSE/WebSocket, in-process bus |
 | Cross-session intelligence | **Beta** | Session summaries, pattern detection, context recall |
 | Plugin registry | Experimental | Local directory scanning only |
@@ -80,7 +80,7 @@ If you want to customize, adjust `enablement.level` in `agent-sentry.config.json
 |-------|------|--------------|
 | 1 | Safe Ground | save_points (full) |
 | 2 | **Clear Head** (default) | + context_health (full) |
-| 3 | House Rules | + standing_orders (basic) |
+| 3 | House Rules | + standing_orders (basic), + directive_compliance (full) |
 | 4 | Right Size | standing_orders→full, + small_bets (basic) |
 | 5 | Full Guard | small_bets→full, + proactive_safety (full) |
 
@@ -88,7 +88,7 @@ If you want to customize, adjust `enablement.level` in `agent-sentry.config.json
 
 - **Default**: SQLite (local, zero-config)
 - **Embeddings**: ONNX all-MiniLM-L6-v2 (384 dimensions) — falls back to noop if model unavailable
-- **Supabase** [beta]: Remote PostgreSQL via Supabase REST API — set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+- **Supabase** [experimental]: Remote PostgreSQL via Supabase REST API — set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Not recommended for production use.
 
 Auto-pruning keeps the database bounded — configure `max_events` and `max_age_days` in `agent-sentry.config.json`.
 
@@ -146,6 +146,12 @@ docs/           # Getting started, API reference, schema, roadmap
 - [Memory Model](docs/architecture/memory-model.md) — Hash-chained storage, search, and providers
 - [Enablement Model](docs/architecture/enablement-model.md) — The 5-level progressive system
 - [MCP Integration](docs/architecture/mcp-integration.md) — Tools, transports, and auth
+
+## Known Limitations
+
+- **Vector search** uses linear cosine similarity (O(n)), suitable for up to ~10,000 events. An ANN/HNSW index is planned for a future release.
+- **Supabase provider** is experimental — not recommended for production.
+- **Dashboard** uses token-based auth; no user-level access control.
 
 ## Disabling or Removing AgentSentry
 
