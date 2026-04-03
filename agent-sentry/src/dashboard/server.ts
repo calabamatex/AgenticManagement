@@ -40,6 +40,8 @@ export interface DashboardServerOptions {
   host?: string;
   /** CORS origin (default '*'). */
   corsOrigin?: string;
+  /** Authentication token. If set, all requests must include Authorization: Bearer <token>. */
+  token?: string;
   /** EventStream instance to subscribe to. */
   eventStream?: EventStream;
   /** HealthChecker instance. */
@@ -72,7 +74,8 @@ export class DashboardServer {
   private memoryStore?: MemoryStore;
   private enablementConfig?: EnablementConfig;
   private coordinator?: AgentCoordinator;
-  private options: Required<Omit<DashboardServerOptions, 'eventStream' | 'healthChecker' | 'pluginRegistry' | 'memoryStore' | 'enablementConfig' | 'coordinator'>>;
+  private token?: string;
+  private options: Required<Omit<DashboardServerOptions, 'eventStream' | 'healthChecker' | 'pluginRegistry' | 'memoryStore' | 'enablementConfig' | 'coordinator' | 'token'>>;
   private startTime = 0;
 
   constructor(options?: DashboardServerOptions) {
@@ -81,6 +84,15 @@ export class DashboardServer {
       host: options?.host ?? '127.0.0.1',
       corsOrigin: options?.corsOrigin ?? 'http://127.0.0.1:9200',
     };
+
+    // Token: env var > options > random
+    if (process.env.AGENT_SENTRY_DASHBOARD_TOKEN) {
+      this.token = process.env.AGENT_SENTRY_DASHBOARD_TOKEN;
+    } else if (options?.token) {
+      this.token = options.token;
+    } else {
+      this.token = crypto.randomBytes(24).toString('hex');
+    }
 
     this.eventStream = options?.eventStream ?? new EventStream();
     this.healthChecker = options?.healthChecker ?? new HealthChecker({ version: VERSION });
@@ -113,6 +125,7 @@ export class DashboardServer {
         const addr = srv.address();
         const port = (addr && typeof addr === 'object') ? addr.port : this.options.port;
         const host = this.options.host;
+        console.log(`[AgentSentry] Dashboard token: ${this.token}`);
         resolve({ port, host, url: `http://${host}:${port}` });
       });
     });
@@ -154,6 +167,8 @@ export class DashboardServer {
       res.end();
       return;
     }
+
+    if (!this.authenticateRequest(req, res, url)) return;
 
     const path = url.pathname;
 
@@ -359,6 +374,22 @@ export class DashboardServer {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ available: false, agents: [] }));
     }
+  }
+
+  private authenticateRequest(req: http.IncomingMessage, res: http.ServerResponse, url: URL): boolean {
+    if (!this.token) return true;
+
+    // Allow token in query param for SSE (EventSource can't set headers)
+    const queryToken = url.searchParams.get('token');
+    if (queryToken === this.token) return true;
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.slice(7) !== this.token) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return false;
+    }
+    return true;
   }
 
   private parseFilter(url: URL): StreamFilter {
