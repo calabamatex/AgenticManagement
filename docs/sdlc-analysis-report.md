@@ -216,7 +216,7 @@ AgentSentry is a well-engineered memory-aware management and safety framework fo
 
 | ID | Severity | Finding | Location |
 |----|----------|---------|----------|
-| DOC1 | **High** | Tool naming inconsistency: `agentops_` vs `agent_sentry_` prefix | `quick-start.md`, `tutorial.md` |
+| DOC1 | **High** | Tool naming inconsistency: `agent_sentry_` vs `agent_sentry_` prefix | `quick-start.md`, `tutorial.md` |
 | DOC2 | **High** | 10th MCP tool (`generate-handoff`) undocumented everywhere | README, API ref, MCP integration doc |
 | DOC3 | **Medium** | `directive_compliance` (6th skill) exists in code but undocumented | `engine.ts:25` |
 | DOC4 | **Medium** | Product name split: "AgentOps" in planning docs, "AgentSentry" in code | All planning docs |

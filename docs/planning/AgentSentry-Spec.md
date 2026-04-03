@@ -1,4 +1,4 @@
-# AgentOps: Agent Management Oversight System
+# AgentSentry: Agent Management Oversight System
 
 ## Specification Document for Claude Code Implementation
 
@@ -14,11 +14,11 @@
 
 ### 1.1 Purpose
 
-AgentOps is an oversight system that monitors AI coding agents and enforces the five core management skills: version control discipline, context health monitoring, rules file compliance, task sizing enforcement, and proactive safety checks. It operates in two modes — a real-time session monitor that runs alongside active agent sessions, and an on-demand auditor that evaluates project health between sessions.
+AgentSentry is an oversight system that monitors AI coding agents and enforces the five core management skills: version control discipline, context health monitoring, rules file compliance, task sizing enforcement, and proactive safety checks. It operates in two modes — a real-time session monitor that runs alongside active agent sessions, and an on-demand auditor that evaluates project health between sessions.
 
 ### 1.2 Design Philosophy
 
-AgentOps treats the human operator as the general contractor and the AI agent as the skilled-but-forgetful worker. The system exists to:
+AgentSentry treats the human operator as the general contractor and the AI agent as the skilled-but-forgetful worker. The system exists to:
 
 - Catch problems the agent won't raise on its own
 - Enforce habits the operator hasn't yet internalized
@@ -36,13 +36,13 @@ agent-sentry/
 ├── .claude/
 │   ├── settings.json            # Hook configuration
 │   ├── agents/
-│   │   ├── agentops-monitor.md  # Real-time session monitor subagent
-│   │   ├── agentops-auditor.md  # On-demand project auditor subagent
-│   │   └── agentops-scaffold.md # Scaffold document manager subagent
+│   │   ├── agent-sentry-monitor.md  # Real-time session monitor subagent
+│   │   ├── agent-sentry-auditor.md  # On-demand project auditor subagent
+│   │   └── agent-sentry-scaffold.md # Scaffold document manager subagent
 │   └── commands/
-│       ├── agentops-check.md    # /agentops-check slash command
-│       ├── agentops-audit.md    # /agentops-audit slash command
-│       └── agentops-scaffold.md # /agentops-scaffold slash command
+│       ├── agent-sentry-check.md    # /agent-sentry-check slash command
+│       ├── agent-sentry-audit.md    # /agent-sentry-audit slash command
+│       └── agent-sentry-scaffold.md # /agent-sentry-scaffold slash command
 ├── .githooks/
 │   ├── pre-commit               # Automated pre-commit checks
 │   └── post-commit              # Post-commit logging and notifications
@@ -85,7 +85,7 @@ IF tool = Write OR tool = Edit OR (tool = Bash AND command modifies files):
 
   IF uncommitted_changes > 5 files OR last_commit_age > 30 minutes:
     WARN: "You have significant uncommitted work. Consider committing before this change."
-    ACTION: Auto-commit with message "[agentops] auto-save before agent modification"
+    ACTION: Auto-commit with message "[agent-sentry] auto-save before agent modification"
     LOG: Record auto-commit in WORKFLOW.md
 
   IF current_branch = "main" AND change_is_risky (see §5.2 for risk scoring):
@@ -113,13 +113,13 @@ IF tool = Bash AND command contains "npm install" OR "pip install" OR "apt insta
 
 ```
 IF session_duration > 20 minutes AND uncommitted_changes exist:
-  ACTION: Auto-commit with message "[agentops] session checkpoint — {summary of changes}"
+  ACTION: Auto-commit with message "[agent-sentry] session checkpoint — {summary of changes}"
   LOG: Update WORKFLOW.md with session summary
 ```
 
 ### 2.3 Audit Checks
 
-When `/agentops-audit` is run, evaluate:
+When `/agent-sentry-audit` is run, evaluate:
 
 | Check | Pass Criteria | Severity |
 |---|---|---|
@@ -170,7 +170,7 @@ IF token_estimate > 60% of model_context_limit:
 
 IF token_estimate > 80% of model_context_limit:
   WARN: "Context critically full (~80%). Agent will begin losing early instructions."
-  ACTION: Trigger scaffold document update (invoke agentops-scaffold subagent)
+  ACTION: Trigger scaffold document update (invoke agent-sentry-scaffold subagent)
   RECOMMEND: "Start a fresh session. Use the handoff message template."
 ```
 
@@ -196,7 +196,7 @@ AFTER each tool use:
 
 IF sum(degradation_signals) >= 3:
   WARN: "Context degradation detected. The agent appears to be forgetting earlier decisions."
-  ACTION: Invoke agentops-scaffold subagent to update all scaffold docs
+  ACTION: Invoke agent-sentry-scaffold subagent to update all scaffold docs
   RECOMMEND: "Start fresh with the updated scaffold documents."
 ```
 
@@ -219,15 +219,15 @@ IF message_count >= 40:
   ACTION: Auto-update scaffold documents
 ```
 
-### 3.3 Scaffold Document Manager (Subagent: agentops-scaffold)
+### 3.3 Scaffold Document Manager (Subagent: agent-sentry-scaffold)
 
 This subagent is responsible for creating, updating, and validating the four scaffold documents.
 
-**Subagent Definition (`agentops-scaffold.md`):**
+**Subagent Definition (`agent-sentry-scaffold.md`):**
 
 ```yaml
 ---
-name: agentops-scaffold
+name: agent-sentry-scaffold
 description: >
   Manages project scaffold documents (PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md).
   Invoke when starting a new session, when context degradation is detected, or
@@ -295,12 +295,12 @@ rules_files = scan for: CLAUDE.md, .cursorrules, AGENTS.md
 
 IF no rules_files found:
   WARN: "No rules file detected. Your agent has no standing orders."
-  RECOMMEND: "Create a rules file. Run /agentops-scaffold to generate a starter."
+  RECOMMEND: "Create a rules file. Run /agent-sentry-scaffold to generate a starter."
   ACTION: Offer to create from agent-sentry/templates/rules-file-starter.md
 
 IF rules_file_line_count > 200:
   WARN: "Rules file is {n} lines. Recommended max is 200. Large rules files consume context."
-  RECOMMEND: "Review and prune. Run /agentops-audit for a rules file health check."
+  RECOMMEND: "Review and prune. Run /agent-sentry-audit for a rules file health check."
 
 IF rules_file_line_count < 10:
   NOTIFY: "Rules file is very minimal ({n} lines). Consider adding security and error handling sections."
@@ -361,7 +361,7 @@ Checks:
 
 ### 4.5 Cross-Tool Sync
 
-When a rules file is updated, AgentOps should sync content across tool-specific formats:
+When a rules file is updated, AgentSentry should sync content across tool-specific formats:
 
 ```
 IF CLAUDE.md is modified:
@@ -456,7 +456,7 @@ IF files_modified_this_task > 5 AND no commit since task started:
 
 IF files_modified_this_task > 8:
   WARN: "Blast radius is growing ({n} files). This is getting risky."
-  ACTION: Auto-commit checkpoint with "[agentops] mid-task checkpoint"
+  ACTION: Auto-commit checkpoint with "[agent-sentry] mid-task checkpoint"
   RECOMMEND: "Review changes with 'git diff HEAD~1' before continuing."
 ```
 
@@ -664,11 +664,11 @@ Output: Risk report with specific files/lines and recommended fixes, prioritized
 
 ## 7. Slash Commands
 
-### 7.1 `/agentops-check` — Quick Session Health Check
+### 7.1 `/agent-sentry-check` — Quick Session Health Check
 
 ```yaml
 ---
-name: agentops-check
+name: agent-sentry-check
 description: >
   Quick health check for the current session. Reports git status,
   context usage estimate, rules file compliance, and any active warnings.
@@ -682,7 +682,7 @@ description: >
 ```
 Example output:
 
-  AgentOps Session Health
+  AgentSentry Session Health
   ───────────────────────────────────
   ◉ Save Points      Last commit: 12 min ago (3 files uncommitted)
   ◉ Context Health    ~45% capacity, 18 messages, no degradation signals
@@ -693,11 +693,11 @@ Example output:
   ▲ 1 advisory: Consider committing before starting next task.
 ```
 
-### 7.2 `/agentops-audit` — Full Project Audit
+### 7.2 `/agent-sentry-audit` — Full Project Audit
 
 ```yaml
 ---
-name: agentops-audit
+name: agent-sentry-audit
 description: >
   Comprehensive project audit across all 5 skill areas. Scans for
   security vulnerabilities, missing scaffold documents, rules file
@@ -709,11 +709,11 @@ description: >
 **Runs:** All audit checks from §2.3, §3.4, §4.4, §5.4, §6.6.
 **Output:** Full report grouped by severity (Critical → Warning → Advisory) with specific file paths, line numbers, and recommended fixes.
 
-### 7.3 `/agentops-scaffold` — Create or Update Scaffold Documents
+### 7.3 `/agent-sentry-scaffold` — Create or Update Scaffold Documents
 
 ```yaml
 ---
-name: agentops-scaffold
+name: agent-sentry-scaffold
 description: >
   Creates missing scaffold documents (PLANNING.md, TASKS.md, CONTEXT.md,
   WORKFLOW.md) from templates, or updates existing ones by analyzing the
@@ -796,7 +796,7 @@ description: >
 #!/bin/bash
 # Update WORKFLOW.md with commit summary
 # Reset blast radius counter
-# Log commit to agentops session log
+# Log commit to agent-sentry session log
 ```
 
 Setup: `git config core.hooksPath .githooks`
@@ -864,7 +864,7 @@ Git hooks work regardless of which AI tool is used. They're the universal enforc
 | Rules file starter template | P0 | 1 hour |
 | `session-start-checks.sh` (SessionStart hook) | P0 | 2 hours |
 | `.githooks/pre-commit` (secrets, .env) | P0 | 2 hours |
-| `/agentops-check` slash command (basic version) | P1 | 2 hours |
+| `/agent-sentry-check` slash command (basic version) | P1 | 2 hours |
 
 **Deliverables:** Agent can't write secrets to files, git state is validated on session start, operator has a rules file.
 
@@ -879,7 +879,7 @@ Git hooks work regardless of which AI tool is used. They're the universal enforc
 | Blast radius monitor (PostToolUse hook) | P1 | 3 hours |
 | Message count tracker | P1 | 1 hour |
 | Auto-commit on session end | P1 | 2 hours |
-| `/agentops-check` full dashboard | P1 | 3 hours |
+| `/agent-sentry-check` full dashboard | P1 | 3 hours |
 
 **Deliverables:** Operator gets real-time feedback on context health, task sizing warnings, and commit reminders.
 
@@ -890,8 +890,8 @@ Git hooks work regardless of which AI tool is used. They're the universal enforc
 | Component | Priority | Effort |
 |---|---|---|
 | All four scaffold templates | P0 | 2 hours |
-| `agentops-scaffold` subagent | P0 | 4 hours |
-| `/agentops-scaffold` slash command | P0 | 2 hours |
+| `agent-sentry-scaffold` subagent | P0 | 4 hours |
+| `/agent-sentry-scaffold` slash command | P0 | 2 hours |
 | Scaffold validator script | P1 | 2 hours |
 | Auto-update on context degradation | P1 | 3 hours |
 | Handoff message generator | P1 | 2 hours |
@@ -908,7 +908,7 @@ Git hooks work regardless of which AI tool is used. They're the universal enforc
 | Error handling audit | P1 | 4 hours |
 | `rules-file-linter.sh` | P1 | 3 hours |
 | Scale analysis module | P2 | 4 hours |
-| `/agentops-audit` full report | P1 | 4 hours |
+| `/agent-sentry-audit` full report | P1 | 4 hours |
 | Cross-tool sync | P2 | 3 hours |
 
 **Deliverables:** Full audit capability across all five skill areas. Operator can run a single command to get a complete project health report.
@@ -929,7 +929,7 @@ Git hooks work regardless of which AI tool is used. They're the universal enforc
 
 ### 11.1 Operator-Configurable Thresholds
 
-All thresholds should be configurable via an `agentops.config.json` file:
+All thresholds should be configurable via an `agent-sentry.config.json` file:
 
 ```json
 {
@@ -993,14 +993,14 @@ Operators can suppress specific checks or tune patterns:
 
 ## 12. Success Metrics
 
-Track these to measure AgentOps effectiveness over time:
+Track these to measure AgentSentry effectiveness over time:
 
 | Metric | Target | How to Measure |
 |---|---|---|
 | Reverts needed per session | < 1 | Count `git checkout .` and `git reset` commands |
 | Average commit frequency | Every 20-30 min during active work | Git log analysis |
 | Context restarts per session | ≤ 1 | Count fresh session starts triggered by degradation |
-| Security audit pass rate | 100% on critical, >90% on warning | `/agentops-audit` results |
+| Security audit pass rate | 100% on critical, >90% on warning | `/agent-sentry-audit` results |
 | Scaffold doc freshness | Updated within 24 hours of last session | File modification timestamps |
 | Blast radius per task | ≤ 5 files median | Git commit analysis |
 | Time lost to agent mistakes | Decreasing week over week | Operator self-report |
@@ -1035,7 +1035,7 @@ Track these to measure AgentOps effectiveness over time:
 | `TASKS.md` | Task burndown list | Scaffold subagent, operator |
 | `CONTEXT.md` | Session state briefing | Scaffold subagent, operator |
 | `WORKFLOW.md` | Step-by-step session log | Scaffold subagent, hooks |
-| `agentops.config.json` | All configurable thresholds | All scripts and hooks |
+| `agent-sentry.config.json` | All configurable thresholds | All scripts and hooks |
 | `.claude/settings.json` | Hook configuration for Claude Code | Claude Code |
 | `.githooks/pre-commit` | Universal secret/PII scanning at commit time | Git (all tools) |
 | `.githooks/post-commit` | Workflow logging after commits | Git (all tools) |

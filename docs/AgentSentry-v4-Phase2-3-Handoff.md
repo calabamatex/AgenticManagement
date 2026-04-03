@@ -1,4 +1,4 @@
-# AgentOps v4.0 — Phase 2+3 Handoff
+# AgentSentry v4.0 — Phase 2+3 Handoff
 
 ## Session Context
 **Date:** 2026-03-20
@@ -28,7 +28,7 @@ Product spec: `AgentSentry-Product-Spec.md` (repo root)
 | `index.ts` | Public API exports |
 
 ### Config
-`agent-sentry/agentops.config.json` has a `memory` section:
+`agent-sentry/agent-sentry.config.json` has a `memory` section:
 ```json
 {
   "memory": {
@@ -66,21 +66,21 @@ import { SearchResult, OpsStats, ChainVerification } from '../memory/schema';
 ## Phase 2: MCP Server (can run in parallel with Phase 3)
 
 ### Goal
-Expose AgentOps as an MCP server so Claude Code, Cursor, and other AI clients can query the management layer.
+Expose AgentSentry as an MCP server so Claude Code, Cursor, and other AI clients can query the management layer.
 
 ### File Tree to Build
 ```
 agent-sentry/src/mcp/
 ├── server.ts              # MCP server setup, tool registration
 ├── tools/
-│   ├── check-git.ts       # agentops_check_git
-│   ├── check-context.ts   # agentops_check_context
-│   ├── check-rules.ts     # agentops_check_rules
-│   ├── size-task.ts       # agentops_size_task
-│   ├── scan-security.ts   # agentops_scan_security
-│   ├── capture-event.ts   # agentops_capture_event (wraps MemoryStore.capture())
-│   ├── search-history.ts  # agentops_search_history (wraps MemoryStore.search())
-│   └── health.ts          # agentops_health (wraps MemoryStore.stats())
+│   ├── check-git.ts       # agent_sentry_check_git
+│   ├── check-context.ts   # agent_sentry_check_context
+│   ├── check-rules.ts     # agent_sentry_check_rules
+│   ├── size-task.ts       # agent_sentry_size_task
+│   ├── scan-security.ts   # agent_sentry_scan_security
+│   ├── capture-event.ts   # agent_sentry_capture_event (wraps MemoryStore.capture())
+│   ├── search-history.ts  # agent_sentry_search_history (wraps MemoryStore.search())
+│   └── health.ts          # agent_sentry_health (wraps MemoryStore.stats())
 ├── transport.ts           # Stdio + HTTP transport
 └── auth.ts                # Access key validation (HTTP only)
 ```
@@ -88,19 +88,19 @@ agent-sentry/src/mcp/
 ### 8 MCP Tools
 | Tool | Input | Wraps |
 |------|-------|-------|
-| `agentops_check_git` | none | Shell: `scripts/git-hygiene-check.sh` |
-| `agentops_check_context` | `message_count?` | Shell: `scripts/context-estimator.sh` |
-| `agentops_check_rules` | `file_path`, `change_description` | Shell: `scripts/rules-file-linter.sh` |
-| `agentops_size_task` | `task`, `files?` | Shell: `scripts/task-sizer.sh` |
-| `agentops_scan_security` | `content`, `file_path?` | Shell: `scripts/security-audit.sh` |
-| `agentops_capture_event` | `event_type`, `severity`, `skill`, `title`, `detail`, `affected_files?`, `tags?` | `MemoryStore.capture()` |
-| `agentops_search_history` | `query`, `limit?`, `event_type?`, `severity?`, `since?` | `MemoryStore.search()` |
-| `agentops_health` | none | `MemoryStore.stats()` |
+| `agent_sentry_check_git` | none | Shell: `scripts/git-hygiene-check.sh` |
+| `agent_sentry_check_context` | `message_count?` | Shell: `scripts/context-estimator.sh` |
+| `agent_sentry_check_rules` | `file_path`, `change_description` | Shell: `scripts/rules-file-linter.sh` |
+| `agent_sentry_size_task` | `task`, `files?` | Shell: `scripts/task-sizer.sh` |
+| `agent_sentry_scan_security` | `content`, `file_path?` | Shell: `scripts/security-audit.sh` |
+| `agent_sentry_capture_event` | `event_type`, `severity`, `skill`, `title`, `detail`, `affected_files?`, `tags?` | `MemoryStore.capture()` |
+| `agent_sentry_search_history` | `query`, `limit?`, `event_type?`, `severity?`, `since?` | `MemoryStore.search()` |
+| `agent_sentry_health` | none | `MemoryStore.stats()` |
 
 ### Transport
 - **Stdio** (default): `node agent-sentry/dist/src/mcp/server.js`
-- **HTTP** (optional): `node agent-sentry/dist/src/mcp/server.js --http --port 3100` with `x-agentops-key` header
-- Integration: `claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js`
+- **HTTP** (optional): `node agent-sentry/dist/src/mcp/server.js --http --port 3100` with `x-agent-sentry-key` header
+- Integration: `claude mcp add agent-sentry -- node agent-sentry/dist/src/mcp/server.js`
 
 ### Security
 - HTTP transport requires access key (generated on install, stored in `.env`)
@@ -125,9 +125,9 @@ agent-sentry/tests/mcp/
 
 ### Verification
 ```bash
-cd agentops && npm test -- --grep "mcp"
-cd agentops && npm run build
-claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js
+cd agent-sentry && npm test -- --grep "mcp"
+cd agent-sentry && npm run build
+claude mcp add agent-sentry -- node agent-sentry/dist/src/mcp/server.js
 ```
 
 ---
@@ -210,9 +210,9 @@ agent-sentry/tests/plugins/
 
 ### Verification
 ```bash
-cd agentops && npm test -- --grep "primitives"
-cd agentops && npm test -- --grep "plugin"
-cd agentops && npm run build
+cd agent-sentry && npm test -- --grep "primitives"
+cd agent-sentry && npm test -- --grep "plugin"
+cd agent-sentry && npm run build
 bash scripts/validate-plugin.sh plugins/_templates/monitor
 ```
 
@@ -228,7 +228,7 @@ bash scripts/validate-plugin.sh plugins/_templates/monitor
 - Phase 2 and Phase 3 have **no shared files** — they can run in separate sessions or as parallel agents
 - Both depend on Phase 1's `MemoryStore` API (read-only dependency)
 - Phase 4 requires both Phase 2 and Phase 3 complete
-- If running as a swarm: use `hierarchical` topology, one agent per phase, shared memory namespace `agentops-build`
+- If running as a swarm: use `hierarchical` topology, one agent per phase, shared memory namespace `agent-sentry-build`
 
 ## After Phase 2+3
 Phase 4 (Progressive Enablement + Auto-Classification) is detailed in `AgentSentry-OB1-Build-Plan.md` starting at line ~781. It requires both Phases 2 and 3 complete.

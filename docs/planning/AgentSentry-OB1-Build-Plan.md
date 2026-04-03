@@ -289,7 +289,7 @@ interface EmbeddingProvider {
 - Bundle `all-MiniLM-L6-v2` ONNX model (~23MB) in `agent-sentry/models/`
 - Use `onnxruntime-node` for inference (works offline, no Python required)
 - Fallback gracefully: if no embedding available, `search()` returns structured-query results only
-- Configuration in `agentops.config.json`:
+- Configuration in `agent-sentry.config.json`:
 
 ```json
 // Solo developer (default — zero config needed):
@@ -312,8 +312,8 @@ interface EmbeddingProvider {
     "embedding_provider": "auto",
     "supabase_url": "${SUPABASE_URL}",
     "supabase_key": "${SUPABASE_SERVICE_ROLE_KEY}",
-    "developer_id": "${AGENTOPS_DEVELOPER_ID}",
-    "team_id": "${AGENTOPS_TEAM_ID}",
+    "developer_id": "${AGENT_SENTRY_DEVELOPER_ID}",
+    "team_id": "${AGENT_SENTRY_TEAM_ID}",
     "max_events": 500000,
     "auto_prune_days": 730
   }
@@ -413,7 +413,7 @@ tests/
 | Embedding abstraction | `src/memory/embeddings.ts` | Offline ONNX + fallback chain works |
 | Hook integration | All hook scripts updated | Events captured on every hook firing |
 | Scaffold generation | `src/scaffold/generator.ts` updated | CONTEXT.md generated from memory store |
-| Config schema update | `config/agentops.config.schema.json` | `memory.provider` accepts "sqlite" or "supabase" |
+| Config schema update | `config/agent-sentry.config.schema.json` | `memory.provider` accepts "sqlite" or "supabase" |
 | Spec update | `docs/AgentSentry-Product-Spec.md` §25 added | New section reviewed |
 
 ```bash
@@ -438,14 +438,14 @@ agent-sentry/
 │   ├── mcp/
 │   │   ├── server.ts          # MCP server setup, tool registration
 │   │   ├── tools/
-│   │   │   ├── check-git.ts       # agentops_check_git
-│   │   │   ├── check-context.ts   # agentops_check_context
-│   │   │   ├── check-rules.ts     # agentops_check_rules
-│   │   │   ├── size-task.ts       # agentops_size_task
-│   │   │   ├── scan-security.ts   # agentops_scan_security
-│   │   │   ├── capture-event.ts   # agentops_capture_event
-│   │   │   ├── search-history.ts  # agentops_search_history
-│   │   │   └── health.ts         # agentops_health
+│   │   │   ├── check-git.ts       # agent_sentry_check_git
+│   │   │   ├── check-context.ts   # agent_sentry_check_context
+│   │   │   ├── check-rules.ts     # agent_sentry_check_rules
+│   │   │   ├── size-task.ts       # agent_sentry_size_task
+│   │   │   ├── scan-security.ts   # agent_sentry_scan_security
+│   │   │   ├── capture-event.ts   # agent_sentry_capture_event
+│   │   │   ├── search-history.ts  # agent_sentry_search_history
+│   │   │   └── health.ts         # agent_sentry_health
 │   │   ├── transport.ts       # Stdio + HTTP transport options
 │   │   └── auth.ts            # Access key validation
 ```
@@ -454,13 +454,13 @@ agent-sentry/
 
 ```typescript
 // Tool 1: Git hygiene status
-server.registerTool("agentops_check_git", {
+server.registerTool("agent_sentry_check_git", {
   description: "Returns git hygiene status — uncommitted files, time since last commit, branch safety, risk score.",
   inputSchema: { /* no required inputs */ }
 });
 
 // Tool 2: Context health
-server.registerTool("agentops_check_context", {
+server.registerTool("agent_sentry_check_context", {
   description: "Returns estimated context window usage, message count, degradation signals, and recommendation (continue/refresh).",
   inputSchema: {
     message_count: z.number().optional().describe("Current message count in session"),
@@ -468,7 +468,7 @@ server.registerTool("agentops_check_context", {
 });
 
 // Tool 3: Rules compliance
-server.registerTool("agentops_check_rules", {
+server.registerTool("agent_sentry_check_rules", {
   description: "Validates a proposed file change against AGENTS.md, CLAUDE.md, and project rules. Returns violations.",
   inputSchema: {
     file_path: z.string().describe("File being modified"),
@@ -477,7 +477,7 @@ server.registerTool("agentops_check_rules", {
 });
 
 // Tool 4: Task sizing
-server.registerTool("agentops_size_task", {
+server.registerTool("agent_sentry_size_task", {
   description: "Analyzes a task description and returns risk score (LOW/MEDIUM/HIGH/CRITICAL), affected file estimate, and decomposition recommendation.",
   inputSchema: {
     task: z.string().describe("Task description to analyze"),
@@ -486,7 +486,7 @@ server.registerTool("agentops_size_task", {
 });
 
 // Tool 5: Security scan
-server.registerTool("agentops_scan_security", {
+server.registerTool("agent_sentry_scan_security", {
   description: "Scans file content or a diff for secrets, PII, missing error handling, and injection risks.",
   inputSchema: {
     content: z.string().describe("File content or diff to scan"),
@@ -495,7 +495,7 @@ server.registerTool("agentops_scan_security", {
 });
 
 // Tool 6: Capture event (memory write)
-server.registerTool("agentops_capture_event", {
+server.registerTool("agent_sentry_capture_event", {
   description: "Captures a decision, violation, incident, or other operational event to the persistent memory store.",
   inputSchema: {
     event_type: z.enum(["decision", "violation", "incident", "pattern", "handoff", "audit_finding"]),
@@ -509,7 +509,7 @@ server.registerTool("agentops_capture_event", {
 });
 
 // Tool 7: Search history (memory read)
-server.registerTool("agentops_search_history", {
+server.registerTool("agent_sentry_search_history", {
   description: "Semantic search across all stored operational events. Returns ranked results by relevance.",
   inputSchema: {
     query: z.string().describe("Natural language search query"),
@@ -521,7 +521,7 @@ server.registerTool("agentops_search_history", {
 });
 
 // Tool 8: Health dashboard
-server.registerTool("agentops_health", {
+server.registerTool("agent_sentry_health", {
   description: "Returns current health scores, KPIs, recent alerts, and skill-level status as structured JSON.",
   inputSchema: { /* no required inputs */ }
 });
@@ -535,19 +535,19 @@ server.registerTool("agentops_health", {
 
 // HTTP transport (optional — for remote/team access)
 // Start: node agent-sentry/dist/src/mcp/server.js --http --port 3100
-// Auth: x-agentops-key header or ?key= query param
+// Auth: x-agent-sentry-key header or ?key= query param
 ```
 
 **Claude Code integration (`claude mcp add`):**
 ```bash
-claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js
+claude mcp add agent-sentry -- node agent-sentry/dist/src/mcp/server.js
 ```
 
 **Cursor integration (`.cursor/mcp.json`):**
 ```json
 {
   "mcpServers": {
-    "agentops": {
+    "agent-sentry": {
       "command": "node",
       "args": ["agent-sentry/dist/src/mcp/server.js"]
     }
@@ -559,8 +559,8 @@ claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js
 
 - Access key required for HTTP transport (generated on install, stored in `.env`)
 - Stdio transport inherits process-level permissions (no additional auth needed)
-- `agentops_capture_event` validates all inputs against schema (no arbitrary SQL)
-- `agentops_scan_security` never executes scanned content
+- `agent_sentry_capture_event` validates all inputs against schema (no arbitrary SQL)
+- `agent_sentry_scan_security` never executes scanned content
 - Rate limiting on HTTP transport (100 req/min default)
 - No MCP tool exposes raw database access
 
@@ -697,9 +697,9 @@ agent-sentry/
     "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
     "requires": {
       "type": "object",
-      "required": ["agentops"],
+      "required": ["agent-sentry"],
       "properties": {
-        "agentops": { "type": "string" },
+        "agent-sentry": { "type": "string" },
         "primitives": { "type": "array", "items": { "type": "string" } }
       }
     },
@@ -721,7 +721,7 @@ agent-sentry/
 4. README.md contains required sections (What It Does, Prerequisites, Installation, Configuration, How It Works, Troubleshooting)
 5. `src/index.ts` exports a valid plugin interface
 6. Hook subscriptions reference valid hook types
-7. MCP tool names follow `agentops_plugin_{name}_{tool}` convention
+7. MCP tool names follow `agent_sentry_plugin_{name}_{tool}` convention
 8. No files exceed 500 lines
 9. Required primitives exist in the primitives library
 10. Tests exist and pass (`tests/` directory, `npm test` returns 0)
@@ -749,7 +749,7 @@ agent-sentry/
 
 ### 4.1 Progressive Enablement — Spec Writer + Coder
 
-**Config schema update (`agentops.config.json`):**
+**Config schema update (`agent-sentry.config.json`):**
 
 ```json
 {
@@ -778,7 +778,7 @@ agent-sentry/
 
 **Setup wizard (`scripts/setup-wizard.sh`):**
 - Interactive CLI: "What level do you want to start at?"
-- Generates `agentops.config.json` with appropriate enablement level
+- Generates `agent-sentry.config.json` with appropriate enablement level
 - Creates only the scaffold docs needed for that level
 - Registers only the hooks needed for that level
 - Estimated time: 5 minutes for Level 1, 15 minutes for Level 5
@@ -829,7 +829,7 @@ The hash-chained audit records remain unchanged. A parallel index adds:
 // 4. Link via audit_record_id in metadata
 
 // This enables:
-// agentops_search_history("database schema changes that caused issues")
+// agent_sentry_search_history("database schema changes that caused issues")
 // → returns ranked audit records matching that semantic query
 ```
 
@@ -858,7 +858,7 @@ Update `AgentSentry-Product-Spec.md` to v4.0:
 
 | Deliverable | File(s) | Verification |
 |------------|---------|-------------|
-| Progressive config | `config/agentops.config.schema.json` | All 5 levels generate valid configs |
+| Progressive config | `config/agent-sentry.config.schema.json` | All 5 levels generate valid configs |
 | Setup wizard | `scripts/setup-wizard.sh` | Interactive flow works for each level |
 | Dashboard adaptation | `agent-sentry/dashboard/*.html` | Disabled skills show upgrade prompt |
 | Auto-enrichment | `src/memory/enrichment.ts` | Local patterns run <10ms, enrichments are accurate |
@@ -916,7 +916,7 @@ Phases 2 and 3 can run in parallel after Phase 1 completes. Phase 4 requires all
 | 1 | Embedding fallback chain works (ONNX → Ollama → Cloud → No-op) | `npm test -- --grep "embedding"` |
 | 1 | Hash chain verifies integrity | `npm test -- --grep "chain"` |
 | 2 | All 8 MCP tools respond correctly via stdio | `npm test -- --grep "mcp"` |
-| 2 | Claude Code can call AgentSentry MCP tools | Manual: `claude mcp add agentops` |
+| 2 | Claude Code can call AgentSentry MCP tools | Manual: `claude mcp add agent-sentry` |
 | 3 | All 7 primitives extracted and typed | `npm test -- --grep "primitives"` |
 | 3 | Skills produce identical output using primitives | `npm test -- --grep "skills"` |
 | 3 | Plugin template validates against schema | `bash scripts/validate-plugin.sh plugins/_templates/monitor` |
@@ -979,9 +979,9 @@ npx @claude-flow/cli@latest swarm init \
 
 # Seed shared build context
 npx @claude-flow/cli@latest memory store \
-  --key "agentops-v4-context" \
+  --key "agent-sentry-v4-context" \
   --value "OB1 memory integration build. See AgentSentry-OB1-Analysis.md for rationale." \
-  --namespace agentops-build \
+  --namespace agent-sentry-build \
   --tags "context,ob1,v4"
 ```
 
@@ -1015,20 +1015,20 @@ npx @claude-flow/cli@latest task create \
 
 ### Shared Memory Namespace
 
-All build agents share the `agentops-build` memory namespace for coordination:
+All build agents share the `agent-sentry-build` memory namespace for coordination:
 
 ```bash
 # Key conventions:
-# agentops-build:schema-*     → data schemas and interfaces
-# agentops-build:decision-*   → architectural decisions
-# agentops-build:blocker-*    → issues requiring coordinator attention
-# agentops-build:complete-*   → phase completion signals
+# agent-sentry-build:schema-*     → data schemas and interfaces
+# agent-sentry-build:decision-*   → architectural decisions
+# agent-sentry-build:blocker-*    → issues requiring coordinator attention
+# agent-sentry-build:complete-*   → phase completion signals
 
 # Example: Memory Architect records a schema decision
 npx @claude-flow/cli@latest memory store \
   --key "decision-embedding-dim" \
   --value "384 dimensions (all-MiniLM-L6-v2). Chosen for: small model size (23MB), good quality, MIT license, ONNX support." \
-  --namespace agentops-build \
+  --namespace agent-sentry-build \
   --tags "decision,embeddings,phase-1"
 ```
 

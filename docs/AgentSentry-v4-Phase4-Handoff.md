@@ -1,4 +1,4 @@
-# AgentOps v4.0 — Phase 4 Handoff
+# AgentSentry v4.0 — Phase 4 Handoff
 
 ## Session Context
 **Date:** 2026-03-20
@@ -101,7 +101,7 @@ import { assessRisk, scanForSecrets, captureEvent } from '../primitives';
 ```
 
 ## What's Next
-All 4 phases of AgentOps v4.0 are complete. Potential future work:
+All 4 phases of AgentSentry v4.0 are complete. Potential future work:
 - **Supabase provider implementation** — currently stubbed in `src/memory/providers/supabase-provider.ts`
 - **Cloud LLM enrichment** — extend `EnrichmentProvider` for Ollama/OpenAI-powered classification
 - **Dashboard HTML updates** — render enablement level, memory stats, enrichment tags

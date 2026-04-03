@@ -19,7 +19,7 @@ This session completed all 4 build phases of AgentSentry v4.0, plus P0 scaling f
 | Primitives | `agent-sentry/src/primitives/index.ts` |
 | Enablement | `agent-sentry/src/enablement/engine.ts` |
 | Enrichment | `agent-sentry/src/memory/enrichment.ts` |
-| Config | `agent-sentry/agentops.config.json` |
+| Config | `agent-sentry/agent-sentry.config.json` |
 | Build Plan | `AgentSentry-OB1-Build-Plan.md` |
 | Product Spec | `AgentSentry-Product-Spec.md` |
 

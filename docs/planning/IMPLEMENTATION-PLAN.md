@@ -52,7 +52,7 @@ Priority: P0 — These are the minimum viable safety layer.
 - Exit 1 to block commit if critical issues found
 - Setup instruction: `git config core.hooksPath .githooks`
 
-### 1.7 `/agentops check` Basic Command — 2h
+### 1.7 `/agent-sentry check` Basic Command — 2h
 - File: `.claude/commands/agent-sentry/check.md`
 - Reports: git status, rules file status
 - Basic output format (full version in Phase 2)
@@ -64,7 +64,7 @@ agent-sentry/
 │   ├── secret-scanner.sh
 │   ├── git-hygiene-check.sh
 │   └── session-start-checks.sh
-├── agentops.config.json
+├── agent-sentry.config.json
 .githooks/
 ├── pre-commit
 .claude/
@@ -117,12 +117,12 @@ Priority: P0-P1 — Real-time monitoring of context, task risk, and blast radius
 - Lower thresholds when swarm is active
 
 ### 2.6 Session End Auto-Commit (`agent-sentry/scripts/session-checkpoint.sh`) — 2h
-- Auto-commits uncommitted changes with `[agentops] session-end checkpoint`
+- Auto-commits uncommitted changes with `[agent-sentry] session-end checkpoint`
 - Updates WORKFLOW.md with session summary
 - Updates CONTEXT.md with current state
 - Registered as `Stop` hook
 
-### 2.7 `/agentops check` Full Version — 3h
+### 2.7 `/agent-sentry check` Full Version — 3h
 - Full dashboard output with all 6 status lines:
   - Save Points (last commit time, uncommitted files)
   - Context Health (capacity %, message count, degradation status)
@@ -157,16 +157,16 @@ Priority: P0-P1 — Document management for context continuity across sessions.
 - `agent-sentry/templates/rules-file-starter.md`: Starter rules for new projects
 - `agent-sentry/templates/handoff-message.md`: RuFlo-specific handoff with swarm state fields
 
-### 3.2 Scaffold Subagent (`agentops-scaffold`) — 4h
-- File: `.claude/agents/agentops-scaffold.md`
+### 3.2 Scaffold Subagent (`agent-sentry-scaffold`) — 4h
+- File: `.claude/agents/agent-sentry-scaffold.md`
 - Model: sonnet, tools: Read/Write/Edit/Glob/Grep/Bash, maxTurns: 20
 - On invocation: checks which scaffold docs exist, creates missing from templates, updates existing based on current state
 - Cross-references TASKS.md against git log and file modifications
 - Generates handoff message with swarm topology, queen agent state, memory system status
 
-### 3.3 `/agentops scaffold` Command — 2h
+### 3.3 `/agent-sentry scaffold` Command — 2h
 - File: `.claude/commands/agent-sentry/scaffold.md`
-- Invokes agentops-scaffold subagent
+- Invokes agent-sentry-scaffold subagent
 - Creates or updates PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md
 
 ### 3.4 Scaffold Validator (`agent-sentry/scripts/scaffold-validator.sh`) — 2h
@@ -197,7 +197,7 @@ agent-sentry/
 │   └── scaffold-validator.sh
 .claude/
 ├── agents/
-│   └── agentops-scaffold.md
+│   └── agent-sentry-scaffold.md
 ├── commands/
 │   └── agent-sentry/
 │       └── scaffold.md
@@ -248,7 +248,7 @@ Full RuFlo-adapted audit covering 7 areas:
 - Memory system: 8 memory types partitioned, ReasoningBank growth bounded, knowledge graph PageRank efficiency, EWC++ effectiveness
 - Output: risk report prioritized by likelihood of failure at target scale
 
-### 4.6 `/agentops audit` Full Report — 4h
+### 4.6 `/agent-sentry audit` Full Report — 4h
 - File: `.claude/commands/agent-sentry/audit.md`
 - Runs all audit checks from all 5 skills
 - Output grouped by severity (Critical → Warning → Advisory → Pass)
@@ -315,7 +315,7 @@ Plus refinements to all existing scripts and hooks.
 Priority: P0-P2 — Visual monitoring interface.
 
 ### 6.1 Dashboard HTML Shell — 4h
-- Single self-contained HTML file (`agent-sentry/dashboard/agentops-dashboard.html`)
+- Single self-contained HTML file (`agent-sentry/dashboard/agent-sentry-dashboard.html`)
 - Zero dependencies: inline CSS + vanilla JS
 - CSS custom properties for theming, CSS Grid for responsive layout
 - Sidebar navigation between pages
@@ -369,7 +369,7 @@ Priority: P0-P2 — Visual monitoring interface.
 ```
 agent-sentry/
 ├── dashboard/
-│   ├── agentops-dashboard.html
+│   ├── agent-sentry-dashboard.html
 │   ├── data/
 │   │   ├── session-log.json
 │   │   ├── audit-results.json
@@ -404,7 +404,7 @@ These are defined in the spec (§14-20) but are not part of the core 6-phase rol
 - Per-agent token metering with provider/model/cost tracking
 - Budget enforcement: warn at 80%, downgrade model at 100%, halt non-essential at session budget exceeded
 - Cost-aware routing integration with RuFlo's MoE
-- Files: budget config in `agentops.config.json`, `cost-tracker.sh`, `cost-log.json`
+- Files: budget config in `agent-sentry.config.json`, `cost-tracker.sh`, `cost-log.json`
 
 ### D. Agent Lifecycle Management (§17)
 - State machine: CREATED → ACTIVE → AWAITING → COMPLETED/FAILED/CANCELLED
@@ -433,7 +433,7 @@ These are defined in the spec (§14-20) but are not part of the core 6-phase rol
 
 ## Configuration Reference
 
-All thresholds are configurable in `agent-sentry/agentops.config.json`:
+All thresholds are configurable in `agent-sentry/agent-sentry.config.json`:
 
 | Section | Key Settings |
 |---|---|
