@@ -1,10 +1,10 @@
-# AgentOps × Open Brain (OB1): Cross-Pollination Analysis
+# AgentSentry × Open Brain (OB1): Cross-Pollination Analysis
 
 ## What This Document Is
 
-An analysis of [Open Brain (OB1)](https://github.com/NateBJones-Projects/OB1) — a persistent AI memory system — and how its architecture, patterns, and design philosophy can inform updates to the AgentOps product specification.
+An analysis of [Open Brain (OB1)](https://github.com/NateBJones-Projects/OB1) — a persistent AI memory system — and how its architecture, patterns, and design philosophy can inform updates to the AgentSentry product specification.
 
-OB1 and AgentOps solve different problems, but they share a critical insight: **AI agents working across sessions and tools need infrastructure that the agents themselves don't provide.** OB1 solves this for *memory*. AgentOps solves it for *management*. The overlap is where the most valuable updates live.
+OB1 and AgentSentry solve different problems, but they share a critical insight: **AI agents working across sessions and tools need infrastructure that the agents themselves don't provide.** OB1 solves this for *memory*. AgentSentry solves it for *management*. The overlap is where the most valuable updates live.
 
 ---
 
@@ -18,19 +18,19 @@ The key architectural choices: no middleware, no SaaS chains, single database, r
 
 ---
 
-## Seven Updates for AgentOps
+## Seven Updates for AgentSentry
 
 ### 1. Add a Persistent Memory Layer (The Big One)
 
 **What OB1 does:** Every "thought" is stored with a vector embedding and structured metadata, making the entire history semantically searchable across AI tools and sessions.
 
-**What AgentOps is missing:** AgentOps currently uses flat markdown scaffold documents (PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md) as its cross-session memory. These work for human-readable state, but they have three limitations:
+**What AgentSentry is missing:** AgentSentry currently uses flat markdown scaffold documents (PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md) as its cross-session memory. These work for human-readable state, but they have three limitations:
 
 - They're not searchable by meaning — an agent can't ask "what security decisions have we made?" and get ranked results
 - They lose granularity — when the scaffold subagent updates CONTEXT.md, the *history* of decisions that led to the current state is overwritten
 - They don't compound — session 47's context handoff doesn't learn from session 12's similar situation
 
-**The update:** Add an **AgentOps Memory Store** — a local, vector-indexed database of agent operations events. Every significant event gets captured as a structured record with an embedding:
+**The update:** Add an **AgentSentry Memory Store** — a local, vector-indexed database of agent operations events. Every significant event gets captured as a structured record with an embedding:
 
 ```
 Event types:
@@ -50,7 +50,7 @@ Each record gets: timestamp, event type, affected files, risk level, session ID,
 - The compliance audit trail (§20 in the spec) gets a queryable index for free
 - Context handoffs become richer: instead of summarizing into CONTEXT.md, the handoff captures discrete events that the next session can search semantically
 
-**Implementation:** SQLite with the `sqlite-vec` extension (local, zero-dependency, no server), or optionally Supabase for teams. The MCP server pattern from OB1 maps directly — AgentOps exposes `capture_event`, `search_events`, `event_stats` as MCP tools.
+**Implementation:** SQLite with the `sqlite-vec` extension (local, zero-dependency, no server), or optionally Supabase for teams. The MCP server pattern from OB1 maps directly — AgentSentry exposes `capture_event`, `search_events`, `event_stats` as MCP tools.
 
 **Spec sections affected:** §6 (Context Health), §8 (Proactive Safety), §10 (Dashboard), §20 (Compliance/Audit Trail). New section: §25 (Persistent Operations Memory).
 
@@ -60,22 +60,22 @@ Each record gets: timestamp, event type, affected files, risk level, session ID,
 
 **What OB1 does:** The entire system is an MCP server. Any AI client that speaks MCP can use it — no tool-specific hooks required.
 
-**What AgentOps currently does:** Relies heavily on Claude Code hooks (PreToolUse, PostToolUse, etc.), with secondary support for git hooks and rules file syncing to Cursor/Codex. This means the real-time monitoring — the core value — only works fully in Claude Code.
+**What AgentSentry currently does:** Relies heavily on Claude Code hooks (PreToolUse, PostToolUse, etc.), with secondary support for git hooks and rules file syncing to Cursor/Codex. This means the real-time monitoring — the core value — only works fully in Claude Code.
 
-**The update:** Add an **AgentOps MCP Server** that exposes the five core skills as MCP tools:
+**The update:** Add an **AgentSentry MCP Server** that exposes the five core skills as MCP tools:
 
 | MCP Tool | Maps To | What It Does |
 |---|---|---|
-| `agentops_check_git` | Skill 1 (Save Points) | Returns git hygiene status — uncommitted files, time since last commit, branch safety |
-| `agentops_check_context` | Skill 2 (Context Health) | Returns estimated context usage, message count, degradation signals |
-| `agentops_check_rules` | Skill 3 (Standing Orders) | Validates a proposed change against rules files, returns violations |
-| `agentops_size_task` | Skill 4 (Small Bets) | Analyzes a task description and returns risk score + decomposition recommendation |
-| `agentops_scan_security` | Skill 5 (Proactive Safety) | Scans a file or change for secrets, PII, missing error handling |
-| `agentops_capture_event` | Memory Store | Captures a decision, violation, or incident to the persistent memory |
-| `agentops_search_history` | Memory Store | Semantic search across all stored operations events |
-| `agentops_health` | Dashboard | Returns current health scores and KPIs as structured data |
+| `agent_sentry_check_git` | Skill 1 (Save Points) | Returns git hygiene status — uncommitted files, time since last commit, branch safety |
+| `agent_sentry_check_context` | Skill 2 (Context Health) | Returns estimated context usage, message count, degradation signals |
+| `agent_sentry_check_rules` | Skill 3 (Standing Orders) | Validates a proposed change against rules files, returns violations |
+| `agent_sentry_size_task` | Skill 4 (Small Bets) | Analyzes a task description and returns risk score + decomposition recommendation |
+| `agent_sentry_scan_security` | Skill 5 (Proactive Safety) | Scans a file or change for secrets, PII, missing error handling |
+| `agent_sentry_capture_event` | Memory Store | Captures a decision, violation, or incident to the persistent memory |
+| `agent_sentry_search_history` | Memory Store | Semantic search across all stored operations events |
+| `agent_sentry_health` | Dashboard | Returns current health scores and KPIs as structured data |
 
-**Why this matters:** MCP is becoming the universal protocol. Claude Desktop, ChatGPT, Cursor, Windsurf, and others are adding MCP support. By exposing AgentOps as an MCP server, every AI client gets access to the management layer — not just the ones with hook systems. A developer using ChatGPT with Cursor gets the same oversight as someone using Claude Code.
+**Why this matters:** MCP is becoming the universal protocol. Claude Desktop, ChatGPT, Cursor, Windsurf, and others are adding MCP support. By exposing AgentSentry as an MCP server, every AI client gets access to the management layer — not just the ones with hook systems. A developer using ChatGPT with Cursor gets the same oversight as someone using Claude Code.
 
 The existing Claude Code hooks remain (they're faster and can block operations). The MCP server is an additional, universal access layer.
 
@@ -87,7 +87,7 @@ The existing Claude Code hooks remain (they're faster and can block operations).
 
 **What OB1 does:** Primitives are concept guides extracted when a pattern appears in 2+ extensions. "Deploy an Edge Function" is a primitive because every extension needs it. You learn it once, apply it everywhere.
 
-**What AgentOps currently does:** The 5 core skills are implemented as independent modules. Shared concepts (like "checkpoint before risky operation" or "validate against rules file") are duplicated across skills rather than extracted.
+**What AgentSentry currently does:** The 5 core skills are implemented as independent modules. Shared concepts (like "checkpoint before risky operation" or "validate against rules file") are duplicated across skills rather than extracted.
 
 **The update:** Create an `agent-sentry/primitives/` directory with reusable management patterns:
 
@@ -101,7 +101,7 @@ The existing Claude Code hooks remain (they're faster and can block operations).
 | `secret-detection` | Skills 1, 5 | Pattern matching for API keys, tokens, connection strings |
 | `event-capture` | All skills | How to log a structured event to the operations memory store |
 
-**Why this matters:** As AgentOps grows (plugins, community extensions, custom rules), reusable primitives prevent fragmentation. A plugin author building a "Kubernetes deployment validator" can compose from existing primitives (risk-scoring + rules-file-validation + event-capture) instead of reinventing them.
+**Why this matters:** As AgentSentry grows (plugins, community extensions, custom rules), reusable primitives prevent fragmentation. A plugin author building a "Kubernetes deployment validator" can compose from existing primitives (risk-scoring + rules-file-validation + event-capture) instead of reinventing them.
 
 This also creates a cleaner architecture: skills become *orchestrations* of primitives rather than monolithic scripts.
 
@@ -113,9 +113,9 @@ This also creates a cleaner architecture: skills become *orchestrations* of prim
 
 **What OB1 does:** Six distinct contribution categories (extensions, primitives, recipes, schemas, dashboards, integrations), each with a `_template/` directory, required `metadata.json` with a validated schema, required `README.md` with specific sections, and 11 automated checks before human review.
 
-**What AgentOps currently does:** §23 describes a plugin manifest format with hook subscriptions, config schema, and dashboard panels — but it's abstract. There's no contribution workflow, no validation pipeline, and no category taxonomy.
+**What AgentSentry currently does:** §23 describes a plugin manifest format with hook subscriptions, config schema, and dashboard panels — but it's abstract. There's no contribution workflow, no validation pipeline, and no category taxonomy.
 
-**The update:** Formalize AgentOps plugins into four contribution categories:
+**The update:** Formalize AgentSentry plugins into four contribution categories:
 
 | Category | Purpose | Example |
 |---|---|---|
@@ -135,7 +135,7 @@ Each category gets:
     "author": { "name": "...", "github": "..." },
     "version": "1.0.0",
     "hooks": ["PreToolUse"],
-    "requires": { "agentops": ">=3.0" },
+    "requires": { "agent-sentry": ">=3.0" },
     "tags": ["kubernetes", "deployment", "infrastructure"],
     "difficulty": "intermediate"
   }
@@ -151,7 +151,7 @@ Each category gets:
 
 **What OB1 does:** Every thought gets a vector embedding via `text-embedding-3-small`. You search by meaning: "conversations about hiring" returns notes about recruiting, interviews, and onboarding even if they never use the word "hiring."
 
-**What AgentOps currently does:** §20 (Compliance & Audit Trail) specifies append-only, hash-chained audit records — but they're structured logs, not semantically indexed. To find "all incidents related to authentication," you'd need to know the exact field values to query.
+**What AgentSentry currently does:** §20 (Compliance & Audit Trail) specifies append-only, hash-chained audit records — but they're structured logs, not semantically indexed. To find "all incidents related to authentication," you'd need to know the exact field values to query.
 
 **The update:** Add optional vector indexing to the audit trail. When an audit record is created:
 
@@ -174,7 +174,7 @@ This enables natural-language audit queries:
 
 **What OB1 does:** Every captured thought is automatically classified by a small LLM into: type (observation/task/idea/reference/person_note), topics (1-3 tags), people mentioned, action items, and dates. No manual tagging required.
 
-**What AgentOps currently does:** Events are classified by the code that generates them — a secret scanner violation is tagged "security," a blast radius warning is tagged "task-sizing." This is accurate but rigid. Cross-cutting concerns (like "this security violation happened because of poor task decomposition") aren't captured.
+**What AgentSentry currently does:** Events are classified by the code that generates them — a secret scanner violation is tagged "security," a blast radius warning is tagged "task-sizing." This is accurate but rigid. Cross-cutting concerns (like "this security violation happened because of poor task decomposition") aren't captured.
 
 **The update:** Add an **auto-enrichment step** to the event capture pipeline. After the primary classification (which stays), a lightweight LLM pass adds:
 
@@ -193,9 +193,9 @@ This enables natural-language audit queries:
 
 **What OB1 does:** Six extensions that build on each other in progressive difficulty. Each extension references primitives when introducing new concepts. Users build competence incrementally.
 
-**What AgentOps currently does:** §13 defines 4 implementation phases (Foundation → Extended Monitoring → Advanced Safety → Full Integration), but these are build phases for the framework itself, not enablement phases for the user.
+**What AgentSentry currently does:** §13 defines 4 implementation phases (Foundation → Extended Monitoring → Advanced Safety → Full Integration), but these are build phases for the framework itself, not enablement phases for the user.
 
-**The update:** Create a **progressive enablement path** for AgentOps users — five levels that mirror the five core skills:
+**The update:** Create a **progressive enablement path** for AgentSentry users — five levels that mirror the five core skills:
 
 | Level | Name | What Gets Enabled | Complexity |
 |---|---|---|---|
@@ -212,7 +212,7 @@ Each level:
 - References primitives for any shared concepts
 - Has a dashboard view that shows only the relevant metrics for that level
 
-The `agentops.config.json` gets a new field:
+The `agent-sentry.config.json` gets a new field:
 ```json
 {
   "enablement_level": 3,
@@ -226,7 +226,7 @@ The `agentops.config.json` gets a new field:
 }
 ```
 
-**Why this matters:** The current spec presents AgentOps as an all-or-nothing install. For the target audience (agentic developers who may be new to agent management), a progressive path reduces friction and builds confidence. You don't need to understand blast radius analysis on day one — you just need git checkpoints. The rest comes when you're ready.
+**Why this matters:** The current spec presents AgentSentry as an all-or-nothing install. For the target audience (agentic developers who may be new to agent management), a progressive path reduces friction and builds confidence. You don't need to understand blast radius analysis on day one — you just need git checkpoints. The rest comes when you're ready.
 
 **Spec sections affected:** §1 (System Overview), §12 (Configuration), §13 (Implementation Phases).
 
@@ -234,17 +234,17 @@ The `agentops.config.json` gets a new field:
 
 ## Three Architectural Observations (Not Direct Updates, But Worth Noting)
 
-### A. OB1's "No Middleware" Philosophy Validates AgentOps' Local-First Design
+### A. OB1's "No Middleware" Philosophy Validates AgentSentry' Local-First Design
 
-OB1 explicitly rejects SaaS chains and middleware. Everything runs against a single database the user controls. This validates AgentOps' existing choice to run locally with no server dependency. Worth emphasizing more strongly in the spec — "your management data never leaves your machine" is a selling point for security-conscious developers and teams subject to data residency requirements.
+OB1 explicitly rejects SaaS chains and middleware. Everything runs against a single database the user controls. This validates AgentSentry' existing choice to run locally with no server dependency. Worth emphasizing more strongly in the spec — "your management data never leaves your machine" is a selling point for security-conscious developers and teams subject to data residency requirements.
 
-### B. OB1's Row-Level Security Pattern Is Relevant for Team AgentOps
+### B. OB1's Row-Level Security Pattern Is Relevant for Team AgentSentry
 
-OB1 uses PostgreSQL RLS to isolate multi-user data while enabling shared access patterns. AgentOps §17 (Agent Identity & Permissions) defines permission boundaries per agent, but doesn't address multi-developer teams sharing an AgentOps installation. When two developers run agents on the same repo, whose scaffold docs win? Whose risk thresholds apply? OB1's RLS pattern offers a model: each developer's AgentOps events are isolated by default, with explicit sharing for team-level dashboards and audit trails.
+OB1 uses PostgreSQL RLS to isolate multi-user data while enabling shared access patterns. AgentSentry §17 (Agent Identity & Permissions) defines permission boundaries per agent, but doesn't address multi-developer teams sharing an AgentSentry installation. When two developers run agents on the same repo, whose scaffold docs win? Whose risk thresholds apply? OB1's RLS pattern offers a model: each developer's AgentSentry events are isolated by default, with explicit sharing for team-level dashboards and audit trails.
 
-### C. OB1's Automated PR Review (11 Checks) Is a Template for AgentOps Plugin Validation
+### C. OB1's Automated PR Review (11 Checks) Is a Template for AgentSentry Plugin Validation
 
-OB1's `.github/workflows/ob1-review.yml` runs 11 structural and security checks on every PR before human review. This exact pattern should be adopted for AgentOps plugin submissions — automated validation of metadata.json, no secrets, required README sections, valid hook subscriptions, and passing test suite before any human reviews the plugin.
+OB1's `.github/workflows/ob1-review.yml` runs 11 structural and security checks on every PR before human review. This exact pattern should be adopted for AgentSentry plugin submissions — automated validation of metadata.json, no secrets, required README sections, valid hook subscriptions, and passing test suite before any human reviews the plugin.
 
 ---
 
@@ -264,11 +264,11 @@ OB1's `.github/workflows/ob1-review.yml` runs 11 structural and security checks 
 
 ## What Stays the Same
 
-OB1 doesn't change AgentOps' core value proposition. The five management skills, the hook-based monitoring, the dashboard, the audit trail, the plugin system — all of that stands. What OB1 contributes is:
+OB1 doesn't change AgentSentry' core value proposition. The five management skills, the hook-based monitoring, the dashboard, the audit trail, the plugin system — all of that stands. What OB1 contributes is:
 
-1. A **memory model** that makes AgentOps smarter across sessions (not just within them)
-2. A **protocol choice** (MCP) that makes AgentOps universal across tools (not just Claude Code)
-3. A **contribution architecture** that makes AgentOps extensible by a community (not just the maintainer)
-4. An **onboarding philosophy** that makes AgentOps adoptable by non-experts (not just power users)
+1. A **memory model** that makes AgentSentry smarter across sessions (not just within them)
+2. A **protocol choice** (MCP) that makes AgentSentry universal across tools (not just Claude Code)
+3. A **contribution architecture** that makes AgentSentry extensible by a community (not just the maintainer)
+4. An **onboarding philosophy** that makes AgentSentry adoptable by non-experts (not just power users)
 
 These are the same four things that make OB1 itself successful — persistent memory, universal protocol, community extensibility, and progressive learning. The patterns transfer cleanly because both projects are solving the same meta-problem: building infrastructure that AI tools need but don't ship with.

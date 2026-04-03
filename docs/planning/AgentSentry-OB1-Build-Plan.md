@@ -1,21 +1,21 @@
-# AgentOps v4.0 — OB1 Memory Integration Build Plan
+# AgentSentry v4.0 — OB1 Memory Integration Build Plan
 
 **Date:** March 20, 2026
 **Source:** AgentSentry-Product-Spec.md v3.0 + AgentSentry-OB1-Analysis.md
-**Build Target:** AgentOps v4.0 — Memory-Aware Agent Management
+**Build Target:** AgentSentry v4.0 — Memory-Aware Agent Management
 **Stack:** TypeScript / Node.js (matching MCP ecosystem and target audience)
 
 ---
 
 ## Executive Summary
 
-This plan upgrades AgentOps from a stateless, session-scoped monitoring system to a memory-aware, cross-session intelligence layer. Seven changes derived from Open Brain (OB1) analysis, executed as four build phases.
+This plan upgrades AgentSentry from a stateless, session-scoped monitoring system to a memory-aware, cross-session intelligence layer. Seven changes derived from Open Brain (OB1) analysis, executed as four build phases.
 
 **What changes:** Persistent memory store, MCP server interface, primitives library, structured plugin model, progressive enablement, semantic audit search, auto-classification enrichment.
 
 **What stays:** Five core skills, hook architecture, event bus, dashboard, security model, local-first design, multi-tool compatibility.
 
-**Important:** AgentOps is a standalone, generic product. It has no runtime dependency on any specific build tool, orchestration framework, or agent system. The build orchestration instructions in Appendix A describe how to execute this plan using multi-agent swarm tooling — they are not part of the AgentOps product.
+**Important:** AgentSentry is a standalone, generic product. It has no runtime dependency on any specific build tool, orchestration framework, or agent system. The build orchestration instructions in Appendix A describe how to execute this plan using multi-agent swarm tooling — they are not part of the AgentSentry product.
 
 ---
 
@@ -43,7 +43,7 @@ This plan upgrades AgentOps from a stateless, session-scoped monitoring system t
 
 ### 1.1 Memory Store Core (`src/memory/store.ts`) — Memory Architect + Coder
 
-**Domain context:** AgentOps currently writes PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md as cross-session state. These are overwritten on each update. We need append-only, vector-indexed event storage that supplements (not replaces) scaffold docs.
+**Domain context:** AgentSentry currently writes PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md as cross-session state. These are overwritten on each update. We need append-only, vector-indexed event storage that supplements (not replaces) scaffold docs.
 
 **Implementation:**
 
@@ -268,7 +268,7 @@ interface MemoryStore {
 
 ### 1.2 Embedding Provider Abstraction (`src/memory/embeddings.ts`) — Coder
 
-**Requirement:** AgentOps is local-first. Embeddings must work offline. Optional cloud upgrade for teams.
+**Requirement:** AgentSentry is local-first. Embeddings must work offline. Optional cloud upgrade for teams.
 
 ```typescript
 interface EmbeddingProvider {
@@ -320,7 +320,7 @@ interface EmbeddingProvider {
 }
 ```
 
-**Migration path:** A developer who starts with SQLite can migrate to Supabase later. AgentOps provides a one-command migration:
+**Migration path:** A developer who starts with SQLite can migrate to Supabase later. AgentSentry provides a one-command migration:
 
 ```bash
 # Export all events from SQLite → import into Supabase
@@ -425,7 +425,7 @@ npm test && npm run build && npm run lint
 
 ## Phase 2: MCP Server Interface (P0 — Week 2)
 
-**Goal:** Expose AgentOps as an MCP server so any AI client can query the management layer.
+**Goal:** Expose AgentSentry as an MCP server so any AI client can query the management layer.
 
 **Agents:** MCP Engineer, Security Auditor, Test Engineer
 **Priority:** Critical
@@ -742,7 +742,7 @@ agent-sentry/
 
 ## Phase 4: Progressive Enablement & Enrichment (P1-P2 — Week 4)
 
-**Goal:** Make AgentOps adoptable by non-experts. Add smart event classification.
+**Goal:** Make AgentSentry adoptable by non-experts. Add smart event classification.
 
 **Agents:** Spec Writer, Coder, Test Engineer
 **Priority:** High
@@ -786,7 +786,7 @@ agent-sentry/
 **Dashboard adaptation:**
 - Dashboard shows only metrics for enabled skills
 - Disabled skill panels show "Enable Level X to unlock" with one-click upgrade
-- Level indicator in header: "AgentOps Level 3 — House Rules"
+- Level indicator in header: "AgentSentry Level 3 — House Rules"
 
 ### 4.2 Auto-Classification Enrichment — Coder
 
@@ -916,7 +916,7 @@ Phases 2 and 3 can run in parallel after Phase 1 completes. Phase 4 requires all
 | 1 | Embedding fallback chain works (ONNX → Ollama → Cloud → No-op) | `npm test -- --grep "embedding"` |
 | 1 | Hash chain verifies integrity | `npm test -- --grep "chain"` |
 | 2 | All 8 MCP tools respond correctly via stdio | `npm test -- --grep "mcp"` |
-| 2 | Claude Code can call AgentOps MCP tools | Manual: `claude mcp add agentops` |
+| 2 | Claude Code can call AgentSentry MCP tools | Manual: `claude mcp add agentops` |
 | 3 | All 7 primitives extracted and typed | `npm test -- --grep "primitives"` |
 | 3 | Skills produce identical output using primitives | `npm test -- --grep "skills"` |
 | 3 | Plugin template validates against schema | `bash scripts/validate-plugin.sh plugins/_templates/monitor` |
@@ -966,7 +966,7 @@ After all phases complete, `AgentSentry-Product-Spec.md` should show:
 
 ## Appendix A: RuFlo Build Orchestration
 
-> **Scope:** This appendix contains instructions for the build orchestration layer only. RuFlo manages the multi-agent swarm that *builds* AgentOps. It is not a runtime dependency of the AgentOps product — end users never install, configure, or interact with RuFlo.
+> **Scope:** This appendix contains instructions for the build orchestration layer only. RuFlo manages the multi-agent swarm that *builds* AgentSentry. It is not a runtime dependency of the AgentSentry product — end users never install, configure, or interact with RuFlo.
 
 ### Swarm Initialization
 

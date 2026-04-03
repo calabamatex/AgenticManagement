@@ -1,4 +1,4 @@
-# AgentOps for RuFlo — Implementation Plan
+# AgentSentry for RuFlo — Implementation Plan
 
 **Created:** March 19, 2026
 **Source Spec:** AgentSentry-RuFlo-Spec.md v3.0
@@ -27,19 +27,19 @@ Priority: P0 — These are the minimum viable safety layer.
 ### 1.3 Session Start Validation (`agent-sentry/scripts/session-start-checks.sh`) — 2h
 - Checks CLAUDE.md exists (critical if missing)
 - Checks AGENTS.md exists (warn if missing)
-- Checks for AgentOps rules section in CLAUDE.md
+- Checks for AgentSentry rules section in CLAUDE.md
 - Warns if CLAUDE.md > 300 lines
 - Validates required sections: security, error handling
 - Checks git state (initialized, clean)
 - Registered as `SessionStart` hook
 
-### 1.4 CLAUDE.md AgentOps Section Additions — 1h
-- Append `## AgentOps Management Rules` section to existing CLAUDE.md
+### 1.4 CLAUDE.md AgentSentry Section Additions — 1h
+- Append `## AgentSentry Management Rules` section to existing CLAUDE.md
 - Subsections: Version Control, Context Health, Task Sizing, Error Handling, Security (Non-Negotiable), Swarm Safety
 - Extend only — never replace existing content
 
-### 1.5 AGENTS.md AgentOps Section Additions — 1h
-- Append `## AgentOps Universal Rules (All Tools)` section
+### 1.5 AGENTS.md AgentSentry Section Additions — 1h
+- Append `## AgentSentry Universal Rules (All Tools)` section
 - Subsections: Before starting any task (4 steps), After completing any task (4 steps), Security, Error Handling
 - Must be cross-tool compatible (no Claude-specific syntax)
 
@@ -296,8 +296,8 @@ Priority: P1-P2 — Refinement, integration, and cross-tool parity.
 
 ### 5.5 Integration Tests with Existing Skills — 4h
 - Test composition with `hooks-automation`, `verification-quality`, `v3-security-overhaul`, `performance-analysis`
-- Verify AgentOps hooks don't conflict with existing RuFlo hooks
-- Validate that existing monitoring commands still work alongside AgentOps
+- Verify AgentSentry hooks don't conflict with existing RuFlo hooks
+- Validate that existing monitoring commands still work alongside AgentSentry
 
 ### Phase 5 Deliverables
 ```
@@ -443,7 +443,7 @@ All thresholds are configurable in `agent-sentry/agentops.config.json`:
 | `task_sizing` | medium: 4, high: 8, critical: 13, max_files_per_task: 5/8, swarm_max_total_files: 15 |
 | `security` | block_on_secret_detection: true, scan_git_history: false, scan_mcp_config: true |
 | `ruflo_integration` | compose_with_hooks_automation/verification_quality/security_overhaul: true, drift_detection_threshold: 2 |
-| `notifications` | verbose: false, suppress_advisory: false, prefix: "[AgentOps]" |
+| `notifications` | verbose: false, suppress_advisory: false, prefix: "[AgentSentry]" |
 
 ---
 

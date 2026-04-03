@@ -30,7 +30,7 @@ cd AgentSentry/agent-sentry && npm install && npm run build
 **Requirements:** Node.js >= 18
 
 **Dependencies:** `@modelcontextprotocol/sdk`, `better-sqlite3`, `uuid`, `zod`
-**Optional:** `onnxruntime-node` (for native ONNX embeddings — falls back to JS cosine similarity if absent)
+**Optional:** `onnxruntime-node` (for native ONNX embeddings — falls back to text search if absent). npm installs use noop embeddings by default; for semantic vector search, copy the `models/` directory from the source repo or configure Ollama/OpenAI as the embedding provider.
 
 ---
 

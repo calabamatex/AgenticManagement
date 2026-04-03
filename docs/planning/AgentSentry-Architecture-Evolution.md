@@ -1,8 +1,8 @@
-# AgentOps: Architectural Analysis & Framework Evolution
+# AgentSentry: Architectural Analysis & Framework Evolution
 
 ## What's Missing From the Current Spec — and What Needs to Be Built for 2026-2027
 
-**Context:** The current AgentOps spec covers the 5 management skills well (version control, context health, rules files, task sizing, safety checks), and it integrates cleanly with RuFlo. But it was designed as an oversight layer for a human managing coding agents. The agent landscape is moving fast, and several architectural concerns will determine whether AgentOps becomes a durable framework or a 2026 artifact. This document identifies those gaps and proposes the extensions needed.
+**Context:** The current AgentSentry spec covers the 5 management skills well (version control, context health, rules files, task sizing, safety checks), and it integrates cleanly with RuFlo. But it was designed as an oversight layer for a human managing coding agents. The agent landscape is moving fast, and several architectural concerns will determine whether AgentSentry becomes a durable framework or a 2026 artifact. This document identifies those gaps and proposes the extensions needed.
 
 ---
 
@@ -202,7 +202,7 @@ AFTER each LLM call:
 
 **Cost-aware routing integration with RuFlo's MoE:**
 
-RuFlo already has MoE routing with 8 experts and WASM fast-path for simple operations. AgentOps should feed cost data back into the routing decision:
+RuFlo already has MoE routing with 8 experts and WASM fast-path for simple operations. AgentSentry should feed cost data back into the routing decision:
 
 ```
 IF task is simple code transform AND WASM can handle it:
@@ -217,7 +217,7 @@ ELSE IF task requires complex reasoning:
 
 | Component | Purpose | Priority |
 |---|---|---|
-| `agentops.config.json` → budget section | Per-agent, per-session, monthly budgets | P0 |
+| `agent-sentry.config.json` → budget section | Per-agent, per-session, monthly budgets | P0 |
 | `agent-sentry/scripts/cost-tracker.sh` | PostToolUse hook logging token usage and cost | P0 |
 | Dashboard: Cost page | Real-time spend per agent, per session, per provider, with trends | P1 |
 | Budget enforcement in PreToolUse | Block or downgrade when budget exceeded | P1 |
@@ -279,7 +279,7 @@ ON cancel request:
   1. Set agent state to CANCELLING
   2. Agent finishes current tool call (don't interrupt mid-write)
   3. Agent saves current progress to WORKFLOW.md
-  4. Agent commits any uncommitted work with "[agentops] cancelled — checkpoint"
+  4. Agent commits any uncommitted work with "[agent-sentry] cancelled — checkpoint"
   5. Agent returns partial results to parent
   6. Set state to CANCELLED
   7. Clean up resources (kill child processes, release file locks)
@@ -301,7 +301,7 @@ ON cancel request:
 
 ### What's Missing
 
-RuFlo already supports Claude, GPT, Gemini, Cohere, and Ollama. But the current spec has no awareness of this. AgentOps monitors "the agent" as if it's always one provider. When a swarm has agents using different providers, cost tracking, error handling, and observability all need to be provider-aware.
+RuFlo already supports Claude, GPT, Gemini, Cohere, and Ollama. But the current spec has no awareness of this. AgentSentry monitors "the agent" as if it's always one provider. When a swarm has agents using different providers, cost tracking, error handling, and observability all need to be provider-aware.
 
 ### What Needs to Be Built
 
@@ -372,7 +372,7 @@ The current spec monitors agents in production but has no mechanism for testing 
 
 **Tier 1 — Golden Dataset (Per-Skill)**
 
-Each AgentOps skill and each RuFlo agent skill gets a set of test cases:
+Each AgentSentry skill and each RuFlo agent skill gets a set of test cases:
 
 ```yaml
 # agent-sentry/evals/secret-scanner/cases.yaml
@@ -611,7 +611,7 @@ weakening its own guardrails.
 
 ### What's Missing
 
-The current spec is a monolithic set of scripts and hooks. Adding a new check (say, a Kubernetes deployment validator or a GraphQL schema linter) requires modifying core scripts. There's no way for the community or individual teams to extend AgentOps with custom checks without forking.
+The current spec is a monolithic set of scripts and hooks. Adding a new check (say, a Kubernetes deployment validator or a GraphQL schema linter) requires modifying core scripts. There's no way for the community or individual teams to extend AgentSentry with custom checks without forking.
 
 ### What Needs to Be Built
 
@@ -661,7 +661,7 @@ agent-sentry/
 }
 ```
 
-**Why this matters:** RuFlo already has a plugin SDK and IPFS-based marketplace. AgentOps should follow the same pattern so that the agent management community can contribute checks, dashboards, and integrations.
+**Why this matters:** RuFlo already has a plugin SDK and IPFS-based marketplace. AgentSentry should follow the same pattern so that the agent management community can contribute checks, dashboards, and integrations.
 
 ---
 
@@ -669,13 +669,13 @@ agent-sentry/
 
 ### The Structural Change That Enables Everything Above
 
-Right now AgentOps is a collection of shell scripts triggered by hooks. Each script runs independently, logs to its own file, and has no awareness of other scripts' state. This works for the 5 core skills but collapses under the weight of the extensions above.
+Right now AgentSentry is a collection of shell scripts triggered by hooks. Each script runs independently, logs to its own file, and has no awareness of other scripts' state. This works for the 5 core skills but collapses under the weight of the extensions above.
 
 **The proposal: an event bus at the center.**
 
 ```
                      ┌───────────────────────┐
-                     │    AgentOps Event Bus   │
+                     │    AgentSentry Event Bus   │
                      │  (in-process pub/sub)   │
                      └─────────┬───────────────┘
                                │
@@ -698,7 +698,7 @@ Every hook emits a typed event. Plugins subscribe to events they care about. The
 
 **Implementation:** A lightweight TypeScript event emitter running as a local process (or just an in-memory pub/sub if running within Claude Code's Node.js runtime). Events are also persisted to NDJSON for the dashboard.
 
-This is the single architectural change that makes observability, cost tracking, compliance, plugins, and real-time dashboards all feasible without turning AgentOps into spaghetti.
+This is the single architectural change that makes observability, cost tracking, compliance, plugins, and real-time dashboards all feasible without turning AgentSentry into spaghetti.
 
 ---
 
@@ -746,13 +746,13 @@ RuFlo Integration           + Lifecycle States           + Community Plugins
 
 ## 13. Key Architectural Principles for Longevity
 
-These principles should guide every design decision as AgentOps evolves:
+These principles should guide every design decision as AgentSentry evolves:
 
 **1. Append-only by default.** Logs, audit trails, rules changes, and proposals are append-only. Nothing is ever deleted by agents. This provides compliance, debuggability, and protection against agents weakening their own guardrails.
 
 **2. Event-driven, not script-driven.** The event bus is the spine. Every component is a publisher or subscriber. New capabilities are added by subscribing to existing events, not by modifying existing scripts.
 
-**3. Provider-agnostic.** Every data structure includes a provider field. Every cost calculation is provider-aware. Every trace span knows which model it used. This ensures AgentOps works as the LLM landscape fragments.
+**3. Provider-agnostic.** Every data structure includes a provider field. Every cost calculation is provider-aware. Every trace span knows which model it used. This ensures AgentSentry works as the LLM landscape fragments.
 
 **4. Scope narrows, never widens.** Delegation tokens, permission overrides, and budget allocations can only narrow scope from what the parent granted. No agent can grant itself more access than it was given.
 

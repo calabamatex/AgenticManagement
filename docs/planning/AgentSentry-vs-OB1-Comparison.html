@@ -18,7 +18,7 @@
     --teal: #2dd4bf;
     --purple: #a78bfa;
     --orange: #fb923c;
-    --agentops: #6c8cff;
+    --agent-sentry-color: #6c8cff;
     --ob1: #2dd4bf;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -43,7 +43,7 @@
     margin-bottom: 8px;
   }
   .header h1 .vs { color: var(--muted); font-weight: 400; }
-  .header h1 .ao { color: var(--agentops); }
+  .header h1 .ao { color: var(--agent-sentry-color); }
   .header h1 .ob { color: var(--ob1); }
   .header .subtitle {
     color: var(--muted);
@@ -130,7 +130,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  thead th:nth-child(2) { color: var(--agentops); }
+  thead th:nth-child(2) { color: var(--agent-sentry-color); }
   thead th:nth-child(3) { color: var(--ob1); }
   tbody td {
     padding: 12px 14px;
@@ -178,8 +178,8 @@
     font-size: 15px;
     margin-bottom: 10px;
   }
-  .verdict-card.ao { border-top: 3px solid var(--agentops); }
-  .verdict-card.ao h3 { color: var(--agentops); }
+  .verdict-card.ao { border-top: 3px solid var(--agent-sentry-color); }
+  .verdict-card.ao h3 { color: var(--agent-sentry-color); }
   .verdict-card.ob { border-top: 3px solid var(--ob1); }
   .verdict-card.ob h3 { color: var(--ob1); }
   .verdict-card p { color: var(--muted); font-size: 13px; }
@@ -201,7 +201,7 @@
   .score-item .label { font-size: 12px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
   .score-item .scores { display: flex; justify-content: center; gap: 16px; }
   .score-item .score { font-size: 20px; font-weight: 700; }
-  .score-item .score.ao { color: var(--agentops); }
+  .score-item .score.ao { color: var(--agent-sentry-color); }
   .score-item .score.ob { color: var(--ob1); }
   .score-item .score-label { font-size: 10px; color: var(--muted); }
 
@@ -225,7 +225,7 @@
     margin-left: 4px;
     font-weight: 600;
   }
-  .winner.ao { background: rgba(108,140,255,0.15); color: var(--agentops); }
+  .winner.ao { background: rgba(108,140,255,0.15); color: var(--agent-sentry-color); }
   .winner.ob { background: rgba(45,212,191,0.15); color: var(--ob1); }
   .winner.tie { background: rgba(251,191,36,0.12); color: var(--amber); }
 
@@ -374,7 +374,7 @@
       </tr>
       <tr>
         <td>Setup Complexity</td>
-        <td><span class="rating moderate">Moderate</span><br>Copy directory, configure agentops.config.json, wire hooks into .claude/settings.json or git hooks. Multiple moving parts.</td>
+        <td><span class="rating moderate">Moderate</span><br>Copy directory, configure agent-sentry.config.json, wire hooks into .claude/settings.json or git hooks. Multiple moving parts.</td>
         <td><span class="rating moderate">Moderate</span><br>Deploy Supabase Edge Function, set env vars, connect Claude Desktop via MCP URL. Fewer parts, but cloud dependency.</td>
       </tr>
       <tr>
@@ -605,7 +605,7 @@
       </tr>
       <tr>
         <td>Customization Depth</td>
-        <td><span class="rating strong">Strong</span><br>agentops.config.json controls thresholds, verbosity, which skills are active, risk scoring weights. Deep customization.</td>
+        <td><span class="rating strong">Strong</span><br>agent-sentry.config.json controls thresholds, verbosity, which skills are active, risk scoring weights. Deep customization.</td>
         <td><span class="rating moderate">Moderate</span><br>Extensions are self-contained SQL + functions. Customization is "add new extensions" rather than "tune existing behavior."</td>
       </tr>
       <tr>

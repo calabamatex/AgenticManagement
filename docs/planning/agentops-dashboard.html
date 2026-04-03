@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgentOps Dashboard</title>
+<title>AgentSentry Dashboard</title>
 <style>
 :root {
   --bg: #0a0c10;
@@ -168,7 +168,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <h1><span class="logo">A</span> AgentOps</h1>
+    <h1><span class="logo">A</span> AgentSentry</h1>
     <div class="version">v2.0 — RuFlo Integration</div>
   </div>
   <div class="nav-section">
@@ -218,7 +218,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
   </div>
   <div class="sidebar-footer">
     <div class="last-scan">Last scan: <span id="lastScan">2 min ago</span></div>
-    <button class="btn-scan" onclick="runScan()">Run /agentops check</button>
+    <button class="btn-scan" onclick="runScan()">Run /agent-sentry check</button>
   </div>
 </aside>
 
@@ -230,7 +230,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
   <div class="page-header">
     <div>
       <h2>Dashboard</h2>
-      <div class="subtitle">AgentOps health overview for RuFlo</div>
+      <div class="subtitle">AgentSentry health overview for RuFlo</div>
     </div>
     <div class="time-range">
       <button class="time-btn active" onclick="setRange(this,'24h')">24h</button>
@@ -397,7 +397,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
       <tr><td>Error Handling</td><td><span class="sev sev-pass">PRESENT</span></td><td><span class="sev sev-pass">PRESENT</span></td></tr>
       <tr><td>Swarm Safety</td><td><span class="sev sev-pass">PRESENT</span></td><td><span class="sev sev-advisory">MISSING</span></td></tr>
       <tr><td>Scale Expectations</td><td><span class="sev sev-warning">MISSING</span></td><td><span class="sev sev-advisory">N/A</span></td></tr>
-      <tr><td>AgentOps Rules</td><td><span class="sev sev-warning">MISSING</span></td><td><span class="sev sev-warning">MISSING</span></td></tr>
+      <tr><td>AgentSentry Rules</td><td><span class="sev sev-warning">MISSING</span></td><td><span class="sev sev-warning">MISSING</span></td></tr>
     </table>
   </div>
 </div>
@@ -612,7 +612,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 </div><!-- /app -->
 
 <script>
-// ─── DATA (simulated — in production, read from agentops log files) ───
+// ─── DATA (simulated — in production, read from agent-sentry log files) ───
 const skills = [
   { name:'Save Points', icon:'&#128190;', color:'var(--green)', score:98, max:100, desc:'Git hygiene and commit frequency' },
   { name:'Context Health', icon:'&#129504;', color:'var(--blue)', score:85, max:100, desc:'Context window usage and degradation' },
@@ -631,7 +631,7 @@ const events = [
   { time:'13:30', icon:'&#10003;', iconBg:'var(--accent-dim)', iconColor:'var(--accent)', msg:'Session started — rules file validated', src:'session-start hook' },
   { time:'13:30', icon:'&#10003;', iconBg:'var(--green-dim)', iconColor:'var(--green)', msg:'Pre-swarm checkpoint created', src:'swarm-blast-radius' },
   { time:'12:45', icon:'&#10060;', iconBg:'var(--red-dim)', iconColor:'var(--red)', msg:'Blocked: ANTHROPIC_API_KEY in source file', src:'secret-scanner' },
-  { time:'12:30', icon:'&#10003;', iconBg:'var(--green-dim)', iconColor:'var(--green)', msg:'Scaffold docs updated', src:'agentops-scaffold' },
+  { time:'12:30', icon:'&#10003;', iconBg:'var(--green-dim)', iconColor:'var(--green)', msg:'Scaffold docs updated', src:'agent-sentry-scaffold' },
 ];
 
 const auditFindings = [
@@ -647,7 +647,7 @@ const auditFindings = [
   { check:'CONTEXT.md freshness', sev:'warning', detail:'Last updated 5 days ago (target: <7 days)' },
   { check:'npm audit', sev:'advisory', detail:'3 low-severity advisories in devDependencies' },
   { check:'Scale expectations in rules', sev:'advisory', detail:'CLAUDE.md missing growth targets' },
-  { check:'AgentOps rules in CLAUDE.md', sev:'advisory', detail:'AgentOps management section not yet added' },
+  { check:'AgentSentry rules in CLAUDE.md', sev:'advisory', detail:'AgentSentry management section not yet added' },
   { check:'Commit frequency', sev:'pass', detail:'Avg 22 min interval (target: <45 min)' },
   { check:'Branch hygiene', sev:'pass', detail:'No stale branches >14 days' },
   { check:'PLANNING.md exists', sev:'pass', detail:'Present with tech stack section' },
@@ -749,7 +749,7 @@ function runScan() {
   btn.textContent = 'Scanning...';
   btn.style.opacity = '.6';
   setTimeout(() => {
-    btn.textContent = 'Run /agentops check';
+    btn.textContent = 'Run /agent-sentry check';
     btn.style.opacity = '1';
     document.getElementById('lastScan').textContent = 'just now';
   }, 1500);

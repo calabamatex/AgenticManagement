@@ -87,7 +87,7 @@ If you want to customize, adjust `enablement.level` in `agent-sentry.config.json
 ## Storage
 
 - **Default**: SQLite (local, zero-config)
-- **Embeddings**: ONNX all-MiniLM-L6-v2 (384 dimensions) — falls back to noop if model unavailable
+- **Embeddings**: ONNX all-MiniLM-L6-v2 (384 dimensions) — falls back to noop if model unavailable. When installed via npm, embeddings default to noop (text search only). For semantic vector search, either copy the `models/` directory from the source repo or configure an alternative provider (Ollama, OpenAI) in `agent-sentry.config.json`.
 - **Supabase** [experimental]: Remote PostgreSQL via Supabase REST API — set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Not recommended for production use.
 
 Auto-pruning keeps the database bounded — configure `max_events` and `max_age_days` in `agent-sentry.config.json`.

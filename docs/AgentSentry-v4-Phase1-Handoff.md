@@ -1,4 +1,4 @@
-# AgentOps v4.0 — Phase 1 Handoff
+# AgentSentry v4.0 — Phase 1 Handoff
 
 ## Session Context
 **Date:** 2026-03-20
@@ -62,7 +62,7 @@ agent-sentry/src/memory/
 Every existing shell script in `agent-sentry/scripts/` gets a `capture_event` call appended. Uses `cli-capture.js` to write to memory store. Does NOT modify `event-bus.ts`.
 
 ### 6. Config Update
-Add `memory` section to `agent-sentry/agentops.config.json`:
+Add `memory` section to `agent-sentry/agent-sentry.config.json`:
 ```json
 {
   "memory": {
@@ -93,10 +93,10 @@ agent-sentry/tests/memory/
 
 ### 8. Phase 1 Verification Gate
 ```bash
-cd agentops && npm test -- --grep "memory"
-cd agentops && npm test -- --grep "embedding"
-cd agentops && npm test -- --grep "chain"
-cd agentops && npm run build
+cd agent-sentry && npm test -- --grep "memory"
+cd agent-sentry && npm test -- --grep "embedding"
+cd agent-sentry && npm test -- --grep "chain"
+cd agent-sentry && npm run build
 ```
 
 ## Do NOT Change
@@ -109,7 +109,7 @@ cd agentops && npm run build
 - 10 eval suites in `agent-sentry/evals/`
 - `agent-sentry/plugins/plugin-loader.sh` + `community/` dir
 - `agent-sentry/dashboard/` — HTML dashboard with data files
-- `agent-sentry/agentops.config.json` — current config (no `memory` section yet)
+- `agent-sentry/agent-sentry.config.json` — current config (no `memory` section yet)
 
 ## After Phase 1
 Phases 2-4 are detailed in `AgentSentry-OB1-Build-Plan.md`:

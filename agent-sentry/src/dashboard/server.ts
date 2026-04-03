@@ -38,7 +38,7 @@ export interface DashboardServerOptions {
   port?: number;
   /** Host to bind to (default '127.0.0.1'). */
   host?: string;
-  /** CORS origin (default '*'). */
+  /** CORS origin (default 'http://127.0.0.1:9200'). */
   corsOrigin?: string;
   /** Authentication token. If set, all requests must include Authorization: Bearer <token>. */
   token?: string;

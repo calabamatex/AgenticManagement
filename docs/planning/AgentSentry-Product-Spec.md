@@ -1,4 +1,4 @@
-# AgentOps: Standalone Agent Management System
+# AgentSentry: Standalone Agent Management System
 
 ## Product Specification — Installable Framework
 
@@ -14,22 +14,22 @@
 
 ### 1.1 Purpose
 
-AgentOps is a standalone management and safety framework that any agentic developer installs into their project to monitor their AI agents. While your agents execute tasks autonomously, AgentOps runs parallel to them—tracking version control discipline, context health, rules compliance, task sizing, and proactive safety checks. It enforces best practices without getting in the way.
+AgentSentry is a standalone management and safety framework that any agentic developer installs into their project to monitor their AI agents. While your agents execute tasks autonomously, AgentSentry runs parallel to them—tracking version control discipline, context health, rules compliance, task sizing, and proactive safety checks. It enforces best practices without getting in the way.
 
-AgentOps maintains persistent, searchable memory of all agent operations across sessions, enabling pattern detection, root cause analysis, and semantic search over your project's operational history.
+AgentSentry maintains persistent, searchable memory of all agent operations across sessions, enabling pattern detection, root cause analysis, and semantic search over your project's operational history.
 
-AgentOps is not a replacement for LLM provider dashboards or agent monitoring tools. Those track agent *performance*. AgentOps tracks agent *management hygiene*—the practices that prevent data loss, context drift, blast radius problems, and security gaps.
+AgentSentry is not a replacement for LLM provider dashboards or agent monitoring tools. Those track agent *performance*. AgentSentry tracks agent *management hygiene*—the practices that prevent data loss, context drift, blast radius problems, and security gaps.
 
-### 1.2 What AgentOps Is Not
+### 1.2 What AgentSentry Is Not
 
 - **Not tied to RuFlo or any specific framework.** It works on any project—React apps, Python backends, mobile apps, SaaS platforms.
-- **Not mandatory project infrastructure.** You choose which AI tools to use: Claude Code, Cursor, Codex, Copilot, or others. AgentOps works across all of them.
+- **Not mandatory project infrastructure.** You choose which AI tools to use: Claude Code, Cursor, Codex, Copilot, or others. AgentSentry works across all of them.
 - **Not an IDE extension.** It runs as shell scripts, configuration files, and an optional dashboard.
-- **Not a replacement for your agents.** AgentOps watches and guards; your agents do the work.
+- **Not a replacement for your agents.** AgentSentry watches and guards; your agents do the work.
 
 ### 1.3 Design Philosophy
 
-AgentOps treats the human developer (you) as the general contractor responsible for your agents. The system:
+AgentSentry treats the human developer (you) as the general contractor responsible for your agents. The system:
 
 - Catches problems that neither individual agents nor LLM providers will raise
 - Enforces version control and checkpoint discipline across multi-agent work
@@ -40,11 +40,11 @@ AgentOps treats the human developer (you) as the general contractor responsible 
 
 ### 1.4 Installation Architecture
 
-AgentOps is installed as a directory in your project root. Your project stays yours—AgentOps adds guardrails without requiring you to rewrite anything:
+AgentSentry is installed as a directory in your project root. Your project stays yours—AgentSentry adds guardrails without requiring you to rewrite anything:
 
 ```
 your-project/
-├── agent-sentry/                  # ← AgentOps installation
+├── agent-sentry/                  # ← AgentSentry installation
 │   ├── scripts/
 │   │   ├── git-hygiene-check.sh
 │   │   ├── scaffold-validator.sh
@@ -66,28 +66,28 @@ your-project/
 │   │   ├── primitives/      # Composable TypeScript primitives (7 modules)
 │   │   └── enablement/      # Progressive skill enablement engine
 │   ├── models/              # Embedding models (auto-downloaded)
-│   └── agentops.config.json
-├── .claude/                   # Your Claude Code config (AgentOps adds hooks)
-├── .cursorrules              # Your Cursor rules (AgentOps can sync)
+│   └── agent-sentry.config.json
+├── .claude/                   # Your Claude Code config (AgentSentry adds hooks)
+├── .cursorrules              # Your Cursor rules (AgentSentry can sync)
 ├── .agents/                   # Your Codex/other tool config
-├── AGENTS.md                  # Universal agent rules (AgentOps creates/extends)
-├── CLAUDE.md                  # Claude-specific rules (AgentOps creates/extends)
-├── PLANNING.md                # Scaffold doc (AgentOps creates)
-├── TASKS.md                   # Scaffold doc (AgentOps creates)
-├── CONTEXT.md                 # Scaffold doc (AgentOps creates)
-├── WORKFLOW.md                # Scaffold doc (AgentOps creates)
+├── AGENTS.md                  # Universal agent rules (AgentSentry creates/extends)
+├── CLAUDE.md                  # Claude-specific rules (AgentSentry creates/extends)
+├── PLANNING.md                # Scaffold doc (AgentSentry creates)
+├── TASKS.md                   # Scaffold doc (AgentSentry creates)
+├── CONTEXT.md                 # Scaffold doc (AgentSentry creates)
+├── WORKFLOW.md                # Scaffold doc (AgentSentry creates)
 └── [your project files]
 ```
 
 ### 1.5 Key Design Principles
 
-1. **Extend, don't replace.** Your existing agent definitions, rules, and configs stay. AgentOps adds new concerns to existing hook points and creates new files only where needed.
+1. **Extend, don't replace.** Your existing agent definitions, rules, and configs stay. AgentSentry adds new concerns to existing hook points and creates new files only where needed.
 
 2. **Multi-tool parity.** Rules and scaffold documents work via AGENTS.md (universal), CLAUDE.md (Claude Code), and `.agents/config.toml` (Codex). Git hooks work with any tool.
 
-3. **Generic, not opinionated.** AgentOps knows nothing about your tech stack, agent architecture, or deployment model. It watches for universal safety issues.
+3. **Generic, not opinionated.** AgentSentry knows nothing about your tech stack, agent architecture, or deployment model. It watches for universal safety issues.
 
-4. **Installable, not magical.** Install AgentOps from an npm package, a GitHub release, or a simple copy-paste. Remove it by deleting the `agent-sentry/` directory and the appended rules sections. No permanent magic.
+4. **Installable, not magical.** Install AgentSentry from an npm package, a GitHub release, or a simple copy-paste. Remove it by deleting the `agent-sentry/` directory and the appended rules sections. No permanent magic.
 
 5. **Memory-aware** — every agent event is captured, indexed, and searchable by meaning. Events form a hash chain for tamper detection.
 
@@ -112,7 +112,7 @@ IF git not initialized:
 
 IF uncommitted_changes > 5 files OR last_commit_age > 30 minutes:
   WARN: "Significant uncommitted work detected ({n} files, {t} minutes)."
-  ACTION: Auto-commit with "[agentops] auto-save before modification"
+  ACTION: Auto-commit with "[agent-sentry] auto-save before modification"
   LOG: Append to WORKFLOW.md
 
 IF current_branch = "main" AND risk_score >= 7 (see §5.2):
@@ -126,7 +126,7 @@ When multiple agents coordinate or execute in parallel:
 
 ```
 PRE-DEPLOYMENT:
-  ACTION: Auto-commit with "[agentops] pre-deployment checkpoint"
+  ACTION: Auto-commit with "[agent-sentry] pre-deployment checkpoint"
   ACTION: Create branch if on main
 
 POST-DEPLOYMENT:
@@ -148,7 +148,7 @@ AFTER each file modification:
 
   IF files_modified_this_session > 8 AND no commit since session start:
     WARN: "8+ files modified without a checkpoint. Auto-saving."
-    ACTION: Auto-commit "[agentops] mid-session checkpoint"
+    ACTION: Auto-commit "[agent-sentry] mid-session checkpoint"
 ```
 
 #### 2.2.4 Session End Checkpoint
@@ -158,7 +158,7 @@ On session completion:
 ```
 ON session end:
   IF uncommitted_changes exist:
-    ACTION: Auto-commit "[agentops] session-end checkpoint — {summary}"
+    ACTION: Auto-commit "[agent-sentry] session-end checkpoint — {summary}"
   ACTION: Update WORKFLOW.md with session summary
   ACTION: Update CONTEXT.md with current state
 ```
@@ -182,7 +182,7 @@ ON session end:
 
 Monitors context window health within a single agent session or across multiple agents working in parallel. Context degradation happens when instructions and state accumulate to the point where early system instructions get lost.
 
-At session start, AgentOps queries the memory store for relevant historical context — past violations, recurring patterns, and unresolved incidents — to inform the current session.
+At session start, AgentSentry queries the memory store for relevant historical context — past violations, recurring patterns, and unresolved incidents — to inform the current session.
 
 ### 3.2 Real-Time Monitors
 
@@ -233,7 +233,7 @@ IF sum(degradation_signals) >= 3:
 
 ### 3.3 Scaffold Document Manager
 
-AgentOps manages four documents that survive across sessions:
+AgentSentry manages four documents that survive across sessions:
 
 - **PLANNING.md:** Architecture, tech stack, design decisions
 - **TASKS.md:** Feature list, status (done/in-progress/blocked), known bugs
@@ -299,12 +299,12 @@ Validates that your project's rules files are well-structured, within reasonable
 
 ### 4.2 Integration with Existing Rules Files
 
-AgentOps **appends** to your existing CLAUDE.md and AGENTS.md files rather than replacing them.
+AgentSentry **appends** to your existing CLAUDE.md and AGENTS.md files rather than replacing them.
 
 **Additions to CLAUDE.md (Claude Code specific):**
 
 ```markdown
-## AgentOps Management Rules
+## AgentSentry Management Rules
 
 ### Version Control
 - Commit before and after agent deployments
@@ -336,7 +336,7 @@ AgentOps **appends** to your existing CLAUDE.md and AGENTS.md files rather than 
 **Additions to AGENTS.md (universal, all tools):**
 
 ```markdown
-## AgentOps Universal Rules (All Tools)
+## AgentSentry Universal Rules (All Tools)
 
 ### Before starting any task:
 1. Check git status — commit if uncommitted changes exist
@@ -378,11 +378,11 @@ IF AGENTS.md missing:
 # Validate content
 rules_content = read(CLAUDE.md) or read(AGENTS.md)
 
-IF "AgentOps" not in rules_content:
-  NOTIFY: "Rules file exists but has no AgentOps section. Consider running /agentops scaffold."
+IF "AgentSentry" not in rules_content:
+  NOTIFY: "Rules file exists but has no AgentSentry section. Consider running /agent-sentry scaffold."
 
 IF line_count > 300:
-  WARN: "Rules file is {n} lines. AgentOps recommends <200 lines
+  WARN: "Rules file is {n} lines. AgentSentry recommends <200 lines
          to keep rules concise and avoid context bloat."
 
 # Check for required sections
@@ -674,14 +674,14 @@ Checks:
 
 ## 7. Slash Commands
 
-### 7.1 `/agentops check` — Quick Session Health Check
+### 7.1 `/agent-sentry check` — Quick Session Health Check
 
 **Purpose:** Quick snapshot of your session's health.
 
 **Output format:**
 
 ```
-AgentOps Session Health
+AgentSentry Session Health
 ───────────────────────────────────────────────
 ◉ Save Points      Last commit: 12 min ago (3 files uncommitted)
 ◉ Context Health    ~45% capacity, 18 messages, no degradation
@@ -692,11 +692,11 @@ AgentOps Session Health
 ▲ 1 advisory: CONTEXT.md last updated 3 days ago.
 ```
 
-### 7.2 `/agentops audit` — Full Project Audit
+### 7.2 `/agent-sentry audit` — Full Project Audit
 
 Runs all audit checks from §2.3, §3.5, §4.5, §5.5, §6.4. Output grouped by severity level (Critical, Warning, Advisory, Pass).
 
-### 7.3 `/agentops scaffold` — Create/Update Scaffold Documents
+### 7.3 `/agent-sentry scaffold` — Create/Update Scaffold Documents
 
 Creates or updates PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md with current project state. Generates handoff messages for starting fresh sessions.
 
@@ -706,7 +706,7 @@ Creates or updates PLANNING.md, TASKS.md, CONTEXT.md, WORKFLOW.md with current p
 
 ### 8.1 Additions to Your Tool's Configuration
 
-AgentOps integrates with your AI tool's hook system by adding entries to your existing configuration (`.claude/settings.json` for Claude Code, `.cursorrules` for Cursor, etc.).
+AgentSentry integrates with your AI tool's hook system by adding entries to your existing configuration (`.claude/settings.json` for Claude Code, `.cursorrules` for Cursor, etc.).
 
 **Example for Claude Code (.claude/settings.json):**
 
@@ -717,41 +717,41 @@ AgentOps integrates with your AI tool's hook system by adding entries to your ex
       {
         "matcher": "Write|Edit",
         "command": "bash agent-sentry/scripts/secret-scanner.sh",
-        "description": "[AgentOps] Scan for hardcoded secrets before file writes"
+        "description": "[AgentSentry] Scan for hardcoded secrets before file writes"
       },
       {
         "matcher": "Write|Edit|Bash",
         "command": "bash agent-sentry/scripts/git-hygiene-check.sh --pre-write",
-        "description": "[AgentOps] Check git state before modifications"
+        "description": "[AgentSentry] Check git state before modifications"
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
         "command": "bash agent-sentry/scripts/post-write-checks.sh",
-        "description": "[AgentOps] Error handling, PII, blast radius checks"
+        "description": "[AgentSentry] Error handling, PII, blast radius checks"
       }
     ],
     "UserPromptSubmit": [
       {
         "command": "bash agent-sentry/scripts/task-sizer.sh",
-        "description": "[AgentOps] Analyze task risk score"
+        "description": "[AgentSentry] Analyze task risk score"
       },
       {
         "command": "bash agent-sentry/scripts/context-estimator.sh",
-        "description": "[AgentOps] Update context usage estimate"
+        "description": "[AgentSentry] Update context usage estimate"
       }
     ],
     "Stop": [
       {
         "command": "bash agent-sentry/scripts/session-checkpoint.sh",
-        "description": "[AgentOps] Auto-commit and scaffold update if needed"
+        "description": "[AgentSentry] Auto-commit and scaffold update if needed"
       }
     ],
     "SessionStart": [
       {
         "command": "bash agent-sentry/scripts/session-start-checks.sh",
-        "description": "[AgentOps] Validate rules files, scaffold docs, git state"
+        "description": "[AgentSentry] Validate rules files, scaffold docs, git state"
       }
     ]
   }
@@ -764,7 +764,7 @@ AgentOps integrates with your AI tool's hook system by adding entries to your ex
 
 ```bash
 #!/bin/bash
-# [AgentOps] Pre-commit checks
+# [AgentSentry] Pre-commit checks
 # 1. Secret scanner on staged files
 # 2. PII logging check on staged files
 # 3. Verify .env not being committed
@@ -776,7 +776,7 @@ AgentOps integrates with your AI tool's hook system by adding entries to your ex
 
 ```bash
 #!/bin/bash
-# [AgentOps] Post-commit actions
+# [AgentSentry] Post-commit actions
 # 1. Update WORKFLOW.md with commit summary
 # 2. Reset blast radius counter
 # 3. Log commit metadata to session log
@@ -784,7 +784,7 @@ AgentOps integrates with your AI tool's hook system by adding entries to your ex
 
 Setup: `git config core.hooksPath .githooks`
 
-AgentOps also exposes an MCP server interface as an alternative to hooks. The 8 MCP tools (check-git, check-context, check-rules, size-task, scan-security, capture-event, search-history, health) can be used by any MCP-compatible AI client.
+AgentSentry also exposes an MCP server interface as an alternative to hooks. The 8 MCP tools (check-git, check-context, check-rules, size-task, scan-security, capture-event, search-history, health) can be used by any MCP-compatible AI client.
 
 ---
 
@@ -792,23 +792,23 @@ AgentOps also exposes an MCP server interface as an alternative to hooks. The 8 
 
 ### 9.1 Overview
 
-AgentOps includes a local HTML dashboard (`agentops-dashboard.html`) that provides visual monitoring. It runs in any browser with zero dependencies—no server, no build step.
+AgentSentry includes a local HTML dashboard (`agent-sentry-dashboard.html`) that provides visual monitoring. It runs in any browser with zero dependencies—no server, no build step.
 
 ### 9.2 Architecture
 
 ```
 agent-sentry/
 ├── dashboard/
-│   ├── agentops-dashboard.html    # Main dashboard (single file, self-contained)
+│   ├── agent-sentry-dashboard.html    # Main dashboard (single file, self-contained)
 │   ├── data/                      # Log files written by hooks and scripts
 │   │   ├── session-log.json       # Current session events
-│   │   ├── audit-results.json     # Last /agentops-audit output
+│   │   ├── audit-results.json     # Last /agent-sentry-audit output
 │   │   ├── health-history.json    # Daily health scores (rolling 90 days)
 │   │   └── commit-history.json    # Commit frequency data
 │   └── README.md
 ```
 
-**Data flow:** AgentOps hooks write JSON to `agent-sentry/dashboard/data/`. The HTML dashboard reads these files via `fetch()` on load. No server required.
+**Data flow:** AgentSentry hooks write JSON to `agent-sentry/dashboard/data/`. The HTML dashboard reads these files via `fetch()` on load. No server required.
 
 ### 9.3 Pages
 
@@ -834,7 +834,7 @@ Five pages—one per skill. Each shows:
 
 #### 9.3.3 Audit Report Page
 
-Full `/agentops-audit` results in sortable table format.
+Full `/agent-sentry-audit` results in sortable table format.
 
 #### 9.3.4 Trends Page
 
@@ -870,7 +870,7 @@ Single self-contained HTML file with inline CSS and JavaScript. Uses:
 
 ## 10. Implementation Phases
 
-AgentOps v4.0 implementation:
+AgentSentry v4.0 implementation:
 - **Phase 1:** Persistent Memory Store — hash-chained event storage with vector search
 - **Phase 2:** MCP Server Interface — 8 tools exposed via stdio and HTTP transport
 - **Phase 3:** Primitives & Plugin Model — 7 composable TypeScript modules, plugin templates
@@ -880,7 +880,7 @@ AgentOps v4.0 implementation:
 
 ## 11. Configuration
 
-### 11.1 `agent-sentry/agentops.config.json`
+### 11.1 `agent-sentry/agent-sentry.config.json`
 
 ```json
 {
@@ -913,7 +913,7 @@ AgentOps v4.0 implementation:
   },
   "notifications": {
     "verbose": false,
-    "prefix_all_messages": "[AgentOps]"
+    "prefix_all_messages": "[AgentSentry]"
   },
   "memory": {
     "enabled": true,
@@ -955,7 +955,7 @@ AgentOps v4.0 implementation:
 | Blast radius per task | ≤ 5 files median | Git commit analysis |
 | Secret exposure incidents | 0 | Pre-commit hook + scanner blocks |
 | Context restarts per session | ≤ 1 | Session start count |
-| Security audit pass rate | >90% warning+ | `/agentops audit` results |
+| Security audit pass rate | >90% warning+ | `/agent-sentry audit` results |
 | Scaffold freshness | Updated within 24h of last session | File timestamps |
 
 ---
@@ -968,7 +968,7 @@ When multiple agents coordinate or execute in sequence, there is no way to trace
 
 ### 13.2 Tracing Architecture
 
-AgentOps adopts OpenTelemetry AI Agent Semantic Convention. Every significant action gets traced:
+AgentSentry adopts OpenTelemetry AI Agent Semantic Convention. Every significant action gets traced:
 
 ```
 Trace: "Implement user auth" (traceId: abc123)
@@ -1082,7 +1082,7 @@ Parent (broad scope) → Delegation token → Child (narrow scope)
 
 ### 15.1 Purpose
 
-Multiple agents using multiple LLM providers can burn budget quickly. AgentOps provides per-agent, per-session, and monthly budget tracking.
+Multiple agents using multiple LLM providers can burn budget quickly. AgentSentry provides per-agent, per-session, and monthly budget tracking.
 
 ### 15.2 Hierarchical Budget System
 
@@ -1130,7 +1130,7 @@ AFTER each LLM call:
 
 | Component | Priority |
 |---|---|
-| Budget configuration in agentops.config.json | P0 |
+| Budget configuration in agent-sentry.config.json | P0 |
 | Cost tracking on every LLM call | P0 |
 | Budget enforcement in PreToolUse | P1 |
 | Dashboard: Cost page | P1 |
@@ -1167,7 +1167,7 @@ ON cancel request:
   1. Set state to CANCELLING
   2. Agent finishes current tool call
   3. Agent saves progress to WORKFLOW.md
-  4. Agent commits with "[agentops] cancelled — checkpoint"
+  4. Agent commits with "[agent-sentry] cancelled — checkpoint"
   5. Agent returns partial results
   6. Set state to CANCELLED
   7. Clean up child processes and locks
@@ -1188,7 +1188,7 @@ ON cancel request:
 
 ### 17.1 Purpose
 
-AgentOps must work across Claude, OpenAI, Google, and other providers. Track health, errors, and costs per provider.
+AgentSentry must work across Claude, OpenAI, Google, and other providers. Track health, errors, and costs per provider.
 
 ### 17.2 Per-Provider Tracking
 
@@ -1400,7 +1400,7 @@ Only developers can remove rules.
 
 ### 21.2 Plugin Architecture
 
-Extend AgentOps without forking:
+Extend AgentSentry without forking:
 
 ```
 agent-sentry/
@@ -1434,7 +1434,7 @@ Central pub/sub system for all extensions:
 
 ```
                  ┌──────────────────┐
-                 │  AgentOps Event   │
+                 │  AgentSentry Event   │
                  │      Bus          │
                  └────────┬─────────┘
          ┌───────────────┼────────────────┐
@@ -1506,7 +1506,7 @@ Audit Trail             + Setup Wizard
 
 ### 25.1 Purpose
 
-AgentOps captures every operational event (decisions, violations, incidents, patterns, handoffs, audit findings) into a persistent, hash-chained memory store. This replaces the flat scaffold-doc approach (where CONTEXT.md was overwritten each session) with append-only, vector-indexed event storage. Scaffold docs still exist but are now *views* of the memory, not the memory itself.
+AgentSentry captures every operational event (decisions, violations, incidents, patterns, handoffs, audit findings) into a persistent, hash-chained memory store. This replaces the flat scaffold-doc approach (where CONTEXT.md was overwritten each session) with append-only, vector-indexed event storage. Scaffold docs still exist but are now *views* of the memory, not the memory itself.
 
 ### 25.2 Event Record Schema
 
@@ -1564,7 +1564,7 @@ interface StorageProvider {
 
 ### 25.4 Embedding Provider Chain
 
-AgentOps is local-first. Embeddings must work offline with optional cloud upgrade:
+AgentSentry is local-first. Embeddings must work offline with optional cloud upgrade:
 
 1. **Local ONNX** — `all-MiniLM-L6-v2` (~23MB bundled in `agent-sentry/models/`), ~50ms/embed, zero network
 2. **Ollama** — local API if running, ~100ms/embed
@@ -1608,20 +1608,20 @@ Scaffold docs shift from being the memory to being a view of the memory. When CO
 
 ### 26.1 Purpose
 
-AgentOps exposes its full management layer via the Model Context Protocol (MCP), enabling any MCP-compatible AI client to query health, capture events, and search history without shell hooks. This is an alternative (or complement) to the hook-based integration.
+AgentSentry exposes its full management layer via the Model Context Protocol (MCP), enabling any MCP-compatible AI client to query health, capture events, and search history without shell hooks. This is an alternative (or complement) to the hook-based integration.
 
 ### 26.2 Tool Registrations (8 Tools)
 
 | Tool | Input | Output |
 |------|-------|--------|
-| `agentops_check_git` | (none) | Uncommitted files, time since last commit, branch safety, risk score |
-| `agentops_check_context` | `message_count?` | Context usage %, degradation signals, continue/refresh recommendation |
-| `agentops_check_rules` | `file_path`, `change_description` | Violations against AGENTS.md/CLAUDE.md with rule references |
-| `agentops_size_task` | `task`, `files?` | Risk score (LOW/MEDIUM/HIGH/CRITICAL), affected file estimate, decomposition guidance |
-| `agentops_scan_security` | `content`, `file_path?` | Secrets, PII, missing error handling, injection risks |
-| `agentops_capture_event` | `event_type`, `severity`, `skill`, `title`, `detail`, `affected_files?`, `tags?` | Stored event ID, hash |
-| `agentops_search_history` | `query`, `limit?`, `event_type?`, `severity?`, `since?` | Ranked search results by semantic relevance |
-| `agentops_health` | (none) | Health scores, KPIs, recent alerts, skill-level status as structured JSON |
+| `agent-sentry_check_git` | (none) | Uncommitted files, time since last commit, branch safety, risk score |
+| `agent-sentry_check_context` | `message_count?` | Context usage %, degradation signals, continue/refresh recommendation |
+| `agent-sentry_check_rules` | `file_path`, `change_description` | Violations against AGENTS.md/CLAUDE.md with rule references |
+| `agent-sentry_size_task` | `task`, `files?` | Risk score (LOW/MEDIUM/HIGH/CRITICAL), affected file estimate, decomposition guidance |
+| `agent-sentry_scan_security` | `content`, `file_path?` | Secrets, PII, missing error handling, injection risks |
+| `agent-sentry_capture_event` | `event_type`, `severity`, `skill`, `title`, `detail`, `affected_files?`, `tags?` | Stored event ID, hash |
+| `agent-sentry_search_history` | `query`, `limit?`, `event_type?`, `severity?`, `since?` | Ranked search results by semantic relevance |
+| `agent-sentry_health` | (none) | Health scores, KPIs, recent alerts, skill-level status as structured JSON |
 
 ### 26.3 Transport Options
 
@@ -1637,21 +1637,21 @@ node agent-sentry/dist/src/mcp/server.js
 ```bash
 # Start
 node agent-sentry/dist/src/mcp/server.js --http --port 3100
-# Auth: x-agentops-key header or ?key= query param
+# Auth: x-agent-sentry-key header or ?key= query param
 ```
 
 ### 26.4 Client Integration
 
 **Claude Code:**
 ```bash
-claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js
+claude mcp add agent-sentry -- node agent-sentry/dist/src/mcp/server.js
 ```
 
 **Cursor (`.cursor/mcp.json`):**
 ```json
 {
   "mcpServers": {
-    "agentops": {
+    "agent-sentry": {
       "command": "node",
       "args": ["agent-sentry/dist/src/mcp/server.js"]
     }
@@ -1661,7 +1661,7 @@ claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js
 
 ### 26.5 Security
 
-All inputs validated against typed schemas (no arbitrary SQL). `agentops_scan_security` never executes scanned content. `agentops_capture_event` validates event types, severities, and skill names against enums. No MCP tool exposes raw database access.
+All inputs validated against typed schemas (no arbitrary SQL). `agent-sentry_scan_security` never executes scanned content. `agent-sentry_capture_event` validates event types, severities, and skill names against enums. No MCP tool exposes raw database access.
 
 ---
 
@@ -1743,7 +1743,7 @@ New users should not face a wall of 5 skills and 30+ configuration options on da
 
 ### 28.3 Setup Wizard
 
-The interactive CLI wizard (`scripts/setup-wizard.sh`) prompts for the user's preferred level, generates the corresponding enablement JSON, and merges it into `agentops.config.json`. It supports `--level N` for non-interactive use and `--dry-run` to preview without writing changes.
+The interactive CLI wizard (`scripts/setup-wizard.sh`) prompts for the user's preferred level, generates the corresponding enablement JSON, and merges it into `agent-sentry.config.json`. It supports `--level N` for non-interactive use and `--dry-run` to preview without writing changes.
 
 > **Note:** The wizard is config-only. It does not install git hooks, register MCP servers, or modify `.claude/settings.json`. Hook and MCP wiring are documented separately in the Quick Start guide (`docs/quick-start.md`).
 
@@ -1757,7 +1757,7 @@ bash agent-sentry/scripts/setup-wizard.sh
 
 ### 28.4 Dashboard Adaptation
 
-The dashboard renders only enabled skills. Disabled skill panels display "Enable Level X to unlock" with a one-click upgrade path. The header shows the current level: "AgentOps Level 3 — House Rules".
+The dashboard renders only enabled skills. Disabled skill panels display "Enable Level X to unlock" with a one-click upgrade path. The header shows the current level: "AgentSentry Level 3 — House Rules".
 
 ### 28.5 Auto-Classification Enrichment
 
@@ -1795,17 +1795,17 @@ The hash-chained audit trail (§19) gains optional vector indexing. When an audi
 
 ---
 
-## Appendix B: Files AgentOps Creates and Modifies
+## Appendix B: Files AgentSentry Creates and Modifies
 
-### New Files (AgentOps Creates)
+### New Files (AgentSentry Creates)
 
 | File | Purpose |
 |---|---|
 | `agent-sentry/scripts/*.sh` | Monitoring and audit scripts |
 | `agent-sentry/scripts/setup-wizard.sh` | Enablement configuration generator (config-only; does not install hooks or MCP) |
 | `agent-sentry/templates/*.md` | Scaffold document templates |
-| `agent-sentry/agentops.config.json` | Configuration |
-| `agent-sentry/dashboard/agentops-dashboard.html` | Web dashboard |
+| `agent-sentry/agent-sentry.config.json` | Configuration |
+| `agent-sentry/dashboard/agent-sentry-dashboard.html` | Web dashboard |
 | `agent-sentry/dashboard/data/*.json` | Dashboard data files |
 | `agent-sentry/src/memory/store.ts` | MemoryStore class — CRUD + vector search |
 | `agent-sentry/src/memory/schema.ts` | OpsEvent record types and validation |
@@ -1835,22 +1835,22 @@ The hash-chained audit trail (§19) gains optional vector indexing. When an audi
 | `agent-sentry/core/event-bus.ts` | Event system |
 | `agent-sentry/evals/` | Test fixtures and golden datasets |
 | `config/plugin.schema.json` | Plugin metadata validation schema |
-| `config/agentops.config.schema.json` | Config file JSON Schema |
+| `config/agent-sentry.config.schema.json` | Config file JSON Schema |
 | `PLANNING.md` | Scaffold document |
 | `TASKS.md` | Scaffold document |
 | `CONTEXT.md` | Scaffold document |
 | `WORKFLOW.md` | Scaffold document |
 
-### Existing Files (AgentOps Appends To)
+### Existing Files (AgentSentry Appends To)
 
 | File | What Gets Added |
 |---|---|
-| `AGENTS.md` | AgentOps Universal Rules section |
-| `CLAUDE.md` | AgentOps Management Rules section (if Claude Code) |
-| Tool config (e.g., `.claude/settings.json`) | Hook entries (prefixed `[AgentOps]`) |
+| `AGENTS.md` | AgentSentry Universal Rules section |
+| `CLAUDE.md` | AgentSentry Management Rules section (if Claude Code) |
+| Tool config (e.g., `.claude/settings.json`) | Hook entries (prefixed `[AgentSentry]`) |
 | `.gitignore` | Ensure .env patterns covered |
 
-### Existing Files (AgentOps Reads Only)
+### Existing Files (AgentSentry Reads Only)
 
 | File | Why |
 |---|---|
@@ -1867,20 +1867,20 @@ The hash-chained audit trail (§19) gains optional vector indexing. When an audi
 ### Option A: Setup Wizard (Recommended — 5 minutes)
 
 ```bash
-# Install AgentOps into your project
-npm install agentops
+# Install AgentSentry into your project
+npm install agent-sentry
 
 # Run the interactive setup wizard
 node agent-sentry/scripts/setup-wizard.js
 ```
 
-The wizard prompts for your preferred enablement level (1-5) and generates the corresponding enablement configuration in `agentops.config.json`. It does not install hooks or register MCP servers -- see Option B below for those steps.
+The wizard prompts for your preferred enablement level (1-5) and generates the corresponding enablement configuration in `agent-sentry.config.json`. It does not install hooks or register MCP servers -- see Option B below for those steps.
 
 ### Option B: Manual Setup
 
-1. **Install AgentOps:**
+1. **Install AgentSentry:**
    - Download or clone the agent-sentry/ directory to your project root
-   - Copy `agentops.config.json` and adjust thresholds
+   - Copy `agent-sentry.config.json` and adjust thresholds
 
 2. **Hook into your tool:**
    - For Claude Code: Add hook entries to `.claude/settings.json` (see §8)
@@ -1888,13 +1888,13 @@ The wizard prompts for your preferred enablement level (1-5) and generates the c
    - For others: Create equivalent hook integrations
 
 3. **Add MCP integration (optional):**
-   - Claude Code: `claude mcp add agentops -- node agent-sentry/dist/src/mcp/server.js`
+   - Claude Code: `claude mcp add agent-sentry -- node agent-sentry/dist/src/mcp/server.js`
    - Cursor: Add to `.cursor/mcp.json` (see §26.4)
 
 4. **Create rules files:**
    - Create `AGENTS.md` with universal rules
    - Create `CLAUDE.md` (or tool-specific file) with tool-specific rules
-   - Run `/agentops scaffold` to create scaffold documents
+   - Run `/agent-sentry scaffold` to create scaffold documents
 
 5. **Set up git hooks:**
    - Run: `git config core.hooksPath .githooks`
@@ -1904,11 +1904,11 @@ The wizard prompts for your preferred enablement level (1-5) and generates the c
    - Teams: Set `"provider": "supabase"` in config with `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` env vars
 
 7. **View the dashboard:**
-   - Open `agent-sentry/dashboard/agentops-dashboard.html` in your browser
+   - Open `agent-sentry/dashboard/agent-sentry-dashboard.html` in your browser
 
 8. **Start your session:**
-   - Run `/agentops check` to verify everything is working
-   - Begin your work — AgentOps will monitor in the background
+   - Run `/agent-sentry check` to verify everything is working
+   - Begin your work — AgentSentry will monitor in the background
 
 ---
 

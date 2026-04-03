@@ -1,4 +1,4 @@
-# AgentOps: The Management Layer Your Agents Are Missing
+# AgentSentry: The Management Layer Your Agents Are Missing
 
 ## A Project Synopsis for Agentic Developers
 
@@ -16,13 +16,13 @@ You're an agentic developer. You build software by describing what you want and 
 
 You're not writing code line by line. You're managing the thing that writes code. And that management layer — the part between your intent and what the agent actually does — is where everything breaks.
 
-AgentOps is the management layer.
+AgentSentry is the management layer.
 
 ---
 
-## What AgentOps Actually Is
+## What AgentSentry Actually Is
 
-AgentOps is an open oversight framework that sits on top of your AI coding agents and does three things:
+AgentSentry is an open oversight framework that sits on top of your AI coding agents and does three things:
 
 1. **Watches in real time** while your agents work — flagging risky changes, secret exposure, context window degradation, and scope creep before they become disasters
 2. **Audits on demand** — scanning your entire project for security gaps, missing error handling, rules file problems, and architectural risks
@@ -54,38 +54,38 @@ These aren't edge cases. They're the default outcome when you give a powerful ag
 
 Gartner predicts that 40%+ of agentic AI projects will be cancelled by 2027 due to escalating costs, unclear value, and inadequate risk controls. The difference between the projects that ship and the ones that get cancelled is almost never the AI model. It's the governance, the oversight, and the operational discipline around the AI.
 
-AgentOps is that operational discipline, packaged as a framework.
+AgentSentry is that operational discipline, packaged as a framework.
 
 ---
 
 ## The Feature Set
 
-AgentOps is organized around 5 core management skills, plus 9 architectural extensions that future-proof the framework for 2026-2027.
+AgentSentry is organized around 5 core management skills, plus 9 architectural extensions that future-proof the framework for 2026-2027.
 
 ### The 5 Core Skills
 
 **Skill 1: Save Points (Version Control)**
-Your agent can't delete what Git has already saved. AgentOps auto-commits checkpoints before risky changes, auto-branches when you're working on main, and saves your state at the end of every session. If something goes wrong, you're one command away from the last version that worked.
+Your agent can't delete what Git has already saved. AgentSentry auto-commits checkpoints before risky changes, auto-branches when you're working on main, and saves your state at the end of every session. If something goes wrong, you're one command away from the last version that worked.
 
 What it does in practice: a PreToolUse hook checks git state before every file write. If you have 5+ uncommitted files or it's been 30+ minutes since your last commit, it saves automatically. If your agent is about to make a high-risk change on your main branch, it creates a safety branch first.
 
 **Skill 2: Context Health (Know When to Start Fresh)**
-Every agent has a fixed memory (the context window). As your conversation grows, early instructions get dropped. Your agent starts "forgetting" decisions, rewriting working code, and ignoring rules. AgentOps monitors context usage, counts messages, and detects degradation signals — then automatically updates your project's scaffold documents and generates a handoff message so your next session picks up cleanly.
+Every agent has a fixed memory (the context window). As your conversation grows, early instructions get dropped. Your agent starts "forgetting" decisions, rewriting working code, and ignoring rules. AgentSentry monitors context usage, counts messages, and detects degradation signals — then automatically updates your project's scaffold documents and generates a handoff message so your next session picks up cleanly.
 
 What it does in practice: at 60% context capacity, you get a warning. At 80%, it triggers the scaffold subagent to save the current state of PLANNING.md, TASKS.md, CONTEXT.md, and WORKFLOW.md. You start a fresh session with a handoff message that gives the new session everything it needs in the first prompt.
 
 **Skill 3: Standing Orders (Rules Files)**
-Your agent reads a rules file at the start of every session — the "employee handbook" that says how you do things. AgentOps validates that this file exists, has the right sections (security, error handling, scale expectations), isn't too bloated for the context window, and is actually being followed. When the agent violates a rule, AgentOps flags it in real time.
+Your agent reads a rules file at the start of every session — the "employee handbook" that says how you do things. AgentSentry validates that this file exists, has the right sections (security, error handling, scale expectations), isn't too bloated for the context window, and is actually being followed. When the agent violates a rule, AgentSentry flags it in real time.
 
 What it does in practice: a SessionStart hook validates your CLAUDE.md and AGENTS.md. A PostToolUse hook compares every file change against your rules (e.g., "never hardcode secrets" → agent just hardcoded a secret → immediate warning). A linter checks for contradictions, vague language, and missing critical sections.
 
 **Skill 4: Small Bets (Blast Radius Control)**
-The single biggest source of agent disasters is scope. When you ask an agent to "redesign the order system," it touches every file, and if step 4 of 12 goes wrong, steps 5 through 12 compound the damage. AgentOps scores every task for risk (how many files, does it change the database, does it touch shared code?) and enforces decomposition for high-risk tasks.
+The single biggest source of agent disasters is scope. When you ask an agent to "redesign the order system," it touches every file, and if step 4 of 12 goes wrong, steps 5 through 12 compound the damage. AgentSentry scores every task for risk (how many files, does it change the database, does it touch shared code?) and enforces decomposition for high-risk tasks.
 
 What it does in practice: a UserPromptSubmit hook analyzes your task before the agent starts. Low risk (1-3 files) → proceed. Medium risk (4-7 files) → auto-commit first, recommend a plan. High risk (8+ files) → require decomposition into sub-tasks with validation between each one. For multi-agent swarms, it tracks total blast radius across all agents and catches file conflicts.
 
 **Skill 5: Ask What They Won't (Proactive Safety)**
-Your agent builds for the happy path. It won't think to add error handling, protect customer data, scan for exposed secrets, or plan for scale — unless you tell it to. AgentOps does the telling for you, automatically. A secret scanner blocks hardcoded API keys before they're written. A PII detector flags customer data in log statements. An error handling enforcer checks that every API call has a try/catch.
+Your agent builds for the happy path. It won't think to add error handling, protect customer data, scan for exposed secrets, or plan for scale — unless you tell it to. AgentSentry does the telling for you, automatically. A secret scanner blocks hardcoded API keys before they're written. A PII detector flags customer data in log statements. An error handling enforcer checks that every API call has a try/catch.
 
 What it does in practice: a PreToolUse hook blocks any file write that contains secret patterns (API keys, tokens, connection strings) — immediately, before the file is saved. A PostToolUse hook scans every new file for missing error handling on API calls, PII in log statements, and unprotected database queries. A full security audit runs on demand covering secrets, authentication, input validation, dependencies, and database security.
 
@@ -103,7 +103,7 @@ These extend the 5 core skills into a full framework for production agent manage
 
 **Multi-Provider Awareness** — Provider-level health monitoring across Claude, GPT, Gemini, Cohere, and Ollama. Failover audit trails that log why a provider switch happened. Cost normalization so you can compare spend across providers.
 
-**Testing & Evals** — Golden datasets for every AgentOps module. Regression testing on every rules file or agent definition change. If you change a prompt and it breaks a detection pattern, you find out before your users do.
+**Testing & Evals** — Golden datasets for every AgentSentry module. Regression testing on every rules file or agent definition change. If you change a prompt and it breaks a detection pattern, you find out before your users do.
 
 **Compliance & Audit Trail** — Append-only, hash-chained audit records for every agent action. EU AI Act Article 12 compliant (enforceable August 2, 2026). Every action timestamped, attributed, and tamper-proof.
 
@@ -121,7 +121,7 @@ For teams running multi-agent workflows, a dedicated Agents page shows the live 
 
 ### The Plugin System
 
-AgentOps is designed to be extended. The core scripts become first-party plugins. Community and team-specific checks (Kubernetes deployment validators, GraphQL schema linters, custom compliance rules) plug in through a standard manifest format with hook subscriptions, config schemas, and dashboard panels.
+AgentSentry is designed to be extended. The core scripts become first-party plugins. Community and team-specific checks (Kubernetes deployment validators, GraphQL schema linters, custom compliance rules) plug in through a standard manifest format with hook subscriptions, config schemas, and dashboard panels.
 
 ---
 
@@ -139,7 +139,7 @@ You get a governance layer. You can answer "what did the agents actually do?" wi
 
 Every tool that ships agents — Claude Code, Cursor, Codex, Copilot, and whatever launches next month — needs this layer. The models will keep getting better. The agents will keep getting more autonomous. The management discipline is the part that doesn't ship with the model. It has to be built separately, and it has to work across tools, across providers, and across time.
 
-AgentOps is that layer. It's the difference between "we built something cool" and "we built something we can run."
+AgentSentry is that layer. It's the difference between "we built something cool" and "we built something we can run."
 
 ---
 
@@ -153,17 +153,17 @@ AgentOps is that layer. It's the difference between "we built something cool" an
 | `AgentSentry-Synopsis.md` | This document — project overview for agentic developers | ~170 |
 | `From-Vibe-Coding-to-Agent-Management.md` | Original synopsis of the 5 skills (source transcript distillation) | 132 |
 | `agent-management-guide.html` | Interactive HTML guide with expandable sections, progress tracking, and copyable templates | 1,041 |
-| `agentops-dashboard.html` | Full dashboard prototype with skill drill-downs, trends, and agent monitoring | 787 |
+| `agent-sentry-dashboard.html` | Full dashboard prototype with skill drill-downs, trends, and agent monitoring | 787 |
 | **Total** | | **~5,154** |
 
 ---
 
 ## What Makes This Different
 
-Most agent tooling focuses on making agents smarter. AgentOps focuses on making the human managing them more effective.
+Most agent tooling focuses on making agents smarter. AgentSentry focuses on making the human managing them more effective.
 
 It doesn't require you to write code. It doesn't require you to understand distributed systems. It requires you to let hooks run, read a dashboard, and commit when the green light says commit. The framework does the rest.
 
-And it's built to evolve. The event bus, plugin system, and provider-agnostic design mean that as agents get more powerful — as swarms get larger, as context windows grow, as new models and providers appear — AgentOps adapts rather than breaks.
+And it's built to evolve. The event bus, plugin system, and provider-agnostic design mean that as agents get more powerful — as swarms get larger, as context windows grow, as new models and providers appear — AgentSentry adapts rather than breaks.
 
-The wall between vibe coding and production isn't code. It's management. AgentOps is the management.
+The wall between vibe coding and production isn't code. It's management. AgentSentry is the management.
