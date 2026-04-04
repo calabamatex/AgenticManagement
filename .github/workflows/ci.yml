@@ -65,10 +65,11 @@ jobs:
       - run: cd agent-sentry && npm ci && npm run build
       - name: Pack and install in fresh directory
         run: |
-          cd agent-sentry && npm pack
+          cd agent-sentry
+          TARBALL=$(npm pack | tail -1)
           mkdir /tmp/test-install && cd /tmp/test-install
           npm init -y
-          npm install $GITHUB_WORKSPACE/agent-sentry/agent-sentry-*.tgz --ignore-scripts
+          npm install "$GITHUB_WORKSPACE/agent-sentry/$TARBALL" --ignore-scripts
       - name: Verify require('@calabamatex/agentsentry') works
         run: |
           cd /tmp/test-install
