@@ -171,7 +171,7 @@ function saveEnablementLevel(level: number): void {
   const cfgPath = getConfigPath();
   let config: Record<string, unknown> = {};
   try {
-    config = safeJsonParse<Record<string, unknown>>(fs.readFileSync(cfgPath, 'utf8'));
+    config = safeJsonParse<Record<string, unknown>>(safeReadSync(cfgPath).toString('utf-8'));
   } catch (e) {
     logger.debug('Config file not found, starting fresh', { error: e instanceof Error ? e.message : String(e) });
   }
@@ -184,11 +184,7 @@ function saveEnablementLevel(level: number): void {
   (config.enablement as Record<string, unknown>).skills = canonical.skills;
   (config.enablement as Record<string, unknown>).updated_at = new Date().toISOString();
 
-  const dir = path.dirname(cfgPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(cfgPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  atomicWriteSync(cfgPath, JSON.stringify(config, null, 2) + '\n');
 }
 
 function printCurrentLevel(

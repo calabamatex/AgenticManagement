@@ -13,6 +13,7 @@ import { generateConfigForLevel, getActiveSkills, LEVEL_NAMES, ALL_SKILLS } from
 import { VERSION } from '../../version';
 import { Logger } from '../../observability/logger';
 import { safeJsonParse } from '../../utils/safe-json';
+import { atomicWriteSync, safeReadSync } from '../../utils/safe-io';
 import { isGitRepo, promptForLevel, wireHooksIntoSettings, runHealthAudit, appendAgentSentryRulesToClaudeMd } from './init-wizard';
 import type { HealthSummary } from './init-wizard';
 
@@ -154,13 +155,13 @@ export const initCommand: CommandDefinition = {
           // Should not reach here, but safety check
         } else {
           const config = defaultConfig(level);
-          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+          atomicWriteSync(configPath, JSON.stringify(config, null, 2) + '\n');
           configCreated = true;
         }
       } else {
         // Config exists — update enablement level
         try {
-          const existing = safeJsonParse<Record<string, any>>(fs.readFileSync(configPath, 'utf8'));
+          const existing = safeJsonParse<Record<string, any>>(safeReadSync(configPath).toString('utf-8'));
           if (!existing.enablement || typeof existing.enablement !== 'object') {
             existing.enablement = {};
           }
@@ -168,7 +169,7 @@ export const initCommand: CommandDefinition = {
           existing.enablement.level = level;
           existing.enablement.skills = canonical.skills;
           existing.enablement.updated_at = new Date().toISOString();
-          fs.writeFileSync(configPath, JSON.stringify(existing, null, 2) + '\n', 'utf8');
+          atomicWriteSync(configPath, JSON.stringify(existing, null, 2) + '\n');
         } catch (e) {
           logger.debug('Failed to update existing config', { error: e instanceof Error ? e.message : String(e) });
         }
