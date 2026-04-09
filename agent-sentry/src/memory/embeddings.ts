@@ -8,6 +8,7 @@ import * as https from 'https';
 import * as http from 'http';
 import { Logger } from '../observability/logger';
 import { safeJsonParse } from '../utils/safe-json';
+import { safeReadSync } from '../utils/safe-io';
 
 const logger = new Logger({ module: 'embeddings' });
 
@@ -63,7 +64,7 @@ export class OnnxEmbeddingProvider implements EmbeddingProvider {
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- onnxruntime-node is an optional peer dependency loaded dynamically
       const ort = require('onnxruntime-node') as { InferenceSession: { create(path: string): Promise<{ run(feeds: Record<string, unknown>): Promise<Record<string, { data: Float32Array }>> }> }; Tensor: new (type: string, data: BigInt64Array, shape: number[]) => unknown };
       this.session = await ort.InferenceSession.create(modelPath);
-      const tokenizerData = safeJsonParse<{ model?: { vocab?: Record<string, number> } }>(fs.readFileSync(tokenizerPath, 'utf8'));
+      const tokenizerData = safeJsonParse<{ model?: { vocab?: Record<string, number> } }>(safeReadSync(tokenizerPath).toString('utf-8'));
       this.tokenizer = tokenizerData;
     } catch (err) {
       this.session = null;
