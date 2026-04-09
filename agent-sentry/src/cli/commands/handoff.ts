@@ -18,6 +18,7 @@ import { CommandDefinition, ParsedArgs, output, isJson } from '../parser';
 import { Logger } from '../../observability/logger';
 import { formatHandoff, buildHandoffPrompt } from './handoff-templates';
 import { safeJsonParse } from '../../utils/safe-json';
+import { atomicWriteSync, safeReadSync } from '../../utils/safe-io';
 
 const logger = new Logger({ module: 'cli-handoff' });
 

@@ -10,6 +10,7 @@ import { CommandDefinition, ParsedArgs, output, isJson } from '../parser';
 import { MemoryStore } from '../../memory/store';
 import { validateEventInput, OpsEventInput } from '../../memory/schema';
 import { safeJsonParse } from '../../utils/safe-json';
+import { safeReadSync } from '../../utils/safe-io';
 
 async function getStore(): Promise<MemoryStore> {
   const store = new MemoryStore();
@@ -78,7 +79,7 @@ export const importCommand: CommandDefinition = {
     const errors: string[] = [];
 
     try {
-      const content = fs.readFileSync(resolved, 'utf-8');
+      const content = safeReadSync(resolved).toString('utf-8');
       const rawEvents = parseEvents(content, format);
 
       for (let i = 0; i < rawEvents.length; i++) {
